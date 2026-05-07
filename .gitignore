@@ -1,0 +1,20 @@
+# Logs #
+/logs
+*.log
+*.log*
+
+# Node files #
+node_modules/
+.env
+
+# Dist #
+dist/
+
+# IDE #
+.idea/
+*.swp
+.awcache
+.vscode
+
+# Generated source-code #
+coverage/
