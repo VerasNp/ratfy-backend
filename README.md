@@ -42,6 +42,12 @@ Instale as dependências necessárias:
 npm install
 ```
 
+Rode as migrações existentes:
+
+```sh
+npm run prisma:migrate
+```
+
 Gere o client prisma:
 
 ```sh
@@ -50,7 +56,7 @@ npm run prisma:generate
 
 Execute a aplicação:
 
-```
+```sh
 npm run dev
 ```
 
