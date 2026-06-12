@@ -18,3 +18,6 @@ dist/
 
 # Generated source-code #
 coverage/
+/src/generated/prisma
+
+/generated/prisma
