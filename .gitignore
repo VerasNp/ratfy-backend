@@ -20,4 +20,4 @@ dist/
 coverage/
 /src/generated/prisma
 
-/generated/prisma
+/prisma/generated

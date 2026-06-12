@@ -1,16 +1,16 @@
-import express, { type Request, type Response, Router } from 'express'
+import Signup from '#application/useCases/Signup.js'
+import UserController from '#infra/controllers/UserController.js'
+import ExpressAdapter from '#infra/http/ExpressAdapter.js'
+import UserRepositoryPrismaORM from '#infra/repository/UserRepositoryPrismaORM.js'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaClient } from '../prisma/generated/prisma/client.js'
 
-const app = express()
-const port = process.env.PORT ?? '9001'
+const httpServer = new ExpressAdapter()
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+const prisma = new PrismaClient({ adapter })
+const userRepository = new UserRepositoryPrismaORM(prisma)
 
-const route = Router()
+const signUpUserCase = new Signup(userRepository)
 
-app.use(express.json())
-
-route.get('/', (req: Request, res: Response) => {
-	res.json({ message: 'hello world with Tyspescript' })
-})
-
-app.use(route)
-
-app.listen(port, () => `server running on port ${port}`)
+new UserController(signUpUserCase, httpServer)
+httpServer.listen(3000)
