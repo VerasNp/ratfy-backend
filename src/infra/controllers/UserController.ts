@@ -1,18 +1,16 @@
-import { SignupSchema } from '#application/DTOs/SignupInput.js'
+import { SignupSchema } from '#application/DTOs/SignupInputDTO.js'
 import type Signup from '#application/useCases/Signup.js'
-import type { HttpServer } from '#infra/http/HttpServer.js'
+import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 
 class UserController {
-	private signUpUserCase: Signup
-	private httpServer: HttpServer
-	public constructor(signUpUserCase: Signup, httpServer: HttpServer) {
-		this.signUpUserCase = signUpUserCase
-		this.httpServer = httpServer
-
-		this.httpServer.register('post', '/signup', async (params: any, body: any) => {
+	public constructor(
+		private signUpUserCase: Signup,
+		private httpServer: HttpServerPort,
+	) {
+		this.httpServer.register('post', '/signup', async (_params: any, body: any, _query: any) => {
 			const input = SignupSchema.parse(body)
-			const output = await this.signUpUserCase.execute(input)
-			return output
+			await this.signUpUserCase.execute(input)
+			return { message: 'User created successfully' }
 		})
 	}
 }

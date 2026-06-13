@@ -8,6 +8,7 @@ class User {
 	public email: Email
 	public password: Password
 	public birthDate: BirthDate
+	public verifiedAt?: Date
 
 	private constructor(
 		id: string,
@@ -24,8 +25,14 @@ class User {
 	}
 
 	public static create(name: string, email: string, password: string, birthDate: Date): User {
-		const id = crypto.randomUUID();
-		return new User(id, name, new Email(email), Password.create(password), new BirthDate(birthDate))
+		const id = crypto.randomUUID()
+		return new User(
+			id,
+			name,
+			new Email(email),
+			Password.create(password),
+			new BirthDate(birthDate),
+		)
 	}
 
 	public static restore(
@@ -42,6 +49,10 @@ class User {
 			Password.fromHash(password),
 			new BirthDate(birthDate),
 		)
+	}
+
+	public verifyEmail(): void {
+		this.verifiedAt = new Date()
 	}
 }
 
