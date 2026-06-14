@@ -1,34 +1,39 @@
 import { z } from 'zod'
 
-const AlbumTypeSchema = z.enum(['album', 'single'])
+import { CopyrightSchema, ImageSchema } from '../SharedSchema'
 
-import {
-	CopyrightSchema,
-	ImageSchema,
-} from '../SharedSchema'
+const AlbumTypeSchema        = z.enum(['album', 'single'])
+const ReleasePrecisionSchema = z.enum(['day', 'month', 'year'])
 
-const releaseDateRefinement = (releaseDate: string) => {
-  const patterns: Record<string, RegExp> = {
-    'default':   /^\d{2}-\d{2}-\d{4}$/,
-  }
-  return patterns['default']?.test(releaseDate) ?? false
+const RELEASE_PATTERNS: Record<string, RegExp> = {
+  day:   /^\d{4}-\d{2}-\d{2}$/,  	// yyyy-mm-dd
+  month: /^\d{4}-\d{2}$/,         	// yyyy-mm
+  year:  /^\d{4}$/,               	// yyyy
 }
 
+export const AlbumCreateSchema = z
+  .object({
+    albumType:        AlbumTypeSchema,
+    artistIds:        z.array(z.string().uuid()).min(1, 'At least one artist is required'),
+    copyrights:       z.array(CopyrightSchema).default([]),
+    genres:           z.array(z.string()).default([]),
+    images:           z.array(ImageSchema).default([]),
+    isPublic:         z.boolean().default(true),
+    label:            z.string().min(1).max(255),
+    name:             z.string().min(1).max(500),
+    popularity:       z.number().int().min(0).max(100).default(0),
+    releaseDate:      z.string(),
+    releasePrecision: ReleasePrecisionSchema,
+    totalTracks:      z.number().int().min(1),
+  })
+  .refine(
+    ({ releaseDate, releasePrecision }) =>
+      RELEASE_PATTERNS[releasePrecision]?.test(releaseDate) ?? false,
+    ({ releasePrecision }) => ({
+      message: `releaseDate must match precision "${releasePrecision}": ` +
+               `day → YYYY-MM-DD | month → YYYY-MM | year → YYYY`,
+      path: ['releaseDate'],
+    })
+  )
 
-export const AlbumCreateSchema = z.object({
-  albumType:        AlbumTypeSchema,
-  artistIds:        z.array(z.string().uuid()).min(1),
-  copyrights:       z.array(CopyrightSchema).default([]),
-  genres:           z.array(z.string()).default([]),
-  images:           z.array(ImageSchema).default([]),
-  label:            z.string().min(1).max(255),
-  name:             z.string().min(1).max(500),
-  popularity:       z.number().int().min(0).max(100).default(0),
-  releaseDate:      z.string(),
-  totalTracks:      z.number().int().min(1),
-  // MongoDB metadata — optional at creation
-}).refine(releaseDateRefinement, {
-  message: 'releaseDate format must match releasePrecision (year: YYYY, month: YYYY-MM, day: YYYY-MM-DD)',
-  path: ['releaseDate'],
-})
 export type CreateAlbumDTO = z.infer<typeof AlbumCreateSchema>
