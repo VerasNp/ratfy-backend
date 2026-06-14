@@ -1,27 +1,27 @@
-import type { CreateAlbumDTO } from "#application/DTOs/album/AlbumCreateDTO.js"
-import type { AlbumRepository } from "#application/ports/AlbumRepository.js"
+import type { CreateAlbumDTO } from '#application/DTOs/album/AlbumCreateDTO.js'
+import type { AlbumRepository } from '#application/ports/AlbumRepository.js'
 
-import Album from "#domain/album/Album.js"
+import Album from '#domain/album/Album.js'
+
+
+
+
 
 export class CreateAlbumUseCase {
-  constructor(
-    private readonly albumRepo: AlbumRepository
-  ) {}
-  async execute(dto: CreateAlbumDTO) {
-    // dto is fully typed and already validated — no extra checks needed
-    const album = new Album(
-      crypto.randomUUID(),
-      dto.name,
-      dto.albumType,
-      dto.releaseDate,
-      dto.totalTracks,
-      dto.label,
-      dto.artistIds,
-      new Date(),
-      false,
-      true,
-	)
-	const x: Album = await this.albumRepo.create(album)
-	return x;
+  constructor(private readonly albumRepo: AlbumRepository) {}
+
+  async execute(dto: CreateAlbumDTO): Promise<Album> {
+    const album = Album.create({
+      albumType:        dto.albumType,
+      artistIds:        dto.artistIds,
+      isPublic:         dto.isPublic,
+      label:            dto.label,
+      name:             dto.name,
+      releaseDate:      new Date(dto.releaseDate),
+      releasePrecision: dto.releasePrecision,
+      totalTracks:      dto.totalTracks,
+    })
+    const x = await this.albumRepo.create(album)
+    return x
   }
 }
