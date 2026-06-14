@@ -1,17 +1,20 @@
-import { Request, Response, NextFunction } from 'express'
-import { z, ZodSchema, ZodError } from 'zod'
+import type { NextFunction, Request, Response, } from 'express'
+
+import { z, type ZodType } from 'zod'
 
 export const validate =
-  (schema: ZodSchema) =>
-  (req: Request, res: Response, next: NextFunction) => {
+  (schema: ZodType) =>
+  (req: Request, res: Response, next: NextFunction): void => {
     const result = schema.safeParse(req.body)
 
     if (!result.success) {
-      return res.status(422).json({
+      res.status(422).json({
         errors:  z.treeifyError(result.error),
         message: 'Validation failed',
       })
+      return
     }
+
     req.body = result.data
     next()
   }
