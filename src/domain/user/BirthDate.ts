@@ -2,7 +2,6 @@ class BirthDate {
 	public readonly value: Date
 
 	constructor(value: Date) {
-		console.log(typeof value)
 		if (!this.isValidDatePast(value)) {
 			throw new Error('Birth date must be a valid date in the past')
 		} else if (!this.isGreaterThan18YearsAgo(value)) {

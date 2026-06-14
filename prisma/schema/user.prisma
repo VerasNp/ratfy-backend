@@ -1,7 +1,10 @@
 model User {
-    id        String   @id
-    name      String
-    email     String   @unique
-    password  String
-    birthDate DateTime
+    id         String    @id
+    name       String
+    email      String    @unique
+    password   String
+    birthDate  DateTime
+    verifiedAt DateTime?
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
 }

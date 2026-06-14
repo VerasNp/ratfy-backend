@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
 export const SignupSchema = z.object({
-	name: z.string().min(3),
+	name: z.string(),
 	email: z.email(),
 	password: z.string(),
 	birthDate: z.coerce.date(),
 })
 
-export type SignupInput = z.infer<typeof SignupSchema>
+export type SignupInputDTO = z.infer<typeof SignupSchema>

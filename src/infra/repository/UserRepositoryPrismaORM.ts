@@ -3,11 +3,7 @@ import User from '#domain/user/User.js'
 import type { PrismaClient } from '../../../prisma/generated/prisma/client'
 
 class UserRepositoryPrismaORM implements UserRepository {
-	private orm: PrismaClient
-
-	constructor(orm: PrismaClient) {
-		this.orm = orm
-	}
+	constructor(private orm: PrismaClient) {}
 
 	async create(user: User): Promise<void> {
 		await this.orm.user.create({
@@ -25,6 +21,33 @@ class UserRepositoryPrismaORM implements UserRepository {
 		const user = await this.orm.user.findUnique({
 			where: {
 				email: email,
+			},
+		})
+		if (!user) {
+			return null
+		}
+		return User.restore(user.id, user.name, user.email, user.password, user.birthDate)
+	}
+
+	async update(user: User): Promise<void> {
+		await this.orm.user.update({
+			where: {
+				id: user.id,
+			},
+			data: {
+				name: user.name,
+				email: user.email.value,
+				password: user.password.value,
+				birthDate: user.birthDate.value,
+				verifiedAt: user.verifiedAt || null,
+			},
+		})
+	}
+
+	async findById(id: string): Promise<User | null> {
+		const user = await this.orm.user.findUnique({
+			where: {
+				id: id,
 			},
 		})
 		if (!user) {
