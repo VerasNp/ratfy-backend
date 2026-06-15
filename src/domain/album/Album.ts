@@ -23,17 +23,16 @@ class Album {
 	public isPublic: boolean
     public readonly label: string
     public readonly name: string
-	public readonly releaseDate: Date // yyyy-mm-dd <- Sort
-	public readonly releasePrecision: string
+	public readonly releaseDate: Date
+	public readonly releasePrecision: ReleasePrecision
 	public totalTracks: number
 	public updatedAt: Date
   private constructor(params: {
-    // Alphabetical — perfectionist/sort-objects
     albumType:        AlbumType
     artistIds:        string[]
     createdAt:        Date
     id:               string
-    isDeleted:        boolean
+    isDeleted?:		  boolean
     isPublic:         boolean
     label:            string
     name:             string
@@ -54,7 +53,7 @@ class Album {
     this.artistIds        = params.artistIds
     this.createdAt        = params.createdAt
     this.id               = params.id
-    this.isDeleted        = params.isDeleted
+    this.isDeleted        = params.isDeleted ?? false
     this.isPublic         = params.isPublic
     this.label            = params.label
     this.name             = params.name
