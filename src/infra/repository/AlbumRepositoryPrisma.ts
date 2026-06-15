@@ -29,8 +29,6 @@ class AlbumRepositoryPrisma implements AlbumRepository {
     return this.toDomain(row)
   }
 	async delete(id: string): Promise<void> {
-		const exists = await this.orm.album.findUnique({ where: { id } })
-		if (!exists) throw new AlbumNotFoundError(id)
 		await this.orm.album.update({
 		    data:  { isDeleted: true, isPublic: false },
 		    where: { id },
