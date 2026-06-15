@@ -49,8 +49,6 @@ class AlbumRepositoryPrisma implements AlbumRepository {
 	return rows.map((row) => this.toDomain(row))
 	}
 	async update(id: string, data: Partial<Album>): Promise<void> {
-	    const exists = await this.orm.album.findUnique({ where: { id } })
-	    if (!exists) throw new AlbumNotFoundError(id)
 	    await this.orm.album.update({
 	      data: {
 	        ...(data.name             != null && { name:             data.name }),
