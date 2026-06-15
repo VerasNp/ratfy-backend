@@ -6,8 +6,6 @@ export class ListTracksUseCase {
   constructor(private readonly trackRepo: TrackRepository) {}
 
   async execute(dto: TrackListInputDTO): Promise<TrackListOutputDTO> {
-    // When albumId is provided use the dedicated query (ordered by disc + track number).
-    // Otherwise fall back to the paginated general list.
     const tracks = dto.albumId
       ? await this.trackRepo.findByAlbumId(dto.albumId)
       : await this.trackRepo.list(dto.page, dto.limit)

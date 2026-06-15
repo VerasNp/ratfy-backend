@@ -6,7 +6,6 @@ import Track from '#domain/track/Track.js'
 
 export class CreateTrackUseCase {
   constructor(private readonly trackRepo: TrackRepository) {}
-
   async execute(dto: TrackCreateInputDTO): Promise<TrackCreateOutputDTO> {
     const track = Track.create({
       albumId:     dto.albumId,
