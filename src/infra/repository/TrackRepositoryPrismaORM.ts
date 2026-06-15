@@ -31,9 +31,6 @@ class TrackRepositoryPrisma implements TrackRepository {
     return this.toDomain(row)
   }
   async delete(id: string): Promise<void> {
-    const exists = await this.orm.track.findUnique({ where: { id } })
-    if (!exists) throw new TrackNotFoundError(id)
-
     await this.orm.track.update({
       data:  { isDeleted: true, isPublic: false },
       where: { id },
@@ -64,9 +61,6 @@ class TrackRepositoryPrisma implements TrackRepository {
   }
 
   async update(id: string, data: Partial<Track>): Promise<void> {
-    const exists = await this.orm.track.findUnique({ where: { id } })
-    if (!exists) throw new TrackNotFoundError(id)
-
     await this.orm.track.update({
       data: {
         ...(data.albumId      != null && { albumId:     data.albumId }),
