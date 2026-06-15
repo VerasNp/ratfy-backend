@@ -12,6 +12,7 @@ import type { TemplateRendererPort } from '#infra/templateRenderer/TemplateRende
 import VerifyEmailController from '#infra/controllers/VerifyEmailController.js'
 import User from '#domain/user/User.js'
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
+import type { DocsPort } from '#application/ports/DocsPort.js'
 
 let app: ExpressAdapter
 let tokenService: TokenPort
@@ -34,8 +35,10 @@ beforeAll(() => {
 		warn: vi.fn(),
 		error: vi.fn(),
 	} as unknown as LoggerPort
-
-	app = new ExpressAdapter(3333)
+	const docsService = {
+		generate: vi.fn().mockReturnValue({}),
+	} as unknown as DocsPort
+	app = new ExpressAdapter(3333, docsService)
 
 	const signupUseCase = new Signup(
 		userRepository,

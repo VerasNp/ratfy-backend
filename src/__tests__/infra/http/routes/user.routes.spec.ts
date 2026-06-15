@@ -10,6 +10,7 @@ import type { MailPort } from '#infra/mail/MailPort.js'
 import UserRepositoryMemory from '#infra/repository/UserRepositoryMemory.js'
 import type { TemplateRendererPort } from '#infra/templateRenderer/TemplateRendererPort.js'
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
+import type { DocsPort } from '#application/ports/DocsPort.js'
 
 let app: ExpressAdapter
 
@@ -38,7 +39,10 @@ beforeAll(() => {
 		'http://localhost:3000',
 		loggerService,
 	)
-	app = new ExpressAdapter(3333)
+	const docsService = {
+		generate: vi.fn().mockReturnValue({}),
+	} as unknown as DocsPort
+	app = new ExpressAdapter(3333, docsService)
 	new UserController(signupUseCase, app)
 })
 

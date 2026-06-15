@@ -5,6 +5,7 @@ import { config } from '#config.js'
 import UserController from '#infra/controllers/UserController.js'
 import VerifyEmailController from '#infra/controllers/VerifyEmailController.js'
 import { prisma } from '#infra/database/prisma.js'
+import SwaggerDocs from '#infra/docs/SwaggerDocs.js'
 import ExpressAdapter from '#infra/http/ExpressAdapter.js'
 import PinoAdapter from '#infra/logger/PinoAdapter.js'
 import NodemailerAdapter from '#infra/mail/NodemailerAdapter.js'
@@ -40,6 +41,7 @@ container.register({
 	tokenService: asClass(JwtAdapter).singleton(),
 	mailService: asClass(NodemailerAdapter).singleton(),
 	loggerService: asClass(PinoAdapter).singleton(),
+	docsService: asClass(SwaggerDocs).singleton(),
 
 	// repositories
 	userRepository: asClass(UserRepositoryPrismaORM).singleton(),
