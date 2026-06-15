@@ -1,0 +1,25 @@
+model Track {
+  id          String        @id @default(uuid())
+  title       String
+  durationMs  Int
+  discNumber  Int           @default(1)
+  trackNumber Int
+  explicit    Boolean       @default(false)
+  albumId     String
+  album       Album         @relation(fields: [albumId], references: [id])
+  artists     TrackArtist[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([albumId])
+}
+
+model TrackArtist {
+  id       String @id @default(uuid())
+  trackId  String
+  artistId String
+  track    Track  @relation(fields: [trackId], references: [id])
+
+  @@unique([trackId, artistId])
+  @@index([artistId])
+}
