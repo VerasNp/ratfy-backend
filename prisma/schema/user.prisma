@@ -1,10 +1,11 @@
 model User {
-    id         String    @id
-    name       String
-    email      String    @unique
-    password   String
-    birthDate  DateTime
-    verifiedAt DateTime?
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt
+  id            String         @id
+  name          String
+  email         String         @unique
+  password      String
+  birthDate     DateTime
+  verifiedAt    DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  refreshTokens RefreshToken[]
 }

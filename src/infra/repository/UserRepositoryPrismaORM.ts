@@ -26,7 +26,7 @@ class UserRepositoryPrismaORM implements UserRepository {
 		if (!user) {
 			return null
 		}
-		return User.restore(user.id, user.name, user.email, user.password, user.birthDate)
+		return User.restore(user.id, user.name, user.email, user.password, user.birthDate, user.verifiedAt)
 	}
 
 	async update(user: User): Promise<void> {
@@ -53,7 +53,7 @@ class UserRepositoryPrismaORM implements UserRepository {
 		if (!user) {
 			return null
 		}
-		return User.restore(user.id, user.name, user.email, user.password, user.birthDate)
+		return User.restore(user.id, user.name, user.email, user.password, user.birthDate, user.verifiedAt)
 	}
 }
 

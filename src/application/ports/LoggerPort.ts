@@ -4,7 +4,7 @@ export interface LoggerPort {
 	 * @param message The message to log.
 	 * @param meta Optional metadata to include with the log message, such as additional context or structured data.
 	 */
-	info(message: string, meta: Record<string, unknown>): void
+	info(message: string, meta?: Record<string, unknown>): void
 	/**
 	 * Logs a warning message.
 	 * @param message The message to log.
