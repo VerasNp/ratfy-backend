@@ -8,7 +8,7 @@ export class DeleteAlbumUseCase {
 
 	async execute(dto: AlbumDeleteInputDTO): Promise<AlbumDeleteOutputDTO> {
 		const exists = await this.albumRepo.findById(dto.id)
-		if (!exists) throw ne AlbumNotFoundError
+		if (!exists) throw new AlbumNotFoundError(dto.id)
     	await this.albumRepo.delete(dto.id)
   }
 }
