@@ -2,6 +2,7 @@ import type { DocsPort } from '#application/ports/DocsPort.js'
 import {  OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi'
 import AuthControllerSwagger from './routes/auth/AuthController.swagger'
 
+import PlaylistControllerSwagger from './routes/playlist/PlaylistController.swagger.js'
 
 class SwaggerDocs implements DocsPort {
 	private registry: OpenAPIRegistry
@@ -33,6 +34,7 @@ class SwaggerDocs implements DocsPort {
 
 	private _registerRoutes(): void {
 		new AuthControllerSwagger(this.registry)
+		new PlaylistControllerSwagger(this.registry)
 	}
 }
 
