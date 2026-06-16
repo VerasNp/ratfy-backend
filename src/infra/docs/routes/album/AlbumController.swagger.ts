@@ -37,6 +37,11 @@ class AlbumControllerSwagger {
 			},
 			summary: 'Create a new album',
 			tags: ['Albums'],
+			security: [
+				{
+					bearerAuth: [],
+				},
+			],
 		})
 
 		this.openApiRegistry.registerPath({
@@ -51,6 +56,11 @@ class AlbumControllerSwagger {
 			},
 			summary: 'Soft-delete an album',
 			tags: ['Albums'],
+			security: [
+				{
+					bearerAuth: [],
+				},
+			],
 		})
 
 		this.openApiRegistry.registerPath({
@@ -89,6 +99,11 @@ class AlbumControllerSwagger {
 			},
 			summary: 'Get an album by ID',
 			tags: ['Albums'],
+			security: [
+				{
+					bearerAuth: [],
+				},
+			],
 		})
 
 		this.openApiRegistry.registerPath({
@@ -120,6 +135,11 @@ class AlbumControllerSwagger {
 			},
 			summary: 'List albums (paginated)',
 			tags: ['Albums'],
+			security: [
+				{
+					bearerAuth: [],
+				},
+			],
 		})
 
 		this.openApiRegistry.registerPath({
@@ -141,6 +161,11 @@ class AlbumControllerSwagger {
 			},
 			summary: 'Partially update an album',
 			tags: ['Albums'],
+			security: [
+				{
+					bearerAuth: [],
+				},
+			],
 		})
 	}
 }
