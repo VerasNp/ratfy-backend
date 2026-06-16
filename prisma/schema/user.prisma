@@ -9,4 +9,5 @@ model User {
     updatedAt  DateTime  @updatedAt
     artist     Artist?
     playlists  Playlist[]
+    refreshTokens RefreshToken[]
 }

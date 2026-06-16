@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises'
-import type { TemplateRendererPort } from './TemplateRendererPort'
+import type { TemplateRendererPort } from '../../application/ports/TemplateRendererPort'
 import Handlebars from 'handlebars'
 import path from 'node:path'
 

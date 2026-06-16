@@ -5,5 +5,7 @@ import type ExpressAdapter from '#infra/http/ExpressAdapter.js'
 
 container.resolve('userController')
 container.resolve('verifyEmailController')
+container.resolve('authController')
 
+container.resolve<ExpressAdapter>('httpServer').registerErrorHandler()
 container.resolve<ExpressAdapter>('httpServer').listen()
