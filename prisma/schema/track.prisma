@@ -12,4 +12,5 @@ model Track {
   updatedAt   DateTime      @updatedAt
 
   @@index([albumId])
+  playlists Playlist[]
 }
