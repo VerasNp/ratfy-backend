@@ -21,4 +21,8 @@ export interface UserRepository {
 	 * @param id The unique identifier of the user to search for
 	 */
 	findById(id: string): Promise<User | null>
+	/**
+	 * Retrieves all users from the repository
+	 */
+	findAll(): Promise<User[]>
 }

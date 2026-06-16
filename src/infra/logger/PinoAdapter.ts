@@ -18,7 +18,7 @@ class PinoAdapter implements LoggerPort {
 		)
 	}
 
-	public info(message: string, meta: Record<string, unknown>): void {
+	public info(message: string, meta?: Record<string, unknown>): void {
 		this.logger.info({ ...meta, message })
 	}
 	public warn(message: string, meta?: Record<string, unknown>): void {
