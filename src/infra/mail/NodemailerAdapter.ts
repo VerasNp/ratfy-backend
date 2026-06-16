@@ -1,5 +1,5 @@
 import nodemailer, { type Transporter } from 'nodemailer'
-import type { MailPort, SMTPConfig } from './MailPort.js'
+import type { MailPort, SMTPConfig } from '../../application/ports/MailPort.js'
 
 class NodemailerAdapter implements MailPort {
 	private transporter: Transporter

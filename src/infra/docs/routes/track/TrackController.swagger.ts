@@ -9,7 +9,7 @@ import { TrackGetSchema } from '#application/DTOs/track/TrackGetInputDTO.js'
 import { TrackListSchema } from '#application/DTOs/track/TrackListInputDTO.js'
 import { TrackUpdateSchema } from '#application/DTOs/track/TrackUpdateInputDTO.js'
 
-class TrackController {
+class TrackControllerSwagger {
 	public constructor(private readonly registry: OpenAPIRegistry) {
 		const TrackCreateBody = this.registry.register('TrackCreateBody', TrackCreateSchema)
 		const TrackUpdateBody = this.registry.register('TrackUpdateBody', TrackUpdateSchema)
@@ -179,4 +179,4 @@ class TrackController {
 	    })
 	}
 }
-export default TrackController
+export default TrackControllerSwagger

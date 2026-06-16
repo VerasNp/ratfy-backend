@@ -2,10 +2,11 @@ import type { ResendVerificationEmailInputDTO } from '#application/DTOs/ResendVe
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
 import type { TokenPort } from '#application/ports/TokenPort.js'
 import type { UserRepository } from '#application/ports/UserRepository.js'
-import type { MailPort } from '#infra/mail/MailPort.js'
-import type { TemplateRendererPort } from '#infra/templateRenderer/TemplateRendererPort.js'
+import type { MailPort } from '#application/ports/MailPort.js'
+import type { TemplateRendererPort } from '#application/ports/TemplateRendererPort.js'
+import UserNotFoundError from '#application/errors/UserNotFoundError.js'
 
-class ResendVerificationEmail {
+class ResendVerificationEmailUseCase {
 	public constructor(
 		private userRepository: UserRepository,
 		private tokenService: TokenPort,
@@ -17,13 +18,17 @@ class ResendVerificationEmail {
 
 	public async execute(input: ResendVerificationEmailInputDTO): Promise<void> {
 		const user = await this.userRepository.findByEmail(input.email)
-		if (!user || user.verifiedAt) {
-			this.loggerService.warn(
-				'ResendVerificationEmail: user not found or email already verified',
-				{
-					email: input.email,
-				},
-			)
+		if (!user) {
+			this.loggerService.warn('ResendVerificationEmail: User not found', {
+				email: input.email,
+			})
+			return
+		}
+		if (user.isEmailVerified()) {
+			this.loggerService.warn('ResendVerificationEmail: User email already verified', {
+				userId: user.id,
+				email: user.email.value,
+			})
 			return
 		}
 		const token = this.tokenService.generateToken(
@@ -35,11 +40,11 @@ class ResendVerificationEmail {
 			confirmationUrl: `${this.appUrl}/verify-email?token=${token}`,
 		})
 		await this.mailService.sendMail(user.email.value, 'Welcome to our app', html)
-		this.loggerService.info('Resent verification email', {
+		this.loggerService.info('ResendVerificationEmail: Resent verification email', {
 			userId: user.id,
 			email: user.email.value,
 		})
 	}
 }
 
-export default ResendVerificationEmail
+export default ResendVerificationEmailUseCase

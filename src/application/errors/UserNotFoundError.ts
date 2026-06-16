@@ -1,4 +1,4 @@
-import ApplicationError from './ApplicationError'
+import ApplicationError from "./ApplicationError"
 
 class UserNotFoundError extends ApplicationError {
 	public constructor(message?: string) {

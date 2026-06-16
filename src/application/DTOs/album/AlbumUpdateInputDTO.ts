@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { AlbumCreateSchema } from "./AlbumCreateInputDTO";
 
-export const AlbumUpdateSchema = AlbumCreateSchema
+export const AlbumUpdateSchema = z.object({ ...AlbumCreateSchema.shape })
   .partial()
   .refine(
     (data) => Object.keys(data).length > 0,
