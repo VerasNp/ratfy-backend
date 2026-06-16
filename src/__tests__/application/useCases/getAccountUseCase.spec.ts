@@ -1,5 +1,5 @@
 import { loggerPortMock } from '#application/ports/__mocks__/LoggerPort.js'
-import GetAccountUseCase from '#application/useCases/GetAccountUseCase.js'
+import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
 import User from '#domain/user/User.js'
 import UserRepositoryMemory from '#infra/repository/UserRepositoryMemory.js'
 import { beforeAll, describe, expect, it, vi } from 'vitest'

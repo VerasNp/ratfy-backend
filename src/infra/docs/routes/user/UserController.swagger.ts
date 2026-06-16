@@ -22,6 +22,22 @@ class UserControllerSwagger {
 			}),
 		)
 
+		const UserParams = this.openApiRegistry.register(
+			'UserParams',
+			z.object({
+				id: z.string(),
+			}),
+		)
+
+		const UserResponse = this.openApiRegistry.register(
+			'UserResponse',
+			z.object({
+				id: z.string(),
+				name: z.string(),
+				email: z.string().email(),
+			}),
+		)
+
 		this.openApiRegistry.registerPath({
 			method: 'post',
 			path: '/signup',
@@ -79,6 +95,62 @@ class UserControllerSwagger {
 				},
 				404: {
 					description: 'User not found',
+				},
+			},
+		})
+		this.openApiRegistry.registerPath({
+			method: 'get',
+			path: '/user/{id}',
+			tags: ['Users'],
+			summary: 'Get user by id',
+			description: 'Returns information about a specific user.',
+			security: [
+				{
+					bearerAuth: [],
+				},
+			],
+			request: {
+				params: UserParams,
+			},
+			responses: {
+				200: {
+					description: 'User found',
+					content: {
+						'application/json': {
+							schema: UserResponse,
+						},
+					},
+				},
+				401: {
+					description: 'Unauthorized',
+				},
+				404: {
+					description: 'User not found',
+				},
+			},
+		})
+		this.openApiRegistry.registerPath({
+			method: 'get',
+			path: '/users',
+			tags: ['Users'],
+			summary: 'List users',
+			description: 'Returns all users.',
+			security: [
+				{
+					bearerAuth: [],
+				},
+			],
+			responses: {
+				200: {
+					description: 'Users retrieved successfully',
+					content: {
+						'application/json': {
+							schema: z.array(UserResponse),
+						},
+					},
+				},
+				401: {
+					description: 'Unauthorized',
 				},
 			},
 		})

@@ -5,6 +5,20 @@ import type { PrismaClient } from '../../../prisma/generated/prisma/client'
 class UserRepositoryPrismaORM implements UserRepository {
 	constructor(private orm: PrismaClient) {}
 
+	public async findAll(): Promise<User[]> {
+		const users = await this.orm.user.findMany()
+		return users.map((user) =>
+			User.restore(
+				user.id,
+				user.name,
+				user.email,
+				user.password,
+				user.birthDate,
+				user.verifiedAt,
+			),
+		)
+	}
+
 	async create(user: User): Promise<void> {
 		await this.orm.user.create({
 			data: {
@@ -26,7 +40,14 @@ class UserRepositoryPrismaORM implements UserRepository {
 		if (!user) {
 			return null
 		}
-		return User.restore(user.id, user.name, user.email, user.password, user.birthDate, user.verifiedAt)
+		return User.restore(
+			user.id,
+			user.name,
+			user.email,
+			user.password,
+			user.birthDate,
+			user.verifiedAt,
+		)
 	}
 
 	async update(user: User): Promise<void> {
@@ -53,7 +74,14 @@ class UserRepositoryPrismaORM implements UserRepository {
 		if (!user) {
 			return null
 		}
-		return User.restore(user.id, user.name, user.email, user.password, user.birthDate, user.verifiedAt)
+		return User.restore(
+			user.id,
+			user.name,
+			user.email,
+			user.password,
+			user.birthDate,
+			user.verifiedAt,
+		)
 	}
 }
 

@@ -1,7 +1,7 @@
 import { ResendVerificationEmailSchema } from '#application/DTOs/ResendVerificationEmailInputDTO.js'
 import { VerifyEmailSchema } from '#application/DTOs/VerifyEmailInputDTO.js'
-import type ResendVerificationEmailUseCase from '#application/useCases/ResendVerificationEmailUseCase.js'
-import type VerifyUserMailUseCase from '#application/useCases/VerifyUserMailUseCase.js'
+import type ResendVerificationEmailUseCase from '#application/useCases/auth/ResendVerificationEmailUseCase.js'
+import type VerifyUserMailUseCase from '#application/useCases/mail/VerifyUserMailUseCase.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 
 class VerifyEmailController {

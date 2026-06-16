@@ -1,9 +1,9 @@
 import { LoginSchema } from '#application/DTOs/LoginInputDTO.js'
 import UnauthorizedError from '#application/errors/UnauthorizedError.js'
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
-import type LoginUseCase from '#application/useCases/LoginUseCase.js'
-import type LogoutUseCase from '#application/useCases/LogoutUseCase.js'
-import type RefreshTokenUseCase from '#application/useCases/RefreshTokenUseCase.js'
+import type LoginUseCase from '#application/useCases/auth/LoginUseCase.js'
+import type LogoutUseCase from '#application/useCases/auth/LogoutUseCase.js'
+import type RefreshTokenUseCase from '#application/useCases/auth/RefreshTokenUseCase.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 import AuthMiddleware from '#infra/http/middlewares/AuthMiddleware.js'
 

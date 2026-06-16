@@ -1,5 +1,5 @@
 import { tokenPortMock } from '#application/ports/__mocks__/TokenPortMock.js'
-import ResendVerificationEmailUseCase from '#application/useCases/ResendVerificationEmailUseCase.js'
+import ResendVerificationEmailUseCase from '#application/useCases/auth/ResendVerificationEmailUseCase.js'
 import User from '#domain/user/User.js'
 import UserRepositoryMemory from '#infra/repository/UserRepositoryMemory.js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'

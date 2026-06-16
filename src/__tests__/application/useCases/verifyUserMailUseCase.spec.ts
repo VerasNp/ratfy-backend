@@ -1,6 +1,6 @@
 import { loggerPortMock } from '#application/ports/__mocks__/LoggerPort.js'
 import { tokenPortMock } from '#application/ports/__mocks__/TokenPortMock.js'
-import VerifyUserMailUseCase from '#application/useCases/VerifyUserMailUseCase.js'
+import VerifyUserMailUseCase from '#application/useCases/mail/VerifyUserMailUseCase.js'
 import User from '#domain/user/User.js'
 import UserRepositoryMemory from '#infra/repository/UserRepositoryMemory.js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'

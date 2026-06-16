@@ -1,6 +1,6 @@
 import { loggerPortMock } from '#application/ports/__mocks__/LoggerPort.js'
 import { tokenPortMock } from '#application/ports/__mocks__/TokenPortMock.js'
-import RefreshTokenUseCase from '#application/useCases/RefreshTokenUseCase.js'
+import RefreshTokenUseCase from '#application/useCases/auth/RefreshTokenUseCase.js'
 import { RefreshToken } from '#domain/refreshToken/RefreshToken.js'
 import RefreshTokenRepositoryMemory from '#infra/repository/RefreshTokenRepositoryMemory.js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'

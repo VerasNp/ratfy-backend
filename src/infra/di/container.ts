@@ -1,10 +1,10 @@
-import GetAccountUseCase from '#application/useCases/GetAccountUseCase.js'
-import LoginUseCase from '#application/useCases/LoginUseCase.js'
-import LogoutUseCase from '#application/useCases/LogoutUseCase.js'
-import RefreshTokenUseCase from '#application/useCases/RefreshTokenUseCase.js'
-import ResendVerificationEmailUseCase from '#application/useCases/ResendVerificationEmailUseCase.js'
-import SignupUseCase from '#application/useCases/SignupUseCase.js'
-import VerifyUserMailUseCase from '#application/useCases/VerifyUserMailUseCase.js'
+import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
+import LoginUseCase from '#application/useCases/auth/LoginUseCase.js'
+import LogoutUseCase from '#application/useCases/auth/LogoutUseCase.js'
+import RefreshTokenUseCase from '#application/useCases/auth/RefreshTokenUseCase.js'
+import ResendVerificationEmailUseCase from '#application/useCases/auth/ResendVerificationEmailUseCase.js'
+import SignupUseCase from '#application/useCases/user/SignupUseCase.js'
+import VerifyUserMailUseCase from '#application/useCases/mail/VerifyUserMailUseCase.js'
 import { config } from '#config.js'
 import AuthController from '#infra/controllers/AuthController.js'
 import UserController from '#infra/controllers/UserController.js'
@@ -29,6 +29,9 @@ import { ListArtistsUseCase } from '#application/useCases/artist/ListArtists.js'
 import { UpdateArtistUseCase } from '#application/useCases/artist/UpdateArtist.js'
 import ArtistController from '#infra/controllers/ArtistController.js'
 import { asClass, asValue, createContainer, InjectionMode } from 'awilix'
+import type { get } from 'node:http'
+import GetUserUseCase from '#application/useCases/user/GetUserUseCase.js'
+import ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
 
 const container = createContainer({ injectionMode: InjectionMode.CLASSIC })
 
@@ -71,6 +74,8 @@ container.register({
 	logoutUseCase: asClass(LogoutUseCase).scoped(),
 	getAccountUseCase: asClass(GetAccountUseCase).scoped(),
 	refreshTokenUseCase: asClass(RefreshTokenUseCase).scoped(),
+	getUserUseCase: asClass(GetUserUseCase).scoped(),
+	listUsersUseCase: asClass(ListUsersUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),
