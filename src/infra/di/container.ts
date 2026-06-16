@@ -20,6 +20,16 @@ import { GetArtistByUserIdUseCase } from '#application/useCases/artist/GetArtist
 import { ListArtistsUseCase } from '#application/useCases/artist/ListArtists.js'
 import { UpdateArtistUseCase } from '#application/useCases/artist/UpdateArtist.js'
 import ArtistController from '#infra/controllers/ArtistController.js'
+import PlaylistRepositoryPrisma from '#infra/repository/PlaylistRepositoryPrisma.js'
+import { CreatePlaylistUseCase } from '#application/useCases/playlist/CreatePlaylist.js'
+import { DeletePlaylistUseCase } from '#application/useCases/playlist/DeletePlaylist.js'
+import { GetPlaylistUseCase } from '#application/useCases/playlist/GetPlaylist.js'
+import { ListPlaylistsUseCase } from '#application/useCases/playlist/ListPlaylists.js'
+import { ListPlaylistsByOwnerIdUseCase } from '#application/useCases/playlist/ListPlaylistsByOwnerId.js'
+import { UpdatePlaylistUseCase } from '#application/useCases/playlist/UpdatePlaylist.js'
+import { AddTrackToPlaylistUseCase } from '#application/useCases/playlist/AddTrackToPlaylist.js'
+import { RemoveTrackFromPlaylistUseCase } from '#application/useCases/playlist/RemoveTrackFromPlaylist.js'
+import PlaylistController from '#infra/controllers/PlaylistController.js'
 import { asClass, asValue, createContainer, InjectionMode } from 'awilix'
 
 const container = createContainer({ injectionMode: InjectionMode.CLASSIC })
@@ -45,7 +55,8 @@ container.register({
 
 	// repositories
 	userRepository: asClass(UserRepositoryPrismaORM).singleton(),
-	artistRepo: asClass(ArtistRepositoryPrisma).singleton(),
+	artistRepository: asClass(ArtistRepositoryPrisma).singleton(),
+	playlistRepository: asClass(PlaylistRepositoryPrisma).singleton(),
 
 	// use cases
 	signUpUserCase: asClass(Signup).scoped(),
@@ -57,11 +68,20 @@ container.register({
 	deleteArtistUseCase: asClass(DeleteArtistUseCase).scoped(),
 	listArtistsUseCase: asClass(ListArtistsUseCase).scoped(),
 	getArtistByUserIdUseCase: asClass(GetArtistByUserIdUseCase).scoped(),
+	createPlaylistUseCase: asClass(CreatePlaylistUseCase).scoped(),
+	getPlaylistUseCase: asClass(GetPlaylistUseCase).scoped(),
+	updatePlaylistUseCase: asClass(UpdatePlaylistUseCase).scoped(),
+	deletePlaylistUseCase: asClass(DeletePlaylistUseCase).scoped(),
+	listPlaylistsUseCase: asClass(ListPlaylistsUseCase).scoped(),
+	listPlaylistsByOwnerIdUseCase: asClass(ListPlaylistsByOwnerIdUseCase).scoped(),
+	addTrackToPlaylistUseCase: asClass(AddTrackToPlaylistUseCase).scoped(),
+	removeTrackFromPlaylistUseCase: asClass(RemoveTrackFromPlaylistUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),
 	verifyEmailController: asClass(VerifyEmailController).singleton(),
 	artistController: asClass(ArtistController).singleton(),
+	playlistController: asClass(PlaylistController).singleton(),
 })
 
 export default container
