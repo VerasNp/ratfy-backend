@@ -5,7 +5,7 @@ import type { LoggerPort } from '#application/ports/LoggerPort.js'
 import type { TokenPort } from '#application/ports/TokenPort.js'
 import type { UserRepository } from '#application/ports/UserRepository.js'
 
-class VerifyUserMail {
+class VerifyUserMailUseCase {
 	public constructor(
 		private userRepository: UserRepository,
 		private tokenService: TokenPort,
@@ -20,31 +20,35 @@ class VerifyUserMail {
 				email: string
 			}>(verifyEmailData.token)
 		} catch {
-			this.loggerService.warn('VerifyUserMail: invalid or expired token', {
+			this.loggerService.warn('VerifyUserMailUseCase: Invalid or expired token', {
 				token: verifyEmailData.token.slice(0, 10) + '...',
 			})
 			throw new InvalidTokenError()
 		}
 		const user = await this.userRepository.findById(payload.userId)
 		if (!user) {
-			this.loggerService.warn('VerifyUserMail: user not found', { userId: payload.userId })
+			this.loggerService.warn('VerifyUserMailUseCase: User not found', { userId: payload.userId })
 			throw new UserNotFoundError()
 		}
 		if (user.email.value !== payload.email) {
-			this.loggerService.error('VerifyUserMail: email mismatch', {
+			this.loggerService.error('VerifyUserMailUseCase: email mismatch', {
 				userId: payload.userId,
 				email: payload.email,
 			})
 			throw new InvalidTokenError()
 		}
-		if (!user.verifiedAt) {
+		if (!user.isEmailVerified()) {
 			user.verifyEmail()
 			await this.userRepository.update(user)
-			this.loggerService.info('VerifyUserMail: email verified successfully', {
+			this.loggerService.info('VerifyUserMailUseCase: email verified successfully', {
+				userId: user.id,
+			})
+		} else {
+			this.loggerService.warn('VerifyUserMailUseCase: user with email already verified', {
 				userId: user.id,
 			})
 		}
 	}
 }
 
-export default VerifyUserMail
+export default VerifyUserMailUseCase
