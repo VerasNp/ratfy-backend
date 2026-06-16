@@ -1,5 +1,4 @@
 import type { TokenPort } from '#application/ports/TokenPort.js'
-import UnauthorizedError from '#application/errors/UnauthorizedError.js'
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
 import InvalidTokenError from '#application/errors/InvalidTokenError.js'
 
@@ -17,7 +16,7 @@ class AuthMiddleware {
 					this.loggerService.warn(
 						'Unauthorized access attempt with missing or invalid Authorization header',
 						{
-							userId: req.user?.userId,
+							userAgent: req.headers['user-agent'] || 'unknown',
 						},
 					)
 					return next(new InvalidTokenError())

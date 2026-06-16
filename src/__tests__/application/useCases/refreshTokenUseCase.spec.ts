@@ -16,6 +16,7 @@ beforeEach(async () => {
 		'user-id',
 		new Date(Date.now() + 1000 * 60 * 60 * 24),
 	)
+	tokenPortMock.verifyToken.mockReturnValue({ userId: 'user-id' })
 	await refreshTokenRepository.create(dummyRefreshToken)
 	refreshTokenUseCase = new RefreshTokenUseCase(
 		refreshTokenRepository,

@@ -4,7 +4,6 @@ import type { LoggerPort } from '#application/ports/LoggerPort.js'
 import type { RefreshTokenRepository } from '#application/ports/RefreshTokenRepository.js'
 import type { TokenPort } from '#application/ports/TokenPort.js'
 import { RefreshToken } from '#domain/refreshToken/RefreshToken.js'
-import { th } from 'zod/locales'
 
 class RefreshTokenUseCase {
 	private _ACCESS_TOKEN_EXPIRE_TIME = 60 * 15
@@ -20,13 +19,17 @@ class RefreshTokenUseCase {
 			this.loggerService.warn('RefreshTokenUseCase: No refresh token provided')
 			throw new UnauthorizedError('Invalid or expired token')
 		}
+		const payload = this.tokenService.verifyToken<{ userId: string }>(token)
+		console.log('Payload from refresh token:', payload)
 		const refreshToken = await this.refreshTokenRepository.findByTokenId(token)
+		console.log('Refresh token found in repository:', refreshToken!.userId)
 		if (!refreshToken) {
 			this.loggerService.warn('RefreshTokenUseCase: Refresh token not found', {
 				token: token.slice(0, 10),
 			})
 			throw new InvalidTokenError()
 		}
+		if (refreshToken?.userId !== payload.userId) throw new InvalidTokenError()
 		if (refreshToken.isRevoked()) {
 			this.loggerService.warn('RefreshTokenUseCase: Refresh token is revoked', {
 				userId: refreshToken.userId,
