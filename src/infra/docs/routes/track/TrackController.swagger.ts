@@ -12,7 +12,7 @@ import { TrackUpdateSchema } from '#application/DTOs/track/TrackUpdateInputDTO.j
 class TrackController {
 	public constructor(private readonly registry: OpenAPIRegistry) {
 		const TrackCreateBody = this.registry.register('TrackCreateBody', TrackCreateSchema)
-		const TrackUpdateBody = this.registry.register'TrackUpdateBody', TrackUpdateSchema)
+		const TrackUpdateBody = this.registry.register('TrackUpdateBody', TrackUpdateSchema)
 		this.registry.registerPath({
 	      method:  'post',
 	      path:    '/tracks',
