@@ -4,6 +4,7 @@ import AuthControllerSwagger from './routes/auth/AuthController.swagger'
 import UserControllerSwagger from './routes/user/UserController.swagger'
 import VerifyEmailControllerSwagger from './routes/email/VerifyEmailController.swagger'
 import AlbumControllerSwagger from './routes/album/AlbumController.swagger'
+import TrackControllerSwagger from './routes/track/TrackController.swagger'
 
 class SwaggerDocs implements DocsPort {
 	private registry: OpenAPIRegistry
@@ -38,6 +39,7 @@ class SwaggerDocs implements DocsPort {
 		new AlbumControllerSwagger(this.registry)
 		new UserControllerSwagger(this.registry)
 		new VerifyEmailControllerSwagger(this.registry)
+		new TrackControllerSwagger(this.registry)
 	}
 }
 
