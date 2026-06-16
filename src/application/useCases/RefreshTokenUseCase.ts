@@ -20,9 +20,7 @@ class RefreshTokenUseCase {
 			throw new UnauthorizedError('Invalid or expired token')
 		}
 		const payload = this.tokenService.verifyToken<{ userId: string }>(token)
-		console.log('Payload from refresh token:', payload)
 		const refreshToken = await this.refreshTokenRepository.findByTokenId(token)
-		console.log('Refresh token found in repository:', refreshToken!.userId)
 		if (!refreshToken) {
 			this.loggerService.warn('RefreshTokenUseCase: Refresh token not found', {
 				token: token.slice(0, 10),
