@@ -1,7 +1,7 @@
 import type { DocsPort } from '#application/ports/DocsPort.js'
 import {  OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi'
 import AuthControllerSwagger from './routes/auth/AuthController.swagger'
-
+import TrackController from '#infra/controllers/TrackController.js'
 
 class SwaggerDocs implements DocsPort {
 	private registry: OpenAPIRegistry
