@@ -1,0 +1,66 @@
+import type { ArtistRepository } from '#application/ports/ArtistRepository.js'
+import Artist from '#domain/artist/Artist.js'
+import type { Artist as PrismaArtist, PrismaClient } from '../../../prisma/generated/prisma/client'
+
+class ArtistRepositoryPrisma implements ArtistRepository {
+  constructor(private readonly orm: PrismaClient) {}
+
+  async create(artist: Artist): Promise<Artist> {
+    const row = await this.orm.artist.create({
+      data: {
+        id:        artist.id,
+        userId:    artist.userId,
+        bio:       artist.bio,
+        createdAt: artist.createdAt,
+      },
+    })
+    return this.toDomain(row)
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.orm.artist.delete({
+      where: { id },
+    })
+  }
+
+  async findById(id: string): Promise<Artist | null> {
+    const row = await this.orm.artist.findUnique({ where: { id } })
+    return row ? this.toDomain(row) : null
+  }
+
+  async findByUserId(userId: string): Promise<Artist | null> {
+    const row = await this.orm.artist.findUnique({ where: { userId } })
+    return row ? this.toDomain(row) : null
+  }
+
+  async list(page: number, limit: number): Promise<Artist[]> {
+    const rows = await this.orm.artist.findMany({
+      orderBy: { createdAt: 'desc' },
+      skip:    (page - 1) * limit,
+      take:    limit,
+    })
+    return rows.map((row) => this.toDomain(row))
+  }
+
+  async update(id: string, data: Partial<Artist>): Promise<void> {
+    await this.orm.artist.update({
+      data: {
+        ...(data.bio !== undefined && { bio: data.bio }),
+      },
+      where: { id },
+    })
+    return Promise.resolve()
+  }
+
+  private toDomain(row: PrismaArtist): Artist {
+    return Artist.restore({
+      id:        row.id,
+      userId:    row.userId,
+      bio:       row.bio,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    })
+  }
+}
+
+export default ArtistRepositoryPrisma

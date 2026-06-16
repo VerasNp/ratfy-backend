@@ -1,6 +1,7 @@
 import express, { type Application } from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import swaggerUi from 'swagger-ui-express'
 
 import type { HttpResponse, HttpServerPort } from './HttpServerPort'
 import { ZodError } from 'zod'
@@ -9,17 +10,26 @@ import toHttpErrors from './errors/toHttpErrors'
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
 import asyncHandler from './asyncHandler'
 import InfraError from '#infra/shared/errors/InfraError.js'
+import type { DocsPort } from '#application/ports/DocsPort.js'
 
 class ExpressAdapter implements HttpServerPort {
 	public app: Application
 	public constructor(
 		private port: number,
 		private readonly loggerService: LoggerPort,
+		private readonly docsService: DocsPort,
 	) {
 		this.app = express()
 		this.app.use(express.json())
 		this.app.use(cors())
 		this.app.use(cookieParser())
+		this._setupDocs()
+	}
+
+	private _setupDocs(): void {
+		const spec = this.docsService.generate()
+		this.app.use('/docs', swaggerUi.serve, swaggerUi.setup(spec as any))
+		this.app.get('/docs.json', (_req, res) => res.json(spec))
 	}
 
 	public listen(): void {
