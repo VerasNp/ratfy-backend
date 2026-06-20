@@ -14,7 +14,8 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed": "tsx src/infra/database/scripts/seeder/seed.ts"
   },
   "keywords": [],
   "author": "",
