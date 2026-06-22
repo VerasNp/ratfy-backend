@@ -10,5 +10,5 @@ model User {
     artist        Artist?
     playlists     Playlist[]
     refreshTokens RefreshToken[]
-    role          Role[]
+    role          UsersRoles[]
 }

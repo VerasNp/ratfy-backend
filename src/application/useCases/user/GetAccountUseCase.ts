@@ -20,6 +20,8 @@ class GetAccountUseCase {
 			name: user.name,
 			email: user.email.value,
 			birthDate: user.birthDate.value,
+			verifiedAt: user.verifiedAt,
+			roleId: user.roleId,
 		}
 	}
 }

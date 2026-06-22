@@ -82,9 +82,6 @@ class ExpressAdapter implements HttpServerPort {
 					message: httpError.message,
 				})
 			}
-			this.loggerService.error('Unexpected error in route handler', {
-				error: err instanceof Error ? err.stack : String(err),
-			})
 			return res.status(500).json({
 				message: 'Internal server error',
 			})

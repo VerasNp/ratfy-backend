@@ -19,16 +19,29 @@ class UserRepositoryPrismaORM implements UserRepository {
 		)
 	}
 
-	async create(user: User): Promise<void> {
-		await this.orm.user.create({
+	public async create(user: User): Promise<User> {
+		const createdUser = await this.orm.user.create({
 			data: {
 				id: user.id,
 				name: user.name,
 				email: user.email.value,
 				password: user.password.value,
 				birthDate: user.birthDate.value,
+				role: {
+					create: {
+						roleId: user.roleId,
+					},
+				},
 			},
 		})
+		return User.restore(
+			createdUser.id,
+			createdUser.name,
+			createdUser.email,
+			createdUser.password,
+			createdUser.birthDate,
+			createdUser.verifiedAt,
+		)
 	}
 
 	async findByEmail(email: string): Promise<User | null> {

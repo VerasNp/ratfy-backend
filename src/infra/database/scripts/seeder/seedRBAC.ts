@@ -3,12 +3,12 @@ import type { PrismaClient } from '../../../../../prisma/generated/prisma/client
 
 export default async function seedRBAC(prisma: PrismaClient) {
 	await prisma.role.createMany({
-		data: [{ name: 'Admin' }, { name: 'User' }, { name: 'Artist' }],
+		data: [{ name: 'ADMIN' }, { name: 'USER' }, { name: 'ARTIST' }],
 	})
 
-	const adminRole = await prisma.role.findUnique({ where: { name: 'Admin' } })
-	const userRole = await prisma.role.findUnique({ where: { name: 'User' } })
-	const artistRole = await prisma.role.findUnique({ where: { name: 'Artist' } })
+	const adminRole = await prisma.role.findUnique({ where: { name: 'ADMIN' } })
+	const userRole = await prisma.role.findUnique({ where: { name: 'USER' } })
+	const artistRole = await prisma.role.findUnique({ where: { name: 'ARTIST' } })
 
 	await prisma.permission.createMany({
 		data: [{ name: 'CREATE' }, { name: 'READ' }, { name: 'UPDATE' }, { name: 'DELETE' }],

@@ -5,7 +5,7 @@ import { PrismaClient } from '../../../../prisma/generated/prisma/client'
 import Permission from '#domain/rbac/permission/Permission.js'
 
 const adapter = new PrismaPg({ connectionString: inject('testPostgresURL') })
-export const prisma = new PrismaClient({ adapter })
+const prisma = new PrismaClient({ adapter })
 
 describe('PermissionRepositoryPrismaORM', () => {
 	const permissionRepository = new PermissionRepositoryPrismaORM(prisma)

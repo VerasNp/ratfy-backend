@@ -4,7 +4,11 @@ import type User from '#domain/user/User.js'
 class UserRepositoryMemory implements UserRepository {
 	private users: User[] = []
 
-	create(user: User): Promise<void> {
+	public findAll(): Promise<User[]> {
+		return Promise.resolve(this.users)
+	}
+
+	public create(user: User): Promise<void> {
 		this.users.push(user)
 		return Promise.resolve()
 	}

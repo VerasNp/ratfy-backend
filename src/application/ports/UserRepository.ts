@@ -5,7 +5,7 @@ export interface UserRepository {
 	 * Creates a new user in the repository on persistence layer
 	 * @param user The user entity to be created
 	 */
-	create(user: User): Promise<void>
+	create(user: User): Promise<User>
 	/**
 	 * Finds a user by their email address
 	 * @param email The email address to search for

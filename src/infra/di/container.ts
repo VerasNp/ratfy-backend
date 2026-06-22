@@ -42,6 +42,9 @@ import { asClass, asValue, createContainer, InjectionMode } from 'awilix'
 import type { get } from 'node:http'
 import GetUserUseCase from '#application/useCases/user/GetUserUseCase.js'
 import ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
+import RoleRepositoryPrismaORM from '#infra/repository/RoleRepositoryPrismaORM.js'
+import PermissionRepositoryPrismaORM from '#infra/repository/PermissionRepositoryPrismaORM.js'
+import ResourceRepositoryPrismaORM from '#infra/repository/ResourceRepositoryPrismaORM.js'
 
 const container = createContainer({ injectionMode: InjectionMode.CLASSIC })
 
@@ -70,6 +73,9 @@ container.register({
 	artistRepository: asClass(ArtistRepositoryPrisma).singleton(),
 	playlistRepository: asClass(PlaylistRepositoryPrisma).singleton(),
 	refreshTokenRepository: asClass(RefreshTokenRepositoryPrismaORM).singleton(),
+	roleRepository: asClass(RoleRepositoryPrismaORM).singleton(),
+	permissionRepository: asClass(PermissionRepositoryPrismaORM).singleton(),
+	resourceRepository: asClass(ResourceRepositoryPrismaORM).singleton(),
 
 	// use cases
 	signUpUserCase: asClass(SignupUseCase).scoped(),

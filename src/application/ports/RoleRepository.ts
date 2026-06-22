@@ -2,6 +2,11 @@ import type Role from '#domain/rbac/role/Role.js'
 
 export interface RoleRepository {
 	/**
+	 * Find role data by its name
+	 * @param roleName Unique role name
+	 */
+	findRoleByName(roleName: string): Promise<Role | null>
+	/**
 	 * Creates a role
 	 * @param roleData
 	 */
@@ -11,10 +16,10 @@ export interface RoleRepository {
 	 */
 	listRoles(): Promise<Role[]>
 	/**
-	 * Get a role by its unique identifier
+	 * Find a role by its unique identifier
 	 * @param roleId The unique identifier of the role
 	 */
-	getRoleById(roleId: string): Promise<Role | null>
+	findRoleById(roleId: string): Promise<Role | null>
 	/**
 	 * Updates Role data
 	 * @param roleData Role data updated

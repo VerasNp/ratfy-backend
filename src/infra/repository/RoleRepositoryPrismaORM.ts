@@ -3,10 +3,23 @@ import Role from '#domain/rbac/role/Role.js'
 import { Prisma, type PrismaClient } from '../../../prisma/generated/prisma/client'
 
 class RoleRepositoryPrismaORM implements RoleRepository {
-	public constructor(private readonly prismaClient: PrismaClient) {}
+	public constructor(private readonly orm: PrismaClient) {}
+
+	public async findRoleByName(roleName: string): Promise<Role | null> {
+		const foundRole = await this.orm.role.findUnique({
+			where: {
+				name: roleName,
+			},
+		})
+		if (!foundRole) {
+			return null
+		}
+		const role = Role.restore(foundRole.id, foundRole.name, foundRole.description)
+		return role
+	}
 
 	public async create(roleData: Role): Promise<Role> {
-		const createdRole = await this.prismaClient.role.create({
+		const createdRole = await this.orm.role.create({
 			data: {
 				id: roleData.id,
 				name: roleData.name,
@@ -18,13 +31,13 @@ class RoleRepositoryPrismaORM implements RoleRepository {
 	}
 
 	public async listRoles(): Promise<Role[]> {
-		const rolesFound = await this.prismaClient.role.findMany()
+		const rolesFound = await this.orm.role.findMany()
 		const roles = rolesFound.map((role) => Role.restore(role.id, role.name, role.description))
 		return roles
 	}
 
-	public async getRoleById(roleId: string): Promise<Role | null> {
-		const roleFound = await this.prismaClient.role.findUnique({
+	public async findRoleById(roleId: string): Promise<Role | null> {
+		const roleFound = await this.orm.role.findUnique({
 			where: {
 				id: roleId,
 			},
@@ -38,7 +51,7 @@ class RoleRepositoryPrismaORM implements RoleRepository {
 
 	public async updateRole(roleData: Role): Promise<Role | null> {
 		try {
-			const updatedRole = await this.prismaClient.role.update({
+			const updatedRole = await this.orm.role.update({
 				where: {
 					id: roleData.id,
 				},
@@ -59,7 +72,7 @@ class RoleRepositoryPrismaORM implements RoleRepository {
 
 	public async deleteRole(roleId: string): Promise<Role | null> {
 		try {
-			const deletedRole = await this.prismaClient.role.delete({
+			const deletedRole = await this.orm.role.delete({
 				where: {
 					id: roleId,
 				},

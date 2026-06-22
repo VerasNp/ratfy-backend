@@ -5,7 +5,7 @@ import ResourceRepositoryPrismaORM from '#infra/repository/ResourceRepositoryPri
 import Resource from '#domain/rbac/resource/Resource.js'
 
 const adapter = new PrismaPg({ connectionString: inject('testPostgresURL') })
-export const prisma = new PrismaClient({ adapter })
+const prisma = new PrismaClient({ adapter })
 
 describe('ResourceRepositoryPrismaORM', () => {
 	const resourceRepository = new ResourceRepositoryPrismaORM(prisma)

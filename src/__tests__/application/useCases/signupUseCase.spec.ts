@@ -4,16 +4,29 @@ import { templateRendererPortMock } from '#application/ports/__mocks__/TemplateR
 import { tokenPortMock } from '#application/ports/__mocks__/TokenPortMock.js'
 import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
 import SignupUseCase from '#application/useCases/user/SignupUseCase.js'
+import Role from '#domain/rbac/role/Role.js'
 import User from '#domain/user/User.js'
+import RoleRepositoryMemory from '#infra/repository/RoleRepositoryMemory.js'
 import UserRepositoryMemory from '#infra/repository/UserRepositoryMemory.js'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 let signup: SignupUseCase
 let dummyUser: User
 let getAccount: GetAccountUseCase
+let userRole: Role | null
+
 beforeEach(async () => {
 	const userRepository = new UserRepositoryMemory()
-	dummyUser = User.create('Existing User', 'foo@bar.com', 'Valid@123', new Date('1990-01-01'))
+	const roleRepository = new RoleRepositoryMemory([Role.create('USER', null)])
+	userRole = await roleRepository.findRoleByName('USER')
+	dummyUser = User.create(
+		'Existing User',
+		'foo@bar.com',
+		'Valid@123',
+		new Date('1990-01-01'),
+		null,
+		userRole!.id,
+	)
 	await userRepository.create(dummyUser)
 	signup = new SignupUseCase(
 		userRepository,
@@ -22,6 +35,7 @@ beforeEach(async () => {
 		tokenPortMock,
 		null as unknown as string,
 		loggerPortMock,
+		roleRepository,
 	)
 	getAccount = new GetAccountUseCase(userRepository, loggerPortMock)
 })
@@ -41,6 +55,8 @@ describe('Signup use case', () => {
 		expect(outputGetAccount.name).toBe(signupInput.name)
 		expect(outputGetAccount.email).toBe(signupInput.email)
 		expect(outputGetAccount.birthDate).toEqual(signupInput.birthDate)
+		expect(outputGetAccount.verifiedAt).toBeNull()
+		expect(outputGetAccount.roleId).toBeDefined()
 	})
 	it('should not sign up a user with an already registered email', async () => {
 		const signupInput = {

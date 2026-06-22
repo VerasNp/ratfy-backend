@@ -5,7 +5,7 @@ import RoleRepositoryPrismaORM from '#infra/repository/RoleRepositoryPrismaORM.j
 import Role from '#domain/rbac/role/Role.js'
 
 const adapter = new PrismaPg({ connectionString: inject('testPostgresURL') })
-export const prisma = new PrismaClient({ adapter })
+const prisma = new PrismaClient({ adapter })
 
 describe('RoleRepositoryPrismaORM', () => {
 	const roleRepository = new RoleRepositoryPrismaORM(prisma)
@@ -20,7 +20,7 @@ describe('RoleRepositoryPrismaORM', () => {
 	it('should create a role', async () => {
 		const roleToBeCreated = Role.create('TEST', null)
 		const createdRole = await roleRepository.create(roleToBeCreated)
-		const foundRole = await roleRepository.getRoleById(createdRole.id)
+		const foundRole = await roleRepository.findRoleById(createdRole.id)
 		expect(foundRole!.id).toBe(createdRole.id)
 		expect(foundRole!.name).toBe(createdRole.name)
 		expect(foundRole!.description).toBe(createdRole.description)
@@ -40,7 +40,7 @@ describe('RoleRepositoryPrismaORM', () => {
 	})
 
 	it("should return null when trying to get a role that doesn't exist", async () => {
-		const role = await roleRepository.getRoleById(crypto.randomUUID())
+		const role = await roleRepository.findRoleById(crypto.randomUUID())
 		expect(role).toBeNull()
 	})
 
