@@ -1,7 +1,12 @@
 class Role {
+	public static readonly PredefinedRoles = {
+		ADMIN: 'ADMIN',
+		USER: 'USER',
+		ARTIST: 'ARTIST',
+	} as const
 	public readonly id: string
-	public readonly name: string
-	public readonly description: string | null
+	public name: string
+	public description: string | null
 
 	private constructor(id: string, name: string, description: string | null) {
 		this.id = id

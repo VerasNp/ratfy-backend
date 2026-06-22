@@ -1,5 +1,6 @@
 import type ApplicationError from '#application/errors/ApplicationError.js'
 import InvalidTokenError from '#application/errors/InvalidTokenError.js'
+import MissingApplicationSetupError from '#application/errors/MissingApplicationSetupError.js'
 import ResourceAlreadyExistsError from '#application/errors/ResourceAlreadyExistsError.js'
 import UnauthorizedError from '#application/errors/UnauthorizedError.js'
 import UserNotFoundError from '#application/errors/UserNotFoundError.js'
@@ -19,6 +20,9 @@ export default function toHttpErrors(error: ApplicationError) {
 	}
 	if (error instanceof UnauthorizedError || error instanceof ExpiredJWTError) {
 		return new HttpError(401, error.message)
+	}
+	if (error instanceof MissingApplicationSetupError) {
+		return new HttpError(500, error.message)
 	}
 	return new HttpError(500, 'Internal server error')
 }

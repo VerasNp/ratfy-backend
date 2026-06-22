@@ -1,3 +1,5 @@
+import type Role from "#domain/rbac/role/Role.js"
+
 export interface UserRoleRepository {
 	/**
 	 * Assigns a role to a user
@@ -11,4 +13,9 @@ export interface UserRoleRepository {
 	 * @param roleId The unique identifier of the role
 	 */
 	revokeRoleFromUser(userId: string, roleId: string): Promise<void>
+	/**
+	 * Finds all roles assigned to a user
+	 * @param userId The unique identifier of the user
+	 */
+	findRolesByUserId(userId: string): Promise<Role[]>
 }

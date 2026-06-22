@@ -45,6 +45,8 @@ import ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
 import RoleRepositoryPrismaORM from '#infra/repository/RoleRepositoryPrismaORM.js'
 import PermissionRepositoryPrismaORM from '#infra/repository/PermissionRepositoryPrismaORM.js'
 import ResourceRepositoryPrismaORM from '#infra/repository/ResourceRepositoryPrismaORM.js'
+import UnitOfWorkPrismaORM from '#infra/repository/UnitOfWorkPrismaORM.js'
+import UserRoleRepositoryPrismaORM from '#infra/repository/UserRoleRepositoryPrismaORM.js'
 
 const container = createContainer({ injectionMode: InjectionMode.CLASSIC })
 
@@ -76,6 +78,8 @@ container.register({
 	roleRepository: asClass(RoleRepositoryPrismaORM).singleton(),
 	permissionRepository: asClass(PermissionRepositoryPrismaORM).singleton(),
 	resourceRepository: asClass(ResourceRepositoryPrismaORM).singleton(),
+	unitOfWork: asClass(UnitOfWorkPrismaORM).singleton(),
+	userRoleRepository: asClass(UserRoleRepositoryPrismaORM).singleton(),
 
 	// use cases
 	signUpUserCase: asClass(SignupUseCase).scoped(),

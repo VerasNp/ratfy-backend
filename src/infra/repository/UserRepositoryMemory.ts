@@ -8,9 +8,9 @@ class UserRepositoryMemory implements UserRepository {
 		return Promise.resolve(this.users)
 	}
 
-	public create(user: User): Promise<void> {
+	public create(user: User): Promise<User> {
 		this.users.push(user)
-		return Promise.resolve()
+		return Promise.resolve(user)
 	}
 
 	findByEmail(email: string): Promise<User | null> {

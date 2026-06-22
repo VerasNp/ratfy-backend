@@ -82,6 +82,10 @@ class ExpressAdapter implements HttpServerPort {
 					message: httpError.message,
 				})
 			}
+			this.loggerService.error('Unhandled error', {
+				origin: 'ExpressAdapter',
+				error: err,
+			})
 			return res.status(500).json({
 				message: 'Internal server error',
 			})

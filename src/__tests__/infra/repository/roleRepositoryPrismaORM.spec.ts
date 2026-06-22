@@ -9,6 +9,7 @@ const prisma = new PrismaClient({ adapter })
 
 describe('RoleRepositoryPrismaORM', () => {
 	const roleRepository = new RoleRepositoryPrismaORM(prisma)
+
 	beforeEach(async () => {
 		await prisma.$executeRawUnsafe('TRUNCATE TABLE "Role" RESTART IDENTITY CASCADE')
 	})

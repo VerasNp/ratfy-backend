@@ -27,11 +27,6 @@ class UserRepositoryPrismaORM implements UserRepository {
 				email: user.email.value,
 				password: user.password.value,
 				birthDate: user.birthDate.value,
-				role: {
-					create: {
-						roleId: user.roleId,
-					},
-				},
 			},
 		})
 		return User.restore(

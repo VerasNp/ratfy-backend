@@ -17,18 +17,18 @@ describe('UserRepositoryPrismaORM', () => {
 		await prisma.$disconnect()
 	})
 
-	it("should create a new user", async () => {
+	it('should create a new user', async () => {
 		const userToBeCreated = User.create(
 			'Test User',
-			"test@example.com",
-			'password123',
+			'test@example.com',
+			'Valid@123',
 			new Date('1990-01-01'),
-			null,
-			crypto.randomUUID(),
+			null
 		)
 		const createdUser = await userRepository.create(userToBeCreated)
 		const foundUser = await userRepository.findById(createdUser.id)
 		expect(foundUser!.id).toBe(createdUser.id)
 		expect(foundUser!.name).toBe(createdUser.name)
-		expect(foundUser!.email).toBe(createdUser.email)
+		expect(foundUser!.email.value).toBe(createdUser.email.value)
 	})
+})
