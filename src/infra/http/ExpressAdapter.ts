@@ -11,6 +11,7 @@ import type { LoggerPort } from '#application/ports/LoggerPort.js'
 import asyncHandler from './asyncHandler'
 import InfraError from '#infra/shared/errors/InfraError.js'
 import type { DocsPort } from '#application/ports/DocsPort.js'
+import DomainError from '#domain/errors/DomainError.js'
 
 class ExpressAdapter implements HttpServerPort {
 	public app: Application
@@ -68,6 +69,12 @@ class ExpressAdapter implements HttpServerPort {
 				return res.status(400).json({
 					message: 'Validation error',
 					issues: err.issues,
+				})
+			}
+			if (err instanceof DomainError) {
+				const httpError = toHttpErrors(err)
+				return res.status(httpError.statusCode).json({
+					message: httpError.message,
 				})
 			}
 			if (err instanceof ApplicationError) {

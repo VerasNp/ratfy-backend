@@ -23,7 +23,7 @@ describe('RoleRepositoryPrismaORM', () => {
 		const createdRole = await roleRepository.create(roleToBeCreated)
 		const foundRole = await roleRepository.findRoleById(createdRole.id)
 		expect(foundRole!.id).toBe(createdRole.id)
-		expect(foundRole!.name).toBe(createdRole.name)
+		expect(foundRole!.name.value).toBe(createdRole.name.value)
 		expect(foundRole!.description).toBe(createdRole.description)
 	})
 
@@ -52,7 +52,7 @@ describe('RoleRepositoryPrismaORM', () => {
 		const updatedRole = await roleRepository.updateRole(roleToBeUpdated)
 		expect(updatedRole).not.toBeNull()
 		expect(updatedRole!.id).toBe(roleToBeUpdated.id)
-		expect(updatedRole!.name).toBe('TEST_UPDATED')
+		expect(updatedRole!.name.value).toBe('TEST_UPDATED')
 		expect(updatedRole!.description).toBe('DESCRIPTION_UPDATED')
 	})
 

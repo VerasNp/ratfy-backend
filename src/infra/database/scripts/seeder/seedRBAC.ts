@@ -1,5 +1,4 @@
-import type { PermissionsResources } from '../../../../../prisma/generated/prisma/browser'
-import type { PrismaClient } from '../../../../../prisma/generated/prisma/client'
+import type { PrismaClient } from "#prisma/client"
 
 export default async function seedRBAC(prisma: PrismaClient) {
 	await prisma.role.createMany({
@@ -35,7 +34,7 @@ export default async function seedRBAC(prisma: PrismaClient) {
 	const trackResource = await prisma.resource.findUnique({ where: { name: 'Track' } })
 	const playlistResource = await prisma.resource.findUnique({ where: { name: 'Playlist' } })
 
-	await prisma.permissionsResources.createMany({
+	await prisma.action.createMany({
 		data: [
 			{ resourceId: userResource!.id, permissionId: createPermission!.id },
 			{ resourceId: userResource!.id, permissionId: readPermission!.id },
@@ -58,16 +57,5 @@ export default async function seedRBAC(prisma: PrismaClient) {
 			{ resourceId: playlistResource!.id, permissionId: updatePermission!.id },
 			{ resourceId: playlistResource!.id, permissionId: deletePermission!.id },
 		],
-	})
-
-	// Assign all permissions to Admin role
-	const allPermissionsResources = await prisma.permissionsResources.findMany()
-	const adminRolePermissions = allPermissionsResources.map((pr) => ({
-		roleId: adminRole!.id,
-		permissionOnResourcesId: pr.id,
-	}))
-
-	await prisma.rolesPermissions.createMany({
-		data: adminRolePermissions,
 	})
 }

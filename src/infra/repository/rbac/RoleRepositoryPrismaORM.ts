@@ -22,7 +22,7 @@ class RoleRepositoryPrismaORM implements RoleRepository {
 		const createdRole = await this.orm.role.create({
 			data: {
 				id: roleData.id,
-				name: roleData.name,
+				name: roleData.name.value,
 				description: roleData.description,
 			},
 		})
@@ -56,7 +56,7 @@ class RoleRepositoryPrismaORM implements RoleRepository {
 					id: roleData.id,
 				},
 				data: {
-					name: roleData.name,
+					name: roleData.name.value,
 					description: roleData.description,
 				},
 			})

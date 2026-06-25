@@ -9,7 +9,7 @@ class RoleRepositoryMemory implements RoleRepository {
 	}
 
 	public findRoleByName(roleName: string): Promise<Role | null> {
-		const foundRole = this.roles.find((role) => role.name === roleName)
+		const foundRole = this.roles.find((role) => role.name.value === roleName)
 		if (!foundRole) {
 			return Promise.resolve(null)
 		}

@@ -57,7 +57,7 @@ describe('Signup use case', () => {
 		expect(outputGetAccount.verifiedAt).toBeNull()
 		const roles = await userRoleRepository.findRolesByUserId(outputSignup.id)
 		expect(roles).toHaveLength(1)
-		expect(roles[0]?.name).toBe(Role.PredefinedRoles.USER)
+		expect(roles[0]?.name.value).toBe(Role.PredefinedRoles.USER)
 	})
 	it('should not sign up a user if the user role is not configured on the system', async () => {
 		const signupInput = {

@@ -46,6 +46,8 @@ import PermissionRepositoryPrismaORM from '#infra/repository/rbac/PermissionRepo
 import ResourceRepositoryPrismaORM from '#infra/repository/rbac/ResourceRepositoryPrismaORM.js'
 import RoleRepositoryPrismaORM from '#infra/repository/rbac/RoleRepositoryPrismaORM.js'
 import UserRoleRepositoryPrismaORM from '#infra/repository/rbac/UserRoleRepositoryPrismaORM.js'
+import RBACController from '#infra/controllers/RBACController.js'
+import CreateRoleUseCase from '#application/useCases/rbac/CreateRoleUseCase.js'
 
 const container = createContainer({ injectionMode: InjectionMode.CLASSIC })
 
@@ -104,6 +106,7 @@ container.register({
 	refreshTokenUseCase: asClass(RefreshTokenUseCase).scoped(),
 	getUserUseCase: asClass(GetUserUseCase).scoped(),
 	listUsersUseCase: asClass(ListUsersUseCase).scoped(),
+	createRoleUseCase: asClass(CreateRoleUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),
@@ -111,6 +114,7 @@ container.register({
 	authController: asClass(AuthController).singleton(),
 	artistController: asClass(ArtistController).singleton(),
 	playlistController: asClass(PlaylistController).singleton(),
+	rbacController: asClass(RBACController).singleton(),
 
 	// middlewares
 	authMiddleware: asClass(AuthMiddleware).singleton(),
