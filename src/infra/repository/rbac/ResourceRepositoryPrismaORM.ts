@@ -1,6 +1,6 @@
 import type { ResourceRepository } from '#application/ports/ResourceRepository.js'
 import Resource from '#domain/rbac/resource/Resource.js'
-import { Prisma, type PrismaClient } from '../../../prisma/generated/prisma/client'
+import { Prisma, type PrismaClient } from '#prisma/client'
 
 class ResourceRepositoryPrismaORM implements ResourceRepository {
 	public constructor(private readonly prismaClient: PrismaClient) {}
@@ -24,7 +24,7 @@ class ResourceRepositoryPrismaORM implements ResourceRepository {
 		return resources
 	}
 
-	public async getResourceById(resourceId: string): Promise<Resource | null> {
+	public async findResourceById(resourceId: string): Promise<Resource | null> {
 		const foundResource = await this.prismaClient.resource.findUnique({
 			where: {
 				id: resourceId,

@@ -1,4 +1,4 @@
-model UsersRoles {
+model UserRole {
     userId String
     roleId String
     user   User   @relation(fields: [userId], references: [id])

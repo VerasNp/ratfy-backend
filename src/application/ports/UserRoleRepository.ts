@@ -12,7 +12,7 @@ export interface UserRoleRepository {
 	 * @param userId The unique identifier of the user
 	 * @param roleId The unique identifier of the role
 	 */
-	revokeRoleFromUser(userId: string, roleId: string): Promise<void>
+	removeRoleFromUser(userId: string, roleId: string): Promise<void>
 	/**
 	 * Finds all roles assigned to a user
 	 * @param userId The unique identifier of the user

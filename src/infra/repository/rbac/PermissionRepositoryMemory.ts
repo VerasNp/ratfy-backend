@@ -13,7 +13,7 @@ class PermissionRepositoryMemory implements PermissionRepository {
 		return Promise.resolve(this.permissions)
 	}
 
-	public getPermissionById(permissionId: string): Promise<Permission | null> {
+	public findPermissionById(permissionId: string): Promise<Permission | null> {
 		const foundPermission = this.permissions.find((permission) => permission.id == permissionId)
 		if (!foundPermission) {
 			return Promise.resolve(null)

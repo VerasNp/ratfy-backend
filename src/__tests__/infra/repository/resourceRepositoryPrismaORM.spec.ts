@@ -1,8 +1,8 @@
 import { afterAll, beforeEach, describe, expect, inject, it } from 'vitest'
 import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '../../../../prisma/generated/prisma/client'
-import ResourceRepositoryPrismaORM from '#infra/repository/ResourceRepositoryPrismaORM.js'
 import Resource from '#domain/rbac/resource/Resource.js'
+import ResourceRepositoryPrismaORM from '#infra/repository/rbac/ResourceRepositoryPrismaORM.js'
+import { PrismaClient } from '#prisma/client'
 
 const adapter = new PrismaPg({ connectionString: inject('testPostgresURL') })
 const prisma = new PrismaClient({ adapter })
@@ -21,7 +21,7 @@ describe('ResourceRepositoryPrismaORM', () => {
 	it('should create a new resource', async () => {
 		const resourceToBeCreated = Resource.create('TEST')
 		const createdResource = await resourceRepository.create(resourceToBeCreated)
-		const permission = await resourceRepository.getResourceById(createdResource.id)
+		const permission = await resourceRepository.findResourceById(createdResource.id)
 		expect(permission!.id).toBe(createdResource.id)
 		expect(permission!.name).toBe(createdResource.name)
 	})
@@ -40,7 +40,7 @@ describe('ResourceRepositoryPrismaORM', () => {
 	})
 
 	it("should return null when trying to get a resource that doesn't exist", async () => {
-		const permission = await resourceRepository.getResourceById(crypto.randomUUID())
+		const permission = await resourceRepository.findResourceById(crypto.randomUUID())
 		expect(permission).toBeNull()
 	})
 
@@ -67,7 +67,7 @@ describe('ResourceRepositoryPrismaORM', () => {
 		expect(deletedResource).not.toBeNull()
 		expect(deletedResource!.id).toBe(createdResource.id)
 		expect(deletedResource!.name).toBe('TEST')
-		const permission = await resourceRepository.getResourceById(deletedResource!.id)
+		const permission = await resourceRepository.findResourceById(deletedResource!.id)
 		expect(permission).toBeNull()
 	})
 

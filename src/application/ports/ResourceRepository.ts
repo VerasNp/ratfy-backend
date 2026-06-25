@@ -14,7 +14,7 @@ export interface ResourceRepository {
 	 * Get a resource by its unique identifier
 	 * @param resourceId The unique identifier of the resource
 	 */
-	getResourceById(resourceId: string): Promise<Resource | null>
+	findResourceById(resourceId: string): Promise<Resource | null>
 	/**
 	 * Updates resource data
 	 * @param resourceData Resource data updated

@@ -1,6 +1,6 @@
 import type { PermissionRepository } from '#application/ports/PermissionRepository.js'
 import Permission from '#domain/rbac/permission/Permission.js'
-import { Prisma, type PrismaClient } from '../../../prisma/generated/prisma/client'
+import { Prisma, PrismaClient } from '#prisma/client.js'
 
 class PermissionRepositoryPrismaORM implements PermissionRepository {
 	public constructor(private readonly prismaClient: PrismaClient) {}
@@ -29,7 +29,7 @@ class PermissionRepositoryPrismaORM implements PermissionRepository {
 		return permissions
 	}
 
-	public async getPermissionById(permissionId: string): Promise<Permission | null> {
+	public async findPermissionById(permissionId: string): Promise<Permission | null> {
 		const permissionFound = await this.prismaClient.permission.findUnique({
 			where: {
 				id: permissionId,

@@ -2,5 +2,5 @@ model Permission {
     id          String                 @id @default(uuid())
     name        String                 @unique
     description String?
-    resources   PermissionsResources[]
+    actions   Action[]
 }

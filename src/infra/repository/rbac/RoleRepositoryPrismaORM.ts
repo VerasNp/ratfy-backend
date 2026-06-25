@@ -1,6 +1,6 @@
 import type { RoleRepository } from '#application/ports/RoleRepository.js'
 import Role from '#domain/rbac/role/Role.js'
-import { Prisma, type PrismaClient } from '../../../prisma/generated/prisma/client'
+import { Prisma, type PrismaClient } from '#prisma/client'
 
 class RoleRepositoryPrismaORM implements RoleRepository {
 	public constructor(private readonly orm: PrismaClient) {}

@@ -1,5 +1,5 @@
 model Resource {
-    id          String                 @id @default(uuid())
-    name        String                 @unique
-    permissions PermissionsResources[]
+    id      String   @id @default(uuid())
+    name    String   @unique
+    actions Action[]
 }

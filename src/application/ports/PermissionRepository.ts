@@ -14,7 +14,7 @@ export interface PermissionRepository {
 	 * Get a permission by its unique identifier
 	 * @param permissionId The unique identifier of the permission
 	 */
-	getPermissionById(permissionId: string): Promise<Permission | null>
+	findPermissionById(permissionId: string): Promise<Permission | null>
 	/**
 	 * Updates permission data
 	 * @param permissionData Permission data updated

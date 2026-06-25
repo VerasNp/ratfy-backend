@@ -23,7 +23,11 @@
   "license": "ISC",
   "type": "module",
   "imports": {
-    "#*": "./src/*"
+    "#prisma/client": "./prisma/generated/prisma/client.js",
+    "#prisma/client.js": "./prisma/generated/prisma/client.js",
+    "#*": [
+      "./src/*"
+    ]
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",

@@ -1,0 +1,10 @@
+model Action {
+    id           String         @id @default(uuid())
+    resourceId   String
+    permissionId String
+    resource     Resource       @relation(fields: [resourceId], references: [id])
+    permission   Permission     @relation(fields: [permissionId], references: [id])
+    roles        ActionRole[]
+
+    @@unique([resourceId, permissionId])
+}

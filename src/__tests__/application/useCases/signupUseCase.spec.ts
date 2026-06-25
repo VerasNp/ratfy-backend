@@ -8,9 +8,9 @@ import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
 import SignupUseCase from '#application/useCases/user/SignupUseCase.js'
 import Role from '#domain/rbac/role/Role.js'
 import User from '#domain/user/User.js'
-import RoleRepositoryMemory from '#infra/repository/RoleRepositoryMemory.js'
+import RoleRepositoryMemory from '#infra/repository/rbac/RoleRepositoryMemory.js'
+import UserRoleRepositoryMemory from '#infra/repository/rbac/UserRoleRepositoryMemory.js'
 import UserRepositoryMemory from '#infra/repository/UserRepositoryMemory.js'
-import UserRoleRepositoryMemory from '#infra/repository/UserRoleRepositoryMemory.js'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 let signup: SignupUseCase
@@ -22,13 +22,7 @@ beforeEach(async () => {
 	const userRepository = new UserRepositoryMemory()
 	const dummyRole = Role.create(Role.PredefinedRoles.USER, 'Regular user role')
 	const roleRepository = new RoleRepositoryMemory([dummyRole])
-	userRoleRepository = new UserRoleRepositoryMemory([
-		{
-			id: dummyRole.id,
-			name: dummyRole.name,
-			description: dummyRole.description,
-		},
-	])
+	userRoleRepository = new UserRoleRepositoryMemory([dummyRole])
 	dummyUser = User.create('Existing User', 'foo@bar.com', 'Valid@123', new Date('1990-01-01'))
 	await userRepository.create(dummyUser)
 	signup = new SignupUseCase(
@@ -84,9 +78,7 @@ describe('Signup use case', () => {
 			unitOfWorkMock,
 			userRoleRepository,
 		)
-		await expect(signup.execute(signupInput)).rejects.toThrow(
-			'Internal server error',
-		)
+		await expect(signup.execute(signupInput)).rejects.toThrow('Internal server error')
 	})
 
 	it('should not sign up a user with an already registered email', async () => {

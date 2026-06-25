@@ -1,9 +1,0 @@
-model RolesPermissions {
-    id                      String               @id @default(uuid())
-    roleId                  String
-    permissionOnResourcesId String
-    role                    Role                 @relation(fields: [roleId], references: [id])
-    permission              PermissionsResources @relation(fields: [permissionOnResourcesId], references: [id])
-
-    @@unique([roleId, permissionOnResourcesId])
-}

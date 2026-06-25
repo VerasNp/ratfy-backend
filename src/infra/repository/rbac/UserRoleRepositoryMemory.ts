@@ -27,7 +27,7 @@ class UserRoleRepositoryMemory implements UserRoleRepository {
 		return Promise.resolve()
 	}
 
-	public revokeRoleFromUser(userId: string, roleId: string): Promise<void> {
+	public removeRoleFromUser(userId: string, roleId: string): Promise<void> {
 		this.usersRoles = this.usersRoles.filter(
 			(userRole) => !(userRole.userId === userId && userRole.roleId === roleId),
 		)

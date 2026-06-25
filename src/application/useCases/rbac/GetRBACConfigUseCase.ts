@@ -1,5 +1,5 @@
-class getRBACConfigUseCase {
-	public constructor(private readonly permission) {}
+class GetRBACConfigUseCase {
+	public constructor(
 }
 
-export default getRBACConfigUseCase
+export default GetRBACConfigUseCase

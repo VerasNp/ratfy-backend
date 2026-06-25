@@ -39,14 +39,13 @@ import { AddTrackToPlaylistUseCase } from '#application/useCases/playlist/AddTra
 import { RemoveTrackFromPlaylistUseCase } from '#application/useCases/playlist/RemoveTrackFromPlaylist.js'
 import PlaylistController from '#infra/controllers/PlaylistController.js'
 import { asClass, asValue, createContainer, InjectionMode } from 'awilix'
-import type { get } from 'node:http'
 import GetUserUseCase from '#application/useCases/user/GetUserUseCase.js'
 import ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
-import RoleRepositoryPrismaORM from '#infra/repository/RoleRepositoryPrismaORM.js'
-import PermissionRepositoryPrismaORM from '#infra/repository/PermissionRepositoryPrismaORM.js'
-import ResourceRepositoryPrismaORM from '#infra/repository/ResourceRepositoryPrismaORM.js'
 import UnitOfWorkPrismaORM from '#infra/repository/UnitOfWorkPrismaORM.js'
-import UserRoleRepositoryPrismaORM from '#infra/repository/UserRoleRepositoryPrismaORM.js'
+import PermissionRepositoryPrismaORM from '#infra/repository/rbac/PermissionRepositoryPrismaORM.js'
+import ResourceRepositoryPrismaORM from '#infra/repository/rbac/ResourceRepositoryPrismaORM.js'
+import RoleRepositoryPrismaORM from '#infra/repository/rbac/RoleRepositoryPrismaORM.js'
+import UserRoleRepositoryPrismaORM from '#infra/repository/rbac/UserRoleRepositoryPrismaORM.js'
 
 const container = createContainer({ injectionMode: InjectionMode.CLASSIC })
 
