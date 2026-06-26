@@ -3,10 +3,10 @@ import Permission from '#domain/rbac/permission/Permission.js'
 import { Prisma, PrismaClient } from '#prisma/client.js'
 
 class PermissionRepositoryPrismaORM implements PermissionRepository {
-	public constructor(private readonly prismaClient: PrismaClient) {}
+	public constructor(private readonly orm: PrismaClient) {}
 
 	public async create(permissionData: Permission): Promise<Permission> {
-		const createdPermission = await this.prismaClient.permission.create({
+		const createdPermission = await this.orm.permission.create({
 			data: {
 				id: permissionData.id,
 				name: permissionData.name,
@@ -22,7 +22,7 @@ class PermissionRepositoryPrismaORM implements PermissionRepository {
 	}
 
 	public async listPermissions(): Promise<Permission[]> {
-		const permissionsFound = await this.prismaClient.permission.findMany()
+		const permissionsFound = await this.orm.permission.findMany()
 		const permissions = permissionsFound.map((permission) =>
 			Permission.restore(permission.id, permission.name, permission.description),
 		)
@@ -30,7 +30,7 @@ class PermissionRepositoryPrismaORM implements PermissionRepository {
 	}
 
 	public async findPermissionById(permissionId: string): Promise<Permission | null> {
-		const permissionFound = await this.prismaClient.permission.findUnique({
+		const permissionFound = await this.orm.permission.findUnique({
 			where: {
 				id: permissionId,
 			},
@@ -48,7 +48,7 @@ class PermissionRepositoryPrismaORM implements PermissionRepository {
 
 	public async updatePermission(permissionData: Permission): Promise<Permission | null> {
 		try {
-			const updatedPermission = await this.prismaClient.permission.update({
+			const updatedPermission = await this.orm.permission.update({
 				where: {
 					id: permissionData.id,
 				},
@@ -73,7 +73,7 @@ class PermissionRepositoryPrismaORM implements PermissionRepository {
 
 	public async deletePermission(permissionId: string): Promise<Permission | null> {
 		try {
-			const deletedPermission = await this.prismaClient.permission.delete({
+			const deletedPermission = await this.orm.permission.delete({
 				where: {
 					id: permissionId,
 				},

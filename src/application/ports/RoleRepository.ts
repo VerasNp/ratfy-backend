@@ -21,6 +21,11 @@ export interface RoleRepository {
 	 */
 	findRoleById(roleId: string): Promise<Role | null>
 	/**
+	 * Find a role by its unique identifier
+	 * @param roleId The unique identifier of the role
+	 */
+	findRoleWithActionsById(roleId: string): Promise<Role | null>
+	/**
 	 * Updates Role data
 	 * @param roleData Role data updated
 	 */

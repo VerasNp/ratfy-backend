@@ -2,6 +2,6 @@ model Role {
     id          String       @id @default(uuid())
     name        String       @unique
     description String?
-    users       UserRole[]
-    actions     ActionRole[]
+    usersRoles       UserRole[]
+    actionsRoles     ActionRole[]
 }

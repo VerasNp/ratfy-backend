@@ -1,11 +1,13 @@
 import { RoleSchema } from '#application/DTOs/rbac/RoleDTO.js'
 import type CreateRoleUseCase from '#application/useCases/rbac/CreateRoleUseCase.js'
+import type UpdateRoleUseCase from '#application/useCases/rbac/UpdateRoleUseCase.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 
 class RBACController {
 	public constructor(
 		private readonly httpServer: HttpServerPort,
 		private readonly createRoleUseCase: CreateRoleUseCase,
+		private readonly updateRoleUseCase: UpdateRoleUseCase
 	) {
 		this.httpServer.register(
 			'get',
@@ -15,11 +17,11 @@ class RBACController {
 
 		this.httpServer.register(
 			'put',
-			'/rbac/roles/:role',
+			'/rbac/roles/:roleId',
 			async (params: any, body: any, _query: any) => {
-				const { role } = params
-				console.log('role', role)
-				console.log('body', RoleSchema.parse(body))
+				const { roleId } = params
+				const roleBody = RoleSchema.parse(body)
+				this.updateRoleUseCase.execute(roleId, roleBody)
 			},
 		)
 

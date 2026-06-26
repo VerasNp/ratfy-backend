@@ -3,10 +3,10 @@ import Resource from '#domain/rbac/resource/Resource.js'
 import { Prisma, type PrismaClient } from '#prisma/client'
 
 class ResourceRepositoryPrismaORM implements ResourceRepository {
-	public constructor(private readonly prismaClient: PrismaClient) {}
+	public constructor(private readonly orm: PrismaClient) {}
 
 	public async create(resourceData: Resource): Promise<Resource> {
-		const createdResource = await this.prismaClient.resource.create({
+		const createdResource = await this.orm.resource.create({
 			data: {
 				id: resourceData.id,
 				name: resourceData.name,
@@ -17,7 +17,7 @@ class ResourceRepositoryPrismaORM implements ResourceRepository {
 	}
 
 	public async listResources(): Promise<Resource[]> {
-		const foundResources = await this.prismaClient.resource.findMany()
+		const foundResources = await this.orm.resource.findMany()
 		const resources = foundResources.map((foundResource) =>
 			Resource.restore(foundResource.id, foundResource.name),
 		)
@@ -25,7 +25,7 @@ class ResourceRepositoryPrismaORM implements ResourceRepository {
 	}
 
 	public async findResourceById(resourceId: string): Promise<Resource | null> {
-		const foundResource = await this.prismaClient.resource.findUnique({
+		const foundResource = await this.orm.resource.findUnique({
 			where: {
 				id: resourceId,
 			},
@@ -39,7 +39,7 @@ class ResourceRepositoryPrismaORM implements ResourceRepository {
 
 	public async updateResource(resourceData: Resource): Promise<Resource | null> {
 		try {
-			const updatedResource = await this.prismaClient.resource.update({
+			const updatedResource = await this.orm.resource.update({
 				where: {
 					id: resourceData.id,
 				},
@@ -59,7 +59,7 @@ class ResourceRepositoryPrismaORM implements ResourceRepository {
 
 	public async deleteResource(resourceId: string): Promise<Resource | null> {
 		try {
-			const deletedResource = await this.prismaClient.resource.delete({
+			const deletedResource = await this.orm.resource.delete({
 				where: {
 					id: resourceId,
 				},

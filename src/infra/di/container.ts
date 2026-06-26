@@ -48,6 +48,7 @@ import RoleRepositoryPrismaORM from '#infra/repository/rbac/RoleRepositoryPrisma
 import UserRoleRepositoryPrismaORM from '#infra/repository/rbac/UserRoleRepositoryPrismaORM.js'
 import RBACController from '#infra/controllers/RBACController.js'
 import CreateRoleUseCase from '#application/useCases/rbac/CreateRoleUseCase.js'
+import UpdateRoleUseCase from '#application/useCases/rbac/UpdateRoleUseCase.js'
 
 const container = createContainer({ injectionMode: InjectionMode.CLASSIC })
 
@@ -107,6 +108,7 @@ container.register({
 	getUserUseCase: asClass(GetUserUseCase).scoped(),
 	listUsersUseCase: asClass(ListUsersUseCase).scoped(),
 	createRoleUseCase: asClass(CreateRoleUseCase).scoped(),
+	updateRoleUseCase: asClass(UpdateRoleUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),

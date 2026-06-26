@@ -1,3 +1,4 @@
+import type { RoleDTO } from '#application/DTOs/rbac/RoleDTO.js'
 import ResourceNotFoundError from '#application/errors/ResourceNotFoundError.js'
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
 import type { PermissionRepository } from '#application/ports/PermissionRepository.js'
@@ -14,25 +15,16 @@ class UpdateRoleUseCase {
 		private readonly unitOfWork: UnitOfWork,
 	) {}
 
-	public async execute(input: RoleDTO): Promise<RoleDTO> {
-		const roleToUpdate = await this.roleRepository.findRoleById(input.roleId)
+	public async execute(roleId: string, input: RoleDTO): Promise<void> {
+		const roleToUpdate = await this.roleRepository.findRoleById(roleId)
 		if (!roleToUpdate) {
 			this.loggerService.warn(`Role ${input.name} not found`, {
 				origin: 'UpdateRoleUseCase',
 			})
 			throw new ResourceNotFoundError('Role not found')
 		}
-		const
 	}
 }
 
 export default UpdateRoleUseCase
 
-type RoleDTO = {
-	name: string
-	description: string | null
-	actions: {
-		resourceId: string
-		permissionId: string
-	}[]
-}
