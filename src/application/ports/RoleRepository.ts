@@ -10,7 +10,7 @@ export interface RoleRepository {
 	 * Creates a role
 	 * @param roleData
 	 */
-	create(roleData: Role): Promise<Role>
+	createRole(roleData: Role): Promise<Role>
 	/**
 	 * List all roles
 	 */
@@ -20,11 +20,6 @@ export interface RoleRepository {
 	 * @param roleId The unique identifier of the role
 	 */
 	findRoleById(roleId: string): Promise<Role | null>
-	/**
-	 * Find a role by its unique identifier
-	 * @param roleId The unique identifier of the role
-	 */
-	findRoleWithActionsById(roleId: string): Promise<Role | null>
 	/**
 	 * Updates Role data
 	 * @param roleData Role data updated

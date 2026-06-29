@@ -8,10 +8,6 @@ class RoleRepositoryMemory implements RoleRepository {
 		this.roles = initialRoles
 	}
 
-	public findRoleWithActionsById(roleId: string): Promise<Role | null> {
-		throw new Error('Method not implemented.')
-	}
-
 	public findRoleByName(roleName: string): Promise<Role | null> {
 		const foundRole = this.roles.find((role) => role.name.value === roleName)
 		if (!foundRole) {
@@ -20,7 +16,7 @@ class RoleRepositoryMemory implements RoleRepository {
 		return Promise.resolve(foundRole)
 	}
 
-	public create(roleData: Role): Promise<Role> {
+	public createRole(roleData: Role): Promise<Role> {
 		this.roles.push(roleData)
 		return Promise.resolve(roleData)
 	}
@@ -38,11 +34,11 @@ class RoleRepositoryMemory implements RoleRepository {
 	}
 
 	public updateRole(roleData: Role): Promise<Role | null> {
-		const roleIndex = this.roles.findIndex((role) => role.id === roleData.id)
-		if (roleIndex === -1) {
+		const foundRoleIndex = this.roles.findIndex((role) => role.id === roleData.id)
+		if (foundRoleIndex === -1) {
 			return Promise.resolve(null)
 		}
-		this.roles[roleIndex] = roleData
+		this.roles[foundRoleIndex] = roleData
 		return Promise.resolve(roleData)
 	}
 

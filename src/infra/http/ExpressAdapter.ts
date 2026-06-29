@@ -55,7 +55,7 @@ class ExpressAdapter implements HttpServerPort {
 						res.cookie(cookie.name, cookie.value, cookie.options)
 					}
 				}
-				if (output?.body === undefined) {
+				if (output === undefined) {
 					return res.status(204).send()
 				}
 				return res.json(output)

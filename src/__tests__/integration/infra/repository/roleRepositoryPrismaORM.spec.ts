@@ -20,7 +20,7 @@ describe('RoleRepositoryPrismaORM', () => {
 
 	it('should create a role', async () => {
 		const roleToBeCreated = Role.create('TEST', null)
-		const createdRole = await roleRepository.create(roleToBeCreated)
+		const createdRole = await roleRepository.createRole(roleToBeCreated)
 		const foundRole = await roleRepository.findRoleById(createdRole.id)
 		expect(foundRole!.id).toBe(createdRole.id)
 		expect(foundRole!.name.value).toBe(createdRole.name.value)
@@ -28,8 +28,8 @@ describe('RoleRepositoryPrismaORM', () => {
 	})
 
 	it('should list all roles', async () => {
-		const role1 = await roleRepository.create(Role.create('TEST1', null))
-		const role2 = await roleRepository.create(Role.create('TEST2', null))
+		const role1 = await roleRepository.createRole(Role.create('TEST1', null))
+		const role2 = await roleRepository.createRole(Role.create('TEST2', null))
 		const foundRoles = await roleRepository.listRoles()
 		expect(foundRoles.length).toBe(2)
 		expect(foundRoles).toEqual(
@@ -47,7 +47,7 @@ describe('RoleRepositoryPrismaORM', () => {
 
 	it('should update an existing role', async () => {
 		const roleToBeCreated = Role.create('TEST', null)
-		const createdRole = await roleRepository.create(roleToBeCreated)
+		const createdRole = await roleRepository.createRole(roleToBeCreated)
 		const roleToBeUpdated = Role.restore(createdRole.id, 'TEST_UPDATED', 'DESCRIPTION_UPDATED')
 		const updatedRole = await roleRepository.updateRole(roleToBeUpdated)
 		expect(updatedRole).not.toBeNull()
@@ -68,7 +68,7 @@ describe('RoleRepositoryPrismaORM', () => {
 
 	it('should delete an existing role', async () => {
 		const roleToBeCreated = Role.create('TEST', null)
-		const createdRole = await roleRepository.create(roleToBeCreated)
+		const createdRole = await roleRepository.createRole(roleToBeCreated)
 		const deletedRole = await roleRepository.deleteRole(createdRole.id)
 		expect(deletedRole).not.toBeNull()
 		expect(deletedRole!.id).toBe(createdRole.id)

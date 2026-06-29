@@ -1,3 +1,4 @@
+import type Role from '#domain/rbac/role/Role.js'
 import type User from '#domain/user/User.js'
 
 export interface UserRepository {
@@ -13,9 +14,9 @@ export interface UserRepository {
 	findByEmail(email: string): Promise<User | null>
 	/**
 	 * Updates an existing user in the persistence layer
-	 * @param user The user entity with updated information
+	 * @param userData The user entity with updated information
 	 */
-	update(user: User): Promise<void>
+	updateUser(userData: User): Promise<User | null>
 	/**
 	 * Finds a user by their unique identifier
 	 * @param id The unique identifier of the user to search for

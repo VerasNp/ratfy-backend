@@ -20,8 +20,11 @@ class Permission {
 		return new Permission(id, operation, resource)
 	}
 
-	public matches(operation: Operation, resource: Resource): boolean {
-		return this._operation.id === operation.id && this._resource.id === resource.id
+	public matches(operationName: string, resourceName: string): boolean {
+		return (
+			this._operation.name.value === operationName &&
+			this._resource.name.value === resourceName
+		)
 	}
 
 	public get operation() {

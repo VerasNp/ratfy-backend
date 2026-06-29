@@ -1,8 +1,8 @@
 import { afterAll, beforeEach, describe, expect, inject, it } from 'vitest'
 import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '../../../../prisma/generated/prisma/client'
 import UserRepositoryPrismaORM from '#infra/repository/UserRepositoryPrismaORM.js'
 import User from '#domain/user/User.js'
+import { PrismaClient } from '#prisma/client'
 
 const adapter = new PrismaPg({ connectionString: inject('testPostgresURL') })
 const prisma = new PrismaClient({ adapter })

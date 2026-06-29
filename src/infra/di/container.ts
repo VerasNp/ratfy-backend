@@ -53,6 +53,16 @@ import CreateOperationUseCase from '#application/useCases/rbac/CreateOperationUs
 import OperationRepositoryPrismaORM from '#infra/repository/rbac/OperationRepositoryPrismaORM.js'
 import UpdateOperationUseCase from '#application/useCases/rbac/UpdateOperationUseCase.js'
 import DeleteOperationUseCase from '#application/useCases/rbac/DeleteOperationUseCase.js'
+import CreateResourceUseCase from '#application/useCases/rbac/CreateResourceUseCase.js'
+import UpdateResourceUseCase from '#application/useCases/rbac/UpdateResourceUseCase.js'
+import DeleteResourceUseCase from '#application/useCases/rbac/DeleteResourceUseCase.js'
+import CreatePermissionUseCase from '#application/useCases/rbac/CreatePermissionUseCase.js'
+import DeletePermissionUseCase from '#application/useCases/rbac/DeletePermissionUseCase.js'
+import DeleteRoleUseCase from '#application/useCases/rbac/DeleteRoleUseCase.js'
+import GrantPermissionToRoleUseCase from '#application/useCases/rbac/GrantPermissionToRoleUseCase.js'
+import RevokePermissionFromRoleUseCase from '#application/useCases/rbac/RevokePermissionFromRoleUseCase.js'
+import AssignRoleToUserUseCase from '#application/useCases/rbac/AssignRoleToUserUseCase.js'
+import RemoveRoleFromUserUseCase from '#application/useCases/rbac/RemoveRoleFromUserUseCase.js'
 
 const container = createContainer({ injectionMode: InjectionMode.CLASSIC })
 
@@ -117,6 +127,16 @@ container.register({
 	createOperationUseCase: asClass(CreateOperationUseCase).scoped(),
 	updateOperationUseCase: asClass(UpdateOperationUseCase).scoped(),
 	deleteOperationUseCase: asClass(DeleteOperationUseCase).scoped(),
+	createResourceUseCase: asClass(CreateResourceUseCase).scoped(),
+	updateResourceUseCase: asClass(UpdateResourceUseCase).scoped(),
+	deleteResourceUseCase: asClass(DeleteResourceUseCase).scoped(),
+	createPermissionUseCase: asClass(CreatePermissionUseCase).scoped(),
+	deletePermissionUseCase: asClass(DeletePermissionUseCase).scoped(),
+	deleteRoleUseCase: asClass(DeleteRoleUseCase).scoped(),
+	grantPermissionToRoleUseCase: asClass(GrantPermissionToRoleUseCase).scoped(),
+	revokePermissionFromRoleUseCase: asClass(RevokePermissionFromRoleUseCase).scoped(),
+	assignRoleToUserUseCase: asClass(AssignRoleToUserUseCase).scoped(),
+	removeRoleFromUserUseCase: asClass(RemoveRoleFromUserUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),

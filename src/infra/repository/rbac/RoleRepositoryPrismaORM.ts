@@ -5,31 +5,6 @@ import { Prisma, type PrismaClient } from '#prisma/client'
 class RoleRepositoryPrismaORM implements RoleRepository {
 	public constructor(private readonly orm: PrismaClient) {}
 
-	public async findRoleWithActionsById(roleId: string): Promise<Role | null> {
-		const roleFound = await this.orm.role.findUnique({
-			where: {
-				id: roleId,
-			},
-			include: {
-				actionsRoles: {
-					include: {
-						action: true,
-					},
-				},
-			},
-		})
-		if (!roleFound) {
-			return null
-		}
-		const actions = new Set(
-			roleFound.actionsRoles.map(
-				(actionRole) => `${actionRole.action.resourceId}:${actionRole.action.permissionId}`,
-			),
-		)
-		const role = Role.restore(roleFound.id, roleFound.name, roleFound.description, actions)
-		return role
-	}
-
 	public async findRoleByName(roleName: string): Promise<Role | null> {
 		const foundRole = await this.orm.role.findUnique({
 			where: {
@@ -43,7 +18,7 @@ class RoleRepositoryPrismaORM implements RoleRepository {
 		return role
 	}
 
-	public async create(roleData: Role): Promise<Role> {
+	public async createRole(roleData: Role): Promise<Role> {
 		const createdRole = await this.orm.role.create({
 			data: {
 				id: roleData.id,
@@ -76,41 +51,35 @@ class RoleRepositoryPrismaORM implements RoleRepository {
 
 	public async updateRole(roleData: Role): Promise<Role | null> {
 		try {
-			const currentActionRoles = await this.orm.actionRole.findMany({
-				where: { roleId: roleData.id },
-				include: { action: true },
-			})
-			const currentKeys = new Set(
-				currentActionRoles.map((ar) => `${ar.action.resourceId}:${ar.action.permissionId}`),
-			)
-			const desiredKeys = roleData.actions
-			const toAdd = [...desiredKeys].filter((key) => !currentKeys.has(key))
-			const toRemove = [...currentKeys].filter((key) => !desiredKeys.has(key))
-			const actionsToAdd = await Promise.all(
-				toAdd.map(async (key) => {
-					const [resourceId, permissionId] = key.split(':')
-					const action = await this.orm.action.findFirst({
-						where: {
-							resourceId: resourceId!,
-							permissionId: permissionId!,
-						},
+			let updatedRole: Role
+			await this.orm.$transaction(async (tx) => {
+				await tx.role.update({
+					where: { id: roleData.id },
+					data: {
+						name: roleData.name.value,
+						description: roleData.description,
+					},
+				})
+				await tx.permissionRole.deleteMany({
+					where: { roleId: roleData.id },
+				})
+				if (roleData.permissions.length > 0) {
+					await tx.permissionRole.createMany({
+						data: roleData.permissions.map((permission) => ({
+							id: crypto.randomUUID(),
+							roleId: roleData.id,
+							permissionId: permission.id,
+						})),
 					})
-					if (!action) throw new NotFoundError(`Action not found for ${key}`)
-					return action.id
-				}),
-			)
-
-			const updatedRole = await this.orm.role.update({
-				where: {
-					id: roleData.id,
-				},
-				data: {
-					name: roleData.name.value,
-					description: roleData.description,
-				},
+				}
 			})
-			const role = Role.restore(updatedRole.id, updatedRole.name, updatedRole.description)
-			return role
+			updatedRole = Role.restore(
+				roleData.id,
+				roleData.name.value,
+				roleData.description,
+				roleData.permissions,
+			)
+			return updatedRole
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
 				return null

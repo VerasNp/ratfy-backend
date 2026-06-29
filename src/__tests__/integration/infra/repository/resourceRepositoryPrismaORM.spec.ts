@@ -23,7 +23,7 @@ describe('ResourceRepositoryPrismaORM', () => {
 		const createdResource = await resourceRepository.create(resourceToBeCreated)
 		const permission = await resourceRepository.findResourceById(createdResource.id)
 		expect(permission!.id).toBe(createdResource.id)
-		expect(permission!.name).toBe(createdResource.name)
+		expect(permission!.name.value).toBe(createdResource.name.value)
 	})
 
 	it('should list all resources', async () => {
@@ -51,7 +51,7 @@ describe('ResourceRepositoryPrismaORM', () => {
 		const updatedPermission = await resourceRepository.updateResource(resourceToBeUpdated)
 		expect(updatedPermission).not.toBeNull()
 		expect(updatedPermission!.id).toBe(resourceToBeUpdated.id)
-		expect(updatedPermission!.name).toBe('UPDATED_TEST')
+		expect(updatedPermission!.name.value).toBe('UPDATED_TEST')
 	})
 
 	it("should return null when trying to update a resource that doesn't exist", async () => {
@@ -66,7 +66,7 @@ describe('ResourceRepositoryPrismaORM', () => {
 		const deletedResource = await resourceRepository.deleteResource(createdResource.id)
 		expect(deletedResource).not.toBeNull()
 		expect(deletedResource!.id).toBe(createdResource.id)
-		expect(deletedResource!.name).toBe('TEST')
+		expect(deletedResource!.name.value).toBe('TEST')
 		const permission = await resourceRepository.findResourceById(deletedResource!.id)
 		expect(permission).toBeNull()
 	})

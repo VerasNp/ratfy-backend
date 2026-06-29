@@ -5,11 +5,24 @@ import { Prisma, type PrismaClient } from '#prisma/client'
 class ResourceRepositoryPrismaORM implements ResourceRepository {
 	public constructor(private readonly orm: PrismaClient) {}
 
+	public async findResourceByName(resourceName: string): Promise<Resource | null> {
+		const foundResource = await this.orm.resource.findUnique({
+			where: {
+				name: resourceName,
+			},
+		})
+		if (!foundResource) {
+			return null
+		}
+		const resource = Resource.restore(foundResource.id, foundResource.name)
+		return resource
+	}
+
 	public async create(resourceData: Resource): Promise<Resource> {
 		const createdResource = await this.orm.resource.create({
 			data: {
 				id: resourceData.id,
-				name: resourceData.name,
+				name: resourceData.name.value,
 			},
 		})
 		const resource = Resource.restore(createdResource.id, createdResource.name)
@@ -44,7 +57,7 @@ class ResourceRepositoryPrismaORM implements ResourceRepository {
 					id: resourceData.id,
 				},
 				data: {
-					name: resourceData.name,
+					name: resourceData.name.value,
 				},
 			})
 			const resource = Resource.restore(updatedResource.id, updatedResource.name)

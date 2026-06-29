@@ -22,7 +22,7 @@ beforeEach(async () => {
 	await prisma.$executeRawUnsafe('TRUNCATE TABLE "User" RESTART IDENTITY CASCADE')
 	await prisma.$executeRawUnsafe('TRUNCATE TABLE "Role" RESTART IDENTITY CASCADE')
 	dummyRole = Role.create('ROLE', null)
-	await roleRepository.create(dummyRole)
+	await roleRepository.createRole(dummyRole)
 	dummyUser = User.create('Test User', 'foo222@bar.com', 'Valid@123', new Date('1990-01-01'))
 	await userRepository.create(dummyUser)
 })

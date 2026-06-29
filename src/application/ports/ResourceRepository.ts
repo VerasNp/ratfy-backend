@@ -1,4 +1,4 @@
-import type Resource from "#domain/rbac/resource/Resource.js"
+import type Resource from '#domain/rbac/resource/Resource.js'
 
 export interface ResourceRepository {
 	/**
@@ -25,4 +25,9 @@ export interface ResourceRepository {
 	 * @param resourceId The unique identifier of the resource
 	 */
 	deleteResource(resourceId: string): Promise<Resource | null>
+	/**
+	 * Finds a resource by its name
+	 * @param resourceName The name of the resource
+	 */
+	findResourceByName(resourceName: string): Promise<Resource | null>
 }

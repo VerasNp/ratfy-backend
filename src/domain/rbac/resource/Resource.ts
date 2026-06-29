@@ -1,4 +1,3 @@
-import DomainError from '#domain/errors/DomainError.js'
 import Name from '../shared/Name'
 
 class Resource {

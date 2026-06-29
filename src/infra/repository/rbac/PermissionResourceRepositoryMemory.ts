@@ -1,8 +1,8 @@
-import type { ActionRepository } from '#application/ports/ActionRepository.js';
+import type { PermissionRepository } from '#application/ports/PermissionRepository.js';
 import Operation from '#domain/rbac/operation/Operation.js'
 import type Resource from '#domain/rbac/resource/Resource.js'
 
-class ActionRepositoryMemory implements ActionRepository {
+class ActionRepositoryMemory implements PermissionRepository {
 	public permissionsResources: { permissionId: string; resourceId: string }[] = []
 	private permissions: Operation[] = []
 

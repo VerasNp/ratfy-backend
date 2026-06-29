@@ -2,7 +2,11 @@ import type { UserRepository } from '#application/ports/UserRepository.js'
 import type User from '#domain/user/User.js'
 
 class UserRepositoryMemory implements UserRepository {
-	private users: User[] = []
+	public users: User[] = []
+
+	public constructor(initialUsers: User[] = []) {
+		this.users = initialUsers
+	}
 
 	public findAll(): Promise<User[]> {
 		return Promise.resolve(this.users)
@@ -18,12 +22,13 @@ class UserRepositoryMemory implements UserRepository {
 		return Promise.resolve(user || null)
 	}
 
-	update(user: User): Promise<void> {
-		const index = this.users.findIndex((u) => u.id === user.id)
-		if (index !== -1) {
-			this.users[index] = user
+	updateUser(userData: User): Promise<User | null> {
+		const index = this.users.findIndex((u) => u.id === userData.id)
+		if (index === -1) {
+			return Promise.resolve(null)
 		}
-		return Promise.resolve()
+		this.users[index] = userData
+		return Promise.resolve(userData)
 	}
 
 	findById(id: string): Promise<User | null> {
