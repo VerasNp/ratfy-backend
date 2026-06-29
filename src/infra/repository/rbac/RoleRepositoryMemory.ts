@@ -8,6 +8,10 @@ class RoleRepositoryMemory implements RoleRepository {
 		this.roles = initialRoles
 	}
 
+	public findRoleWithActionsById(roleId: string): Promise<Role | null> {
+		throw new Error('Method not implemented.')
+	}
+
 	public findRoleByName(roleName: string): Promise<Role | null> {
 		const foundRole = this.roles.find((role) => role.name.value === roleName)
 		if (!foundRole) {

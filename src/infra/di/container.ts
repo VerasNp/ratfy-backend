@@ -42,13 +42,17 @@ import { asClass, asValue, createContainer, InjectionMode } from 'awilix'
 import GetUserUseCase from '#application/useCases/user/GetUserUseCase.js'
 import ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
 import UnitOfWorkPrismaORM from '#infra/repository/UnitOfWorkPrismaORM.js'
-import PermissionRepositoryPrismaORM from '#infra/repository/rbac/PermissionRepositoryPrismaORM.js'
+import PermissionRepositoryPrismaORM from '#infra/repository/rbac/OperationRepositoryPrismaORM.js'
 import ResourceRepositoryPrismaORM from '#infra/repository/rbac/ResourceRepositoryPrismaORM.js'
 import RoleRepositoryPrismaORM from '#infra/repository/rbac/RoleRepositoryPrismaORM.js'
 import UserRoleRepositoryPrismaORM from '#infra/repository/rbac/UserRoleRepositoryPrismaORM.js'
 import RBACController from '#infra/controllers/RBACController.js'
 import CreateRoleUseCase from '#application/useCases/rbac/CreateRoleUseCase.js'
 import UpdateRoleUseCase from '#application/useCases/rbac/UpdateRoleUseCase.js'
+import CreateOperationUseCase from '#application/useCases/rbac/CreateOperationUseCase.js'
+import OperationRepositoryPrismaORM from '#infra/repository/rbac/OperationRepositoryPrismaORM.js'
+import UpdateOperationUseCase from '#application/useCases/rbac/UpdateOperationUseCase.js'
+import DeleteOperationUseCase from '#application/useCases/rbac/DeleteOperationUseCase.js'
 
 const container = createContainer({ injectionMode: InjectionMode.CLASSIC })
 
@@ -82,6 +86,7 @@ container.register({
 	resourceRepository: asClass(ResourceRepositoryPrismaORM).singleton(),
 	unitOfWork: asClass(UnitOfWorkPrismaORM).singleton(),
 	userRoleRepository: asClass(UserRoleRepositoryPrismaORM).singleton(),
+	operationRepository: asClass(OperationRepositoryPrismaORM).singleton(),
 
 	// use cases
 	signUpUserCase: asClass(SignupUseCase).scoped(),
@@ -109,6 +114,9 @@ container.register({
 	listUsersUseCase: asClass(ListUsersUseCase).scoped(),
 	createRoleUseCase: asClass(CreateRoleUseCase).scoped(),
 	updateRoleUseCase: asClass(UpdateRoleUseCase).scoped(),
+	createOperationUseCase: asClass(CreateOperationUseCase).scoped(),
+	updateOperationUseCase: asClass(UpdateOperationUseCase).scoped(),
+	deleteOperationUseCase: asClass(DeleteOperationUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),

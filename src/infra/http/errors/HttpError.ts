@@ -1,4 +1,4 @@
-import InfraError from '#infra/shared/errors/InfraError.js'
+import InfraError from '#infra/errors/InfraError.js'
 
 class HttpError extends InfraError {
 	public statusCode: number

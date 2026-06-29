@@ -1,7 +1,7 @@
 import type { RoleDTO } from '#application/DTOs/rbac/RoleDTO.js'
 import ResourceNotFoundError from '#application/errors/ResourceNotFoundError.js'
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
-import type { PermissionRepository } from '#application/ports/PermissionRepository.js'
+import type { OperationRepository } from '#application/ports/OperationRepository.js'
 import type { ResourceRepository } from '#application/ports/ResourceRepository.js'
 import type { RoleRepository } from '#application/ports/RoleRepository.js'
 import type { UnitOfWork } from '#application/ports/UnitOfWork.js'
@@ -9,7 +9,7 @@ import type { UnitOfWork } from '#application/ports/UnitOfWork.js'
 class UpdateRoleUseCase {
 	public constructor(
 		private readonly roleRepository: RoleRepository,
-		private readonly permissionRepository: PermissionRepository,
+		private readonly permissionRepository: OperationRepository,
 		private readonly resourceRepository: ResourceRepository,
 		private readonly loggerService: LoggerPort,
 		private readonly unitOfWork: UnitOfWork,

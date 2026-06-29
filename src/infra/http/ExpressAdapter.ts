@@ -9,7 +9,7 @@ import ApplicationError from '#application/errors/ApplicationError.js'
 import toHttpErrors from './errors/toHttpErrors'
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
 import asyncHandler from './asyncHandler'
-import InfraError from '#infra/shared/errors/InfraError.js'
+import InfraError from '#infra/errors/InfraError.js'
 import type { DocsPort } from '#application/ports/DocsPort.js'
 import DomainError from '#domain/errors/DomainError.js'
 
@@ -67,8 +67,8 @@ class ExpressAdapter implements HttpServerPort {
 		this.app.use((err: any, req: any, res: any, next: any) => {
 			if (err instanceof ZodError) {
 				return res.status(400).json({
-					message: 'Validation error',
-					issues: err.issues,
+					error: 'Validation error',
+					details: err.issues.map((issue) => ({ message: issue.message })),
 				})
 			}
 			if (err instanceof DomainError) {
@@ -93,6 +93,7 @@ class ExpressAdapter implements HttpServerPort {
 				origin: 'ExpressAdapter',
 				error: err,
 			})
+			console.error('Unhandled error:', err)
 			return res.status(500).json({
 				message: 'Internal server error',
 			})

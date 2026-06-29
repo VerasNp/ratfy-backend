@@ -1,7 +1,7 @@
-import type { PermissionRepository } from '#application/ports/PermissionRepository.js'
+import type { OperationRepository } from '#application/ports/OperationRepository.js'
 
 class GetPermissionsUseCase {
-	public constructor(private readonly permissionRepository: PermissionRepository) {}
+	public constructor(private readonly permissionRepository: OperationRepository) {}
 
 	public async execute(): Promise<GetPermissionsUseCaseOutputDTO[]> {
 		const foundPermissions = await this.permissionRepository.listPermissions()

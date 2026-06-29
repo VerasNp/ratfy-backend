@@ -1,10 +1,10 @@
 import Action from '#domain/rbac/action/Action.js'
-import Permission from '#domain/rbac/permission/Permission.js'
+import Operation from '#domain/rbac/operation/Operation.js'
 import Resource from '#domain/rbac/resource/Resource.js'
 import Role from '#domain/rbac/role/Role.js'
 import ActionRepositoryPrismaORM from '#infra/repository/rbac/ActionRepositoryPrismaORM.js'
 import ActionRoleRepositoryPrismaORM from '#infra/repository/rbac/ActionRoleRepositoryPrismaORM.js'
-import PermissionRepositoryPrismaORM from '#infra/repository/rbac/PermissionRepositoryPrismaORM.js'
+import PermissionRepositoryPrismaORM from '#infra/repository/rbac/OperationRepositoryPrismaORM.js'
 import ResourceRepositoryPrismaORM from '#infra/repository/rbac/ResourceRepositoryPrismaORM.js'
 import RoleRepositoryPrismaORM from '#infra/repository/rbac/RoleRepositoryPrismaORM.js'
 import { PrismaClient } from '#prisma/client.js'
@@ -21,7 +21,7 @@ const roleRepository = new RoleRepositoryPrismaORM(prisma)
 const actionRepository = new ActionRepositoryPrismaORM(prisma)
 
 let dummyRole: Role
-let dummyPermission: Permission
+let dummyPermission: Operation
 let dummyResource: Resource
 let dummyAction: Action
 
@@ -33,7 +33,7 @@ beforeEach(async () => {
 	await prisma.$executeRawUnsafe('TRUNCATE TABLE "Role" RESTART IDENTITY CASCADE')
 	dummyRole = Role.create('ROLE', null)
 	dummyRole = await roleRepository.create(dummyRole)
-	dummyPermission = Permission.create('PERMISSION', null)
+	dummyPermission = Operation.create('PERMISSION', null)
 	dummyPermission = await permissionRepository.create(dummyPermission)
 	dummyResource = Resource.create('RESOURCE')
 	dummyResource = await resourceRepository.create(dummyResource)

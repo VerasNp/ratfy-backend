@@ -1,5 +1,6 @@
-model Resource {
+model Operation {
     id          String       @id @default(uuid())
     name        String       @unique
+    description String?
     permissions Permission[]
 }

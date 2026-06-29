@@ -1,9 +1,0 @@
-model ActionRole {
-    id       String @id @default(uuid())
-    roleId   String
-    actionId String
-    role     Role   @relation(fields: [roleId], references: [id])
-    action   Action @relation(fields: [actionId], references: [id])
-
-    @@unique([roleId, actionId])
-}

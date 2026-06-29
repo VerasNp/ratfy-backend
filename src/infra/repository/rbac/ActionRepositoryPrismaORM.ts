@@ -1,6 +1,6 @@
 import type { ActionRepository } from '#application/ports/ActionRepository.js'
 import Action from '#domain/rbac/action/Action.js'
-import Permission from '#domain/rbac/permission/Permission.js'
+import Operation from '#domain/rbac/operation/Operation.js'
 import type { PrismaClient } from '#prisma/client.js'
 
 class ActionRepositoryPrismaORM implements ActionRepository {
@@ -40,7 +40,7 @@ class ActionRepositoryPrismaORM implements ActionRepository {
 		)
 	}
 
-	public async findPermissionsByResourceId(resourceId: string): Promise<Permission[]> {
+	public async findPermissionsByResourceId(resourceId: string): Promise<Operation[]> {
 		const foundActions = await this.orm.action.findMany({
 			where: {
 				resourceId: resourceId,
@@ -50,7 +50,7 @@ class ActionRepositoryPrismaORM implements ActionRepository {
 			},
 		})
 		return foundActions.map((foundAction) =>
-			Permission.restore(
+			Operation.restore(
 				foundAction.permission.id,
 				foundAction.permission.name,
 				foundAction.permission.description,

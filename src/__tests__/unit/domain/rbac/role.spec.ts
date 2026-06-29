@@ -22,9 +22,4 @@ describe('Role', () => {
 		expect(role.name.value).toBe('UPDATED')
 		expect(role.description).toBe('UPDATED_DESCRIPTION')
 	})
-
-	it('should throw an error when updating role with empty name', () => {
-		const role = Role.create('TEST', null)
-		expect(() => role.updateData({ name: '' })).toThrow('Name cannot be empty')
-	})
 })

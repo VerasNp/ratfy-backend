@@ -1,4 +1,4 @@
-import type { PrismaClient } from "#prisma/client"
+import type { PrismaClient } from '#prisma/client'
 
 export default async function seedRBAC(prisma: PrismaClient) {
 	await prisma.role.createMany({
@@ -9,14 +9,14 @@ export default async function seedRBAC(prisma: PrismaClient) {
 	const userRole = await prisma.role.findUnique({ where: { name: 'USER' } })
 	const artistRole = await prisma.role.findUnique({ where: { name: 'ARTIST' } })
 
-	await prisma.permission.createMany({
+	await prisma.operation.createMany({
 		data: [{ name: 'CREATE' }, { name: 'READ' }, { name: 'UPDATE' }, { name: 'DELETE' }],
 	})
 
-	const createPermission = await prisma.permission.findUnique({ where: { name: 'CREATE' } })
-	const readPermission = await prisma.permission.findUnique({ where: { name: 'READ' } })
-	const updatePermission = await prisma.permission.findUnique({ where: { name: 'UPDATE' } })
-	const deletePermission = await prisma.permission.findUnique({ where: { name: 'DELETE' } })
+	const createOperation = await prisma.operation.findUnique({ where: { name: 'CREATE' } })
+	const readOperation = await prisma.operation.findUnique({ where: { name: 'READ' } })
+	const updateOperation = await prisma.operation.findUnique({ where: { name: 'UPDATE' } })
+	const deleteOperation = await prisma.operation.findUnique({ where: { name: 'DELETE' } })
 
 	await prisma.resource.createMany({
 		data: [
@@ -34,28 +34,28 @@ export default async function seedRBAC(prisma: PrismaClient) {
 	const trackResource = await prisma.resource.findUnique({ where: { name: 'Track' } })
 	const playlistResource = await prisma.resource.findUnique({ where: { name: 'Playlist' } })
 
-	await prisma.action.createMany({
+	await prisma.permission.createMany({
 		data: [
-			{ resourceId: userResource!.id, permissionId: createPermission!.id },
-			{ resourceId: userResource!.id, permissionId: readPermission!.id },
-			{ resourceId: userResource!.id, permissionId: updatePermission!.id },
-			{ resourceId: userResource!.id, permissionId: deletePermission!.id },
-			{ resourceId: artistResource!.id, permissionId: createPermission!.id },
-			{ resourceId: artistResource!.id, permissionId: readPermission!.id },
-			{ resourceId: artistResource!.id, permissionId: updatePermission!.id },
-			{ resourceId: artistResource!.id, permissionId: deletePermission!.id },
-			{ resourceId: albumResource!.id, permissionId: createPermission!.id },
-			{ resourceId: albumResource!.id, permissionId: readPermission!.id },
-			{ resourceId: albumResource!.id, permissionId: updatePermission!.id },
-			{ resourceId: albumResource!.id, permissionId: deletePermission!.id },
-			{ resourceId: trackResource!.id, permissionId: createPermission!.id },
-			{ resourceId: trackResource!.id, permissionId: readPermission!.id },
-			{ resourceId: trackResource!.id, permissionId: updatePermission!.id },
-			{ resourceId: trackResource!.id, permissionId: deletePermission!.id },
-			{ resourceId: playlistResource!.id, permissionId: createPermission!.id },
-			{ resourceId: playlistResource!.id, permissionId: readPermission!.id },
-			{ resourceId: playlistResource!.id, permissionId: updatePermission!.id },
-			{ resourceId: playlistResource!.id, permissionId: deletePermission!.id },
+			{ resourceId: userResource!.id, operationId: createOperation!.id },
+			{ resourceId: userResource!.id, operationId: readOperation!.id },
+			{ resourceId: userResource!.id, operationId: updateOperation!.id },
+			{ resourceId: userResource!.id, operationId: deleteOperation!.id },
+			{ resourceId: artistResource!.id, operationId: createOperation!.id },
+			{ resourceId: artistResource!.id, operationId: readOperation!.id },
+			{ resourceId: artistResource!.id, operationId: updateOperation!.id },
+			{ resourceId: artistResource!.id, operationId: deleteOperation!.id },
+			{ resourceId: albumResource!.id, operationId: createOperation!.id },
+			{ resourceId: albumResource!.id, operationId: readOperation!.id },
+			{ resourceId: albumResource!.id, operationId: updateOperation!.id },
+			{ resourceId: albumResource!.id, operationId: deleteOperation!.id },
+			{ resourceId: trackResource!.id, operationId: createOperation!.id },
+			{ resourceId: trackResource!.id, operationId: readOperation!.id },
+			{ resourceId: trackResource!.id, operationId: updateOperation!.id },
+			{ resourceId: trackResource!.id, operationId: deleteOperation!.id },
+			{ resourceId: playlistResource!.id, operationId: createOperation!.id },
+			{ resourceId: playlistResource!.id, operationId: readOperation!.id },
+			{ resourceId: playlistResource!.id, operationId: updateOperation!.id },
+			{ resourceId: playlistResource!.id, operationId: deleteOperation!.id },
 		],
 	})
 }

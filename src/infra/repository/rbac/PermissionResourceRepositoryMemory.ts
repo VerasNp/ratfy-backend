@@ -1,16 +1,16 @@
 import type { ActionRepository } from '#application/ports/ActionRepository.js';
-import Permission from '#domain/rbac/permission/Permission.js'
+import Operation from '#domain/rbac/operation/Operation.js'
 import type Resource from '#domain/rbac/resource/Resource.js'
 
 class ActionRepositoryMemory implements ActionRepository {
 	public permissionsResources: { permissionId: string; resourceId: string }[] = []
-	private permissions: Permission[] = []
+	private permissions: Operation[] = []
 
-	public constructor(initPermissions: Permission[] = []) {
+	public constructor(initPermissions: Operation[] = []) {
 		this.permissions = initPermissions
 	}
 
-	public findPermissionsByResourceId(resourceId: string): Promise<Permission[]> {
+	public findPermissionsByResourceId(resourceId: string): Promise<Operation[]> {
 		const foundPermissionsResources = this.permissionsResources.filter(
 			(permissionResource) => permissionResource.resourceId === resourceId,
 		)

@@ -1,41 +1,37 @@
-import DomainError from '#domain/errors/DomainError.js'
+import type Operation from '../operation/Operation'
+import type Resource from '../resource/Resource'
 
 class Permission {
 	public readonly id: string
-	private _name: string
-	private _description: string | null
+	private _operation: Operation
+	private _resource: Resource
 
-	private constructor(id: string, name: string, description: string | null) {
+	private constructor(id: string, operation: Operation, resource: Resource) {
 		this.id = id
-		this._name = name
-		this._description = description
+		this._operation = operation
+		this._resource = resource
 	}
 
-	public static create(name: string, description: string | null): Permission {
-		return new Permission(crypto.randomUUID(), name, description)
+	public static create(operation: Operation, resource: Resource): Permission {
+		return new Permission(crypto.randomUUID(), operation, resource)
 	}
 
-	public static restore(id: string, name: string, description: string | null): Permission {
-		return new Permission(id, name, description)
+	public static restore(id: string, operation: Operation, resource: Resource): Permission {
+		return new Permission(id, operation, resource)
 	}
 
-	public updateData(data: { name?: string; description?: string | null }): void {
-		if (data.name !== undefined) {
-			if (data.name.trim().length === 0) {
-				throw new DomainError('Permission name cannot be empty')
-			}
-			this._name = data.name
-		}
-		if (data.description !== undefined) {
-			this._description = data.description
-		}
+	public matches(operation: Operation, resource: Resource): boolean {
+		return this._operation.id === operation.id && this._resource.id === resource.id
 	}
 
-	public get name() {
-		return this._name
+	public get operation() {
+		return this._operation
 	}
-	public get description() {
-		return this._description
+	public get resource() {
+		return this._resource
+	}
+	public get label(): string {
+		return `${this._operation.name.value}:${this._resource.name.value}`
 	}
 }
 

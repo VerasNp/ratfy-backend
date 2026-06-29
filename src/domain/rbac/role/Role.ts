@@ -1,6 +1,6 @@
 import ConflictError from '#domain/errors/ConclictError.js'
 import NotFoundError from '#domain/errors/NotFoundError.js'
-import Name from './Name'
+import Name from '#domain/rbac/shared/Name.js'
 
 class Role {
 	public static readonly PredefinedRoles = {
