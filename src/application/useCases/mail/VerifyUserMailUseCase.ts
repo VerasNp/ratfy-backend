@@ -39,7 +39,7 @@ class VerifyUserMailUseCase {
 		}
 		if (!user.isEmailVerified()) {
 			user.verifyEmail()
-			await this.userRepository.update(user)
+			await this.userRepository.updateUser(user)
 			this.loggerService.info('VerifyUserMailUseCase: email verified successfully', {
 				userId: user.id,
 			})

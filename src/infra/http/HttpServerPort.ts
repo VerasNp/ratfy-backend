@@ -6,7 +6,7 @@ export interface HttpServerPort {
 	/**
 	 * Registers a route with the given HTTP method, URL, and callback function.
 	 * @param method Method of the HTTP request (e.g., 'get', 'post', 'put', 'delete').
-	 * @param url URL pattern for the route (e.g., '/users/:id').
+	 * @param url URL pattern for the route
 	 * @param callback Function to handle the incoming request, which receives route parameters, request body, and query parameters as arguments.
 	 * @param middlewares Array of middleware functions to be executed before the callback.
 	 */

@@ -3,4 +3,6 @@ export type GetAccountOutputDTO = {
 	name: string
 	email: string
 	birthDate: Date
+	verifiedAt: Date | null
+	roleId: string
 }

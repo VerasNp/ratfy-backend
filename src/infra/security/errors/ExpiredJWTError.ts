@@ -1,4 +1,4 @@
-import InfraError from '#infra/shared/errors/InfraError.js'
+import InfraError from '#infra/errors/InfraError.js'
 
 class ExpiredJWTError extends InfraError {
 	public constructor(message?: string) {

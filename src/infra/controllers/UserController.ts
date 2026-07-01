@@ -1,8 +1,14 @@
 import { SignupSchema } from '#application/DTOs/SignupInputDTO.js'
+import ResourceNotFoundError from '#application/errors/ResourceNotFoundError.js'
+import type { RoleRepository } from '#application/ports/RoleRepository.js'
+import type { UserRepository } from '#application/ports/UserRepository.js'
+import type AssignRoleToUserUseCase from '#application/useCases/rbac/AssignRoleToUserUseCase.js'
+import type RemoveRoleFromUserUseCase from '#application/useCases/rbac/RemoveRoleFromUserUseCase.js'
 import type GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
 import type GetUserUseCase from '#application/useCases/user/GetUserUseCase.js'
 import type ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
 import type SignupUseCase from '#application/useCases/user/SignupUseCase.js'
+import BadRequestError from '#infra/errors/BadRequestError.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 import type AuthMiddleware from '#infra/http/middlewares/AuthMiddleware.js'
 
@@ -14,6 +20,9 @@ class UserController {
 		private readonly authMiddleware: AuthMiddleware,
 		private readonly getUserUseCase: GetUserUseCase,
 		private readonly listUsersUseCase: ListUsersUseCase,
+		private readonly assignRoleToUserUseCase: AssignRoleToUserUseCase,
+		private readonly removeRoleFromUserUseCase: RemoveRoleFromUserUseCase,
+		private readonly userRepository: UserRepository,
 	) {
 		this.httpServer.register(
 			'post',
@@ -55,6 +64,79 @@ class UserController {
 				return { body: output }
 			},
 			[this.authMiddleware.handle()],
+		)
+		this.httpServer.register(
+			'post',
+			'/user/:userId/roles/:roleId',
+			async (params: any, _body: any, _query: any) => {
+				const { userId, roleId } = params
+				await this.assignRoleToUserUseCase.execute(userId, roleId)
+				return { message: 'Role assigned to user successfully' }
+			},
+			[this.authMiddleware.handle()],
+		)
+
+		this.httpServer.register(
+			'delete',
+			'/user/:userId/roles/:roleId',
+			async (params: any, _body: any, _query: any) => {
+				const { userId, roleId } = params
+				await this.removeRoleFromUserUseCase.execute(userId, roleId)
+				return { message: 'Role revoked from user successfully' }
+			},
+			[this.authMiddleware.handle()],
+		)
+
+		this.httpServer.register(
+			'get',
+			'/user/:userId/roles',
+			async (params: any, _body: any, _query: any) => {
+				const { userId } = params
+				const user = await this.userRepository.findById(userId)
+				if (!user) {
+					throw new ResourceNotFoundError('User not found')
+				}
+				return { data: user.roles.map((role) => ({ id: role.id, name: role.name.value })) }
+			},
+			[this.authMiddleware.handle()],
+		)
+
+		this.httpServer.register(
+			'get',
+			'/user/:userId/permissions',
+			async (params: any, _body: any, _query: any) => {
+				const { userId } = params
+				const user = await this.userRepository.findById(userId)
+				if (!user) {
+					throw new ResourceNotFoundError('User not found')
+				}
+				const permissions = user.roles.flatMap((role) => role.permissions)
+				return {
+					data: permissions.map((permission) => ({
+						id: permission.id,
+						label: permission.label,
+					})),
+				}
+			},
+			[this.authMiddleware.handle()],
+		)
+
+		this.httpServer.register(
+			"get",
+			"/user/:userId/can",
+			async (params: any, _body: any, query: any) => {
+				const { userId } = params
+				const { operation, resource } = query
+				if (!operation || !resource) {
+					throw new BadRequestError("Missing operation or resource query parameters")
+				}
+				const user = await this.userRepository.findById(userId)
+				if (!user) {
+					throw new ResourceNotFoundError("User not found")
+				}
+				const hasPermission = user.roles.some((role) => role.hasPermission(operation, resource))
+				return { data: { can: hasPermission } }
+			}
 		)
 	}
 }

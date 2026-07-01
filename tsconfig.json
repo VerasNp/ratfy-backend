@@ -38,6 +38,11 @@
 		"moduleDetection": "force",
 		"skipLibCheck": true,
 		"esModuleInterop": true,
-		"ignoreDeprecations": "6.0"
+		"ignoreDeprecations": "6.0",
+    "paths": {
+      "#prisma/client": ["./prisma/generated/prisma/client.ts"],
+      "#prisma/client.js": ["./prisma/generated/prisma/client.ts"],
+      "#*": ["./src/*"]
+    }
 	},
 }

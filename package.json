@@ -10,18 +10,24 @@
     "coverage": "vitest run --coverage",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:reset": "prisma migrate reset",
     "prisma:studio": "prisma studio",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed": "tsx src/infra/database/scripts/seeder/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "imports": {
-    "#*": "./src/*"
+    "#prisma/client": "./prisma/generated/prisma/client.js",
+    "#prisma/client.js": "./prisma/generated/prisma/client.js",
+    "#*": [
+      "./src/*"
+    ]
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
@@ -46,6 +52,7 @@
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
     "@eslint/js": "^10.0.1",
+    "@testcontainers/postgresql": "^12.0.3",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",

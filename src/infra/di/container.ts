@@ -39,9 +39,30 @@ import { AddTrackToPlaylistUseCase } from '#application/useCases/playlist/AddTra
 import { RemoveTrackFromPlaylistUseCase } from '#application/useCases/playlist/RemoveTrackFromPlaylist.js'
 import PlaylistController from '#infra/controllers/PlaylistController.js'
 import { asClass, asValue, createContainer, InjectionMode } from 'awilix'
-import type { get } from 'node:http'
 import GetUserUseCase from '#application/useCases/user/GetUserUseCase.js'
 import ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
+import UnitOfWorkPrismaORM from '#infra/repository/UnitOfWorkPrismaORM.js'
+import PermissionRepositoryPrismaORM from '#infra/repository/rbac/OperationRepositoryPrismaORM.js'
+import ResourceRepositoryPrismaORM from '#infra/repository/rbac/ResourceRepositoryPrismaORM.js'
+import RoleRepositoryPrismaORM from '#infra/repository/rbac/RoleRepositoryPrismaORM.js'
+import UserRoleRepositoryPrismaORM from '#infra/repository/rbac/UserRoleRepositoryPrismaORM.js'
+import RBACController from '#infra/controllers/RBACController.js'
+import CreateRoleUseCase from '#application/useCases/rbac/CreateRoleUseCase.js'
+import UpdateRoleUseCase from '#application/useCases/rbac/UpdateRoleUseCase.js'
+import CreateOperationUseCase from '#application/useCases/rbac/CreateOperationUseCase.js'
+import OperationRepositoryPrismaORM from '#infra/repository/rbac/OperationRepositoryPrismaORM.js'
+import UpdateOperationUseCase from '#application/useCases/rbac/UpdateOperationUseCase.js'
+import DeleteOperationUseCase from '#application/useCases/rbac/DeleteOperationUseCase.js'
+import CreateResourceUseCase from '#application/useCases/rbac/CreateResourceUseCase.js'
+import UpdateResourceUseCase from '#application/useCases/rbac/UpdateResourceUseCase.js'
+import DeleteResourceUseCase from '#application/useCases/rbac/DeleteResourceUseCase.js'
+import CreatePermissionUseCase from '#application/useCases/rbac/CreatePermissionUseCase.js'
+import DeletePermissionUseCase from '#application/useCases/rbac/DeletePermissionUseCase.js'
+import DeleteRoleUseCase from '#application/useCases/rbac/DeleteRoleUseCase.js'
+import GrantPermissionToRoleUseCase from '#application/useCases/rbac/GrantPermissionToRoleUseCase.js'
+import RevokePermissionFromRoleUseCase from '#application/useCases/rbac/RevokePermissionFromRoleUseCase.js'
+import AssignRoleToUserUseCase from '#application/useCases/rbac/AssignRoleToUserUseCase.js'
+import RemoveRoleFromUserUseCase from '#application/useCases/rbac/RemoveRoleFromUserUseCase.js'
 
 const container = createContainer({ injectionMode: InjectionMode.CLASSIC })
 
@@ -70,6 +91,12 @@ container.register({
 	artistRepository: asClass(ArtistRepositoryPrisma).singleton(),
 	playlistRepository: asClass(PlaylistRepositoryPrisma).singleton(),
 	refreshTokenRepository: asClass(RefreshTokenRepositoryPrismaORM).singleton(),
+	roleRepository: asClass(RoleRepositoryPrismaORM).singleton(),
+	permissionRepository: asClass(PermissionRepositoryPrismaORM).singleton(),
+	resourceRepository: asClass(ResourceRepositoryPrismaORM).singleton(),
+	unitOfWork: asClass(UnitOfWorkPrismaORM).singleton(),
+	userRoleRepository: asClass(UserRoleRepositoryPrismaORM).singleton(),
+	operationRepository: asClass(OperationRepositoryPrismaORM).singleton(),
 
 	// use cases
 	signUpUserCase: asClass(SignupUseCase).scoped(),
@@ -95,6 +122,21 @@ container.register({
 	refreshTokenUseCase: asClass(RefreshTokenUseCase).scoped(),
 	getUserUseCase: asClass(GetUserUseCase).scoped(),
 	listUsersUseCase: asClass(ListUsersUseCase).scoped(),
+	createRoleUseCase: asClass(CreateRoleUseCase).scoped(),
+	updateRoleUseCase: asClass(UpdateRoleUseCase).scoped(),
+	createOperationUseCase: asClass(CreateOperationUseCase).scoped(),
+	updateOperationUseCase: asClass(UpdateOperationUseCase).scoped(),
+	deleteOperationUseCase: asClass(DeleteOperationUseCase).scoped(),
+	createResourceUseCase: asClass(CreateResourceUseCase).scoped(),
+	updateResourceUseCase: asClass(UpdateResourceUseCase).scoped(),
+	deleteResourceUseCase: asClass(DeleteResourceUseCase).scoped(),
+	createPermissionUseCase: asClass(CreatePermissionUseCase).scoped(),
+	deletePermissionUseCase: asClass(DeletePermissionUseCase).scoped(),
+	deleteRoleUseCase: asClass(DeleteRoleUseCase).scoped(),
+	grantPermissionToRoleUseCase: asClass(GrantPermissionToRoleUseCase).scoped(),
+	revokePermissionFromRoleUseCase: asClass(RevokePermissionFromRoleUseCase).scoped(),
+	assignRoleToUserUseCase: asClass(AssignRoleToUserUseCase).scoped(),
+	removeRoleFromUserUseCase: asClass(RemoveRoleFromUserUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),
@@ -102,6 +144,7 @@ container.register({
 	authController: asClass(AuthController).singleton(),
 	artistController: asClass(ArtistController).singleton(),
 	playlistController: asClass(PlaylistController).singleton(),
+	rbacController: asClass(RBACController).singleton(),
 
 	// middlewares
 	authMiddleware: asClass(AuthMiddleware).singleton(),

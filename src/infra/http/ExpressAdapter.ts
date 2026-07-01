@@ -9,8 +9,9 @@ import ApplicationError from '#application/errors/ApplicationError.js'
 import toHttpErrors from './errors/toHttpErrors'
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
 import asyncHandler from './asyncHandler'
-import InfraError from '#infra/shared/errors/InfraError.js'
+import InfraError from '#infra/errors/InfraError.js'
 import type { DocsPort } from '#application/ports/DocsPort.js'
+import DomainError from '#domain/errors/DomainError.js'
 
 class ExpressAdapter implements HttpServerPort {
 	public app: Application
@@ -54,7 +55,7 @@ class ExpressAdapter implements HttpServerPort {
 						res.cookie(cookie.name, cookie.value, cookie.options)
 					}
 				}
-				if (output?.body === undefined) {
+				if (output === undefined) {
 					return res.status(204).send()
 				}
 				return res.json(output)
@@ -66,8 +67,14 @@ class ExpressAdapter implements HttpServerPort {
 		this.app.use((err: any, req: any, res: any, next: any) => {
 			if (err instanceof ZodError) {
 				return res.status(400).json({
-					message: 'Validation error',
-					issues: err.issues,
+					error: 'Validation error',
+					details: err.issues.map((issue) => ({ message: issue.message })),
+				})
+			}
+			if (err instanceof DomainError) {
+				const httpError = toHttpErrors(err)
+				return res.status(httpError.statusCode).json({
+					message: httpError.message,
 				})
 			}
 			if (err instanceof ApplicationError) {
@@ -82,9 +89,11 @@ class ExpressAdapter implements HttpServerPort {
 					message: httpError.message,
 				})
 			}
-			this.loggerService.error('Unexpected error in route handler', {
-				error: err instanceof Error ? err.stack : String(err),
+			this.loggerService.error('Unhandled error', {
+				origin: 'ExpressAdapter',
+				error: err,
 			})
+			console.error('Unhandled error:', err)
 			return res.status(500).json({
 				message: 'Internal server error',
 			})
