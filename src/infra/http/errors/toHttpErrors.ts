@@ -7,6 +7,7 @@ import UnauthorizedError from '#application/errors/UnauthorizedError.js'
 import UserNotFoundError from '#application/errors/UserNotFoundError.js'
 import ValidationError from '#domain/errors/ValidationError.js'
 import BadRequestError from '#infra/errors/BadRequestError.js'
+import ForbiddenError from '#infra/errors/ForbiddenError.js'
 import NotFoundError from '#infra/errors/NotFoundError.js'
 import ExpiredJWTError from '#infra/security/errors/ExpiredJWTError.js'
 import HttpError from './HttpError'
@@ -14,6 +15,9 @@ import HttpError from './HttpError'
 export default function toHttpErrors(error: ApplicationError) {
 	if (error instanceof BadRequestError) {
 		return new HttpError(400, error.message)
+	}
+	if (error instanceof ForbiddenError) {
+		return new HttpError(403, error.message)
 	}
 	if (error instanceof InvalidTokenError) {
 		return new HttpError(401, error.message)

@@ -45,6 +45,7 @@ import PlaylistController from '#infra/controllers/PlaylistController.js'
 import { asClass, asFunction, asValue, createContainer, InjectionMode } from 'awilix'
 import GetUserUseCase from '#application/useCases/user/GetUserUseCase.js'
 import ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
+import UpdateUserUseCase from '#application/useCases/user/UpdateUserUseCase.js'
 import UnitOfWorkPrismaORM from '#infra/repository/UnitOfWorkPrismaORM.js'
 import PermissionRepositoryPrismaORM from '#infra/repository/rbac/OperationRepositoryPrismaORM.js'
 import ResourceRepositoryPrismaORM from '#infra/repository/rbac/ResourceRepositoryPrismaORM.js'
@@ -128,6 +129,7 @@ container.register({
 	resetPasswordUseCase: asClass(ResetPasswordUseCase).scoped(),
 	getUserUseCase: asClass(GetUserUseCase).scoped(),
 	listUsersUseCase: asClass(ListUsersUseCase).scoped(),
+	updateUserUseCase: asClass(UpdateUserUseCase).scoped(),
 	createRoleUseCase: asClass(CreateRoleUseCase).scoped(),
 	updateRoleUseCase: asClass(UpdateRoleUseCase).scoped(),
 	createOperationUseCase: asClass(CreateOperationUseCase).scoped(),

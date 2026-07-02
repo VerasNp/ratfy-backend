@@ -1,7 +1,11 @@
 import { createTestServer } from '#__tests__/testServer.js'
 import { loggerPortMock } from '#application/ports/__mocks__/LoggerPort.js'
+import { mailPortMock } from '#application/ports/__mocks__/MailPortMock.js'
+import { templateRendererPortMock } from '#application/ports/__mocks__/TemplateRendererPortMock.js'
+import { tokenPortMock } from '#application/ports/__mocks__/TokenPortMock.js'
 import type { RoleRepository } from '#application/ports/RoleRepository.js'
 import type { UserRepository } from '#application/ports/UserRepository.js'
+import UpdateUserUseCase from '#application/useCases/user/UpdateUserUseCase.js'
 import AssignRoleToUserUseCase from '#application/useCases/rbac/AssignRoleToUserUseCase.js'
 import type ExpressAdapter from '#infra/http/ExpressAdapter.js'
 import RoleRepositoryMemory from '#infra/repository/rbac/RoleRepositoryMemory.js'
@@ -62,6 +66,7 @@ describe('UserController', () => {
 				null as any,
 				null as any,
 				rateLimiterMock,
+				null as any,
 			)
 			server.registerErrorHandler()
 		})
@@ -112,6 +117,7 @@ describe('UserController', () => {
 				removeRoleFromUserUseCase,
 				null as any,
 				rateLimiterMock,
+				null as any,
 			)
 			server.registerErrorHandler()
 		})
@@ -160,6 +166,7 @@ describe('UserController', () => {
 				null as any,
 				userRepository,
 				rateLimiterMock,
+				null as any,
 			)
 			server.registerErrorHandler()
 		})
@@ -213,6 +220,7 @@ describe('UserController', () => {
 				null as any,
 				userRepository,
 				rateLimiterMock,
+				null as any,
 			)
 			server.registerErrorHandler()
 		})
@@ -266,6 +274,7 @@ describe('UserController', () => {
 				null as any,
 				userRepository,
 				rateLimiterMock,
+				null as any,
 			)
 			server.registerErrorHandler()
 		})
@@ -276,6 +285,75 @@ describe('UserController', () => {
 			)
 			expect(res.status).toBe(200)
 			expect(res.body).toEqual({ data: { can: true } })
+		})
+	})
+	describe('PATCH /user/:id', () => {
+		let dummyUser: User
+		let authMiddlewareMock: any
+		let updateUserUseCase: UpdateUserUseCase
+		beforeEach(() => {
+			server = createTestServer()
+			dummyUser = User.create('John Doe', 'foo@bar.com', 'Valid@123', new Date('1990-01-01'))
+			userRepository = new UserRepositoryMemory([dummyUser])
+			authMiddlewareMock = {
+				handle: () => {
+					return (req: any, res: any, next: any) => {
+						req.user = { userId: dummyUser.id }
+						next()
+					}
+				},
+			}
+			updateUserUseCase = new UpdateUserUseCase(
+				userRepository,
+				loggerPortMock,
+				tokenPortMock,
+				mailPortMock,
+				templateRendererPortMock,
+				'http://localhost:3000',
+			)
+			new UserController(
+				null as any,
+				server,
+				null as any,
+				authMiddlewareMock,
+				null as any,
+				null as any,
+				null as any,
+				null as any,
+				null as any,
+				rateLimiterMock,
+				updateUserUseCase,
+			)
+			server.registerErrorHandler()
+		})
+		it('should return 200 and updated user data', async () => {
+			const res = await request(server.app)
+				.patch(`/user/${dummyUser.id}`)
+				.send({ name: 'Updated Name' })
+			expect(res.status).toBe(200)
+			expect(res.body.body.name).toBe('Updated Name')
+		})
+		it('should return 403 when trying to update another user', async () => {
+			const otherUserId = 'other-user-id'
+			const res = await request(server.app)
+				.patch(`/user/${otherUserId}`)
+				.send({ name: 'Hacker' })
+			expect(res.status).toBe(403)
+		})
+		it('should return 400 when no fields are provided', async () => {
+			const res = await request(server.app)
+				.patch(`/user/${dummyUser.id}`)
+				.send({})
+			expect(res.status).toBe(400)
+		})
+		it('should return 422 when password is invalid', async () => {
+			const res = await request(server.app)
+				.patch(`/user/${dummyUser.id}`)
+				.send({ password: 'weak' })
+			expect(res.status).toBe(422)
+			expect(res.body.message).toBe(
+				'Password must be at least 8 characters long, contain at least one lowercase letter, one uppercase letter, one digit, and one special character',
+			)
 		})
 	})
 })
