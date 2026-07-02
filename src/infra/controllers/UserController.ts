@@ -11,6 +11,7 @@ import type SignupUseCase from '#application/useCases/user/SignupUseCase.js'
 import BadRequestError from '#infra/errors/BadRequestError.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 import type AuthMiddleware from '#infra/http/middlewares/AuthMiddleware.js'
+import type RateLimitMiddleware from '#infra/http/middlewares/RateLimitMiddleware.js'
 
 class UserController {
 	public constructor(
@@ -23,6 +24,7 @@ class UserController {
 		private readonly assignRoleToUserUseCase: AssignRoleToUserUseCase,
 		private readonly removeRoleFromUserUseCase: RemoveRoleFromUserUseCase,
 		private readonly userRepository: UserRepository,
+		private readonly signupRateLimiter: RateLimitMiddleware,
 	) {
 		this.httpServer.register(
 			'post',
@@ -32,6 +34,7 @@ class UserController {
 				await this.signUpUserCase.execute(input)
 				return { message: 'User created successfully' }
 			},
+			[this.signupRateLimiter.handle()],
 		)
 
 		this.httpServer.register(

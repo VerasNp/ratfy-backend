@@ -10,6 +10,7 @@ import VerifyUserMailUseCase from '#application/useCases/mail/VerifyUserMailUseC
 import { config } from '#config.js'
 import AuthController from '#infra/controllers/AuthController.js'
 import PasswordResetController from '#infra/controllers/PasswordResetController.js'
+import RateLimitMiddleware from '#infra/http/middlewares/RateLimitMiddleware.js'
 import UserController from '#infra/controllers/UserController.js'
 import VerifyEmailController from '#infra/controllers/VerifyEmailController.js'
 import { prisma } from '#infra/database/prisma.js'
@@ -41,7 +42,7 @@ import { UpdatePlaylistUseCase } from '#application/useCases/playlist/UpdatePlay
 import { AddTrackToPlaylistUseCase } from '#application/useCases/playlist/AddTrackToPlaylist.js'
 import { RemoveTrackFromPlaylistUseCase } from '#application/useCases/playlist/RemoveTrackFromPlaylist.js'
 import PlaylistController from '#infra/controllers/PlaylistController.js'
-import { asClass, asValue, createContainer, InjectionMode } from 'awilix'
+import { asClass, asFunction, asValue, createContainer, InjectionMode } from 'awilix'
 import GetUserUseCase from '#application/useCases/user/GetUserUseCase.js'
 import ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
 import UnitOfWorkPrismaORM from '#infra/repository/UnitOfWorkPrismaORM.js'
@@ -154,6 +155,46 @@ container.register({
 
 	// middlewares
 	authMiddleware: asClass(AuthMiddleware).singleton(),
+	forgotPasswordRateLimiter: asFunction(
+		({ loggerService }: { loggerService: any }) =>
+			new RateLimitMiddleware(
+				loggerService,
+				config.rateLimit.forgotPassword.windowMs,
+				config.rateLimit.forgotPassword.max,
+			),
+	).singleton(),
+	resetPasswordRateLimiter: asFunction(
+		({ loggerService }: { loggerService: any }) =>
+			new RateLimitMiddleware(
+				loggerService,
+				config.rateLimit.forgotPassword.windowMs,
+				config.rateLimit.forgotPassword.max,
+			),
+	).singleton(),
+	loginRateLimiter: asFunction(
+		({ loggerService }: { loggerService: any }) =>
+			new RateLimitMiddleware(
+				loggerService,
+				config.rateLimit.login.windowMs,
+				config.rateLimit.login.max,
+			),
+	).singleton(),
+	signupRateLimiter: asFunction(
+		({ loggerService }: { loggerService: any }) =>
+			new RateLimitMiddleware(
+				loggerService,
+				config.rateLimit.signup.windowMs,
+				config.rateLimit.signup.max,
+			),
+	).singleton(),
+	resendVerificationRateLimiter: asFunction(
+		({ loggerService }: { loggerService: any }) =>
+			new RateLimitMiddleware(
+				loggerService,
+				config.rateLimit.resendVerification.windowMs,
+				config.rateLimit.resendVerification.max,
+			),
+	).singleton(),
 })
 
 export default container

@@ -21,6 +21,11 @@ let removeRoleFromUserUseCase: RemoveRoleFromUserUseCase
 let userRepository: UserRepositoryMemory
 let roleRepository: RoleRepositoryMemory
 let server: ExpressAdapter
+const rateLimiterMock = {
+	handle: () => {
+		return (_req: any, _res: any, next: any) => next()
+	},
+}
 
 describe('UserController', () => {
 	describe('POST /user/:userId/roles/:roleId', () => {
@@ -56,6 +61,7 @@ describe('UserController', () => {
 				assignRoleToUserUseCase,
 				null as any,
 				null as any,
+				rateLimiterMock,
 			)
 			server.registerErrorHandler()
 		})
@@ -105,6 +111,7 @@ describe('UserController', () => {
 				assignRoleToUserUseCase,
 				removeRoleFromUserUseCase,
 				null as any,
+				rateLimiterMock,
 			)
 			server.registerErrorHandler()
 		})
@@ -152,6 +159,7 @@ describe('UserController', () => {
 				assignRoleToUserUseCase,
 				null as any,
 				userRepository,
+				rateLimiterMock,
 			)
 			server.registerErrorHandler()
 		})
@@ -204,6 +212,7 @@ describe('UserController', () => {
 				assignRoleToUserUseCase,
 				null as any,
 				userRepository,
+				rateLimiterMock,
 			)
 			server.registerErrorHandler()
 		})
@@ -256,6 +265,7 @@ describe('UserController', () => {
 				assignRoleToUserUseCase,
 				null as any,
 				userRepository,
+				rateLimiterMock,
 			)
 			server.registerErrorHandler()
 		})

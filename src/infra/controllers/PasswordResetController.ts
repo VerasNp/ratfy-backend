@@ -3,12 +3,15 @@ import { ResetPasswordSchema } from '#application/DTOs/ResetPasswordInputDTO.js'
 import type ForgotPasswordUseCase from '#application/useCases/auth/ForgotPasswordUseCase.js'
 import type ResetPasswordUseCase from '#application/useCases/auth/ResetPasswordUseCase.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
+import type RateLimitMiddleware from '#infra/http/middlewares/RateLimitMiddleware.js'
 
 class PasswordResetController {
 	public constructor(
 		private httpServer: HttpServerPort,
 		private forgotPasswordUseCase: ForgotPasswordUseCase,
 		private resetPasswordUseCase: ResetPasswordUseCase,
+		private forgotPasswordRateLimiter: RateLimitMiddleware,
+		private resetPasswordRateLimiter: RateLimitMiddleware,
 	) {
 		this.httpServer.register(
 			'post',
@@ -21,6 +24,7 @@ class PasswordResetController {
 						'If an account with that email exists, a password reset link has been sent.',
 				}
 			},
+			[this.forgotPasswordRateLimiter.handle()],
 		)
 
 		this.httpServer.register(
@@ -31,6 +35,7 @@ class PasswordResetController {
 				await this.resetPasswordUseCase.execute(input)
 				return { message: 'Password has been reset successfully.' }
 			},
+			[this.resetPasswordRateLimiter.handle()],
 		)
 	}
 }
