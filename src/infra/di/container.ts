@@ -167,8 +167,8 @@ container.register({
 		({ loggerService }: { loggerService: any }) =>
 			new RateLimitMiddleware(
 				loggerService,
-				config.rateLimit.forgotPassword.windowMs,
-				config.rateLimit.forgotPassword.max,
+				config.rateLimit.resetPassword.windowMs,
+				config.rateLimit.resetPassword.max,
 			),
 	).singleton(),
 	loginRateLimiter: asFunction(
