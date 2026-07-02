@@ -46,6 +46,7 @@ import { GetArtistUseCase } from '#application/useCases/artist/GetArtist.js'
 import { GetArtistByUserIdUseCase } from '#application/useCases/artist/GetArtistByUserId.js'
 import { ListArtistsUseCase } from '#application/useCases/artist/ListArtists.js'
 import { UpdateArtistUseCase } from '#application/useCases/artist/UpdateArtist.js'
+import BecomeArtistUseCase from '#application/useCases/artist/BecomeArtistUseCase.js'
 import ArtistController from '#infra/controllers/ArtistController.js'
 import PlaylistRepositoryPrisma from '#infra/repository/PlaylistRepositoryPrisma.js'
 import TrackRepositoryPrismaORM from '#infra/repository/TrackRepositoryPrismaORM.js'
@@ -132,6 +133,7 @@ container.register({
 	deleteArtistUseCase: asClass(DeleteArtistUseCase).scoped(),
 	listArtistsUseCase: asClass(ListArtistsUseCase).scoped(),
 	getArtistByUserIdUseCase: asClass(GetArtistByUserIdUseCase).scoped(),
+	becomeArtistUseCase: asClass(BecomeArtistUseCase).scoped(),
 	createPlaylistUseCase: asClass(CreatePlaylistUseCase).scoped(),
 	getPlaylistUseCase: asClass(GetPlaylistUseCase).scoped(),
 	updatePlaylistUseCase: asClass(UpdatePlaylistUseCase).scoped(),
