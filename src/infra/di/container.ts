@@ -1,13 +1,17 @@
-import { AddFavoriteTrackUseCase } from '#application/useCases/favorite/AddFavoriteTrack.js'
-import { RemoveFavoriteTrackUseCase } from '#application/useCases/favorite/RemoveFavoriteTrack.js'
-import { ListFavoriteTracksUseCase } from '#application/useCases/favorite/ListFavoriteTracks.js'
+import { AddFavoriteAlbumUseCase } from '#application/useCases/favorite/AddFavoriteAlbum.js'
 import { AddFavoriteArtistUseCase } from '#application/useCases/favorite/AddFavoriteArtist.js'
-import { RemoveFavoriteArtistUseCase } from '#application/useCases/favorite/RemoveFavoriteArtist.js'
-import { ListFavoriteArtistsUseCase } from '#application/useCases/favorite/ListFavoriteArtists.js'
 import { AddFavoritePlaylistUseCase } from '#application/useCases/favorite/AddFavoritePlaylist.js'
-import { RemoveFavoritePlaylistUseCase } from '#application/useCases/favorite/RemoveFavoritePlaylist.js'
+import { AddFavoriteTrackUseCase } from '#application/useCases/favorite/AddFavoriteTrack.js'
+import { ListFavoriteAlbumsUseCase } from '#application/useCases/favorite/ListFavoriteAlbums.js'
+import { ListFavoriteArtistsUseCase } from '#application/useCases/favorite/ListFavoriteArtists.js'
 import { ListFavoritePlaylistsUseCase } from '#application/useCases/favorite/ListFavoritePlaylists.js'
+import { ListFavoriteTracksUseCase } from '#application/useCases/favorite/ListFavoriteTracks.js'
+import { RemoveFavoriteAlbumUseCase } from '#application/useCases/favorite/RemoveFavoriteAlbum.js'
+import { RemoveFavoriteArtistUseCase } from '#application/useCases/favorite/RemoveFavoriteArtist.js'
+import { RemoveFavoritePlaylistUseCase } from '#application/useCases/favorite/RemoveFavoritePlaylist.js'
+import { RemoveFavoriteTrackUseCase } from '#application/useCases/favorite/RemoveFavoriteTrack.js'
 import FavoriteController from '#infra/controllers/FavoriteController.js'
+import AlbumRepositoryPrisma from '#infra/repository/AlbumRepositoryPrisma.js'
 import FavoriteRepositoryPrisma from '#infra/repository/FavoriteRepositoryPrisma.js'
 import ForgotPasswordUseCase from '#application/useCases/auth/ForgotPasswordUseCase.js'
 import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
@@ -115,6 +119,7 @@ container.register({
 	userRoleRepository: asClass(UserRoleRepositoryPrismaORM).singleton(),
 	operationRepository: asClass(OperationRepositoryPrismaORM).singleton(),
 	trackRepository: asClass(TrackRepositoryPrismaORM).singleton(),
+	albumRepository: asClass(AlbumRepositoryPrisma).singleton(),
 	favoriteRepository: asClass(FavoriteRepositoryPrisma).singleton(),
 
 	// use cases
@@ -168,6 +173,9 @@ container.register({
 	addFavoritePlaylistUseCase: asClass(AddFavoritePlaylistUseCase).scoped(),
 	removeFavoritePlaylistUseCase: asClass(RemoveFavoritePlaylistUseCase).scoped(),
 	listFavoritePlaylistsUseCase: asClass(ListFavoritePlaylistsUseCase).scoped(),
+	addFavoriteAlbumUseCase: asClass(AddFavoriteAlbumUseCase).scoped(),
+	removeFavoriteAlbumUseCase: asClass(RemoveFavoriteAlbumUseCase).scoped(),
+	listFavoriteAlbumsUseCase: asClass(ListFavoriteAlbumsUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),
@@ -175,9 +183,9 @@ container.register({
 	authController: asClass(AuthController).singleton(),
 	passwordResetController: asClass(PasswordResetController).singleton(),
 	artistController: asClass(ArtistController).singleton(),
+	favoriteController: asClass(FavoriteController).singleton(),
 	playlistController: asClass(PlaylistController).singleton(),
 	rbacController: asClass(RBACController).singleton(),
-	favoriteController: asClass(FavoriteController).singleton(),
 
 	// middlewares
 	authMiddleware: asClass(AuthMiddleware).singleton(),

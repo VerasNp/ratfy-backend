@@ -17,6 +17,8 @@ type FavoriteEntityType = 'TRACK' | 'ALBUM' | 'ARTIST' | 'PLAYLIST'
 import Track from '#domain/track/Track.js'
 import Artist from '#domain/artist/Artist.js'
 import Playlist from '#domain/playlist/Playlist.js'
+import Album from '#domain/album/Album.js'
+import type { AlbumRepository } from '#application/ports/AlbumRepository.js'
 
 class FavoriteRepositoryMemory implements FavoriteRepository {
   private favorites: { userId: string; entityId: string; entityType: FavoriteEntityType }[] = []
@@ -343,6 +345,10 @@ class PlaylistRepositoryMemory implements PlaylistRepository {
 import { AddFavoritePlaylistUseCase } from '#application/useCases/favorite/AddFavoritePlaylist.js'
 import { RemoveFavoritePlaylistUseCase } from '#application/useCases/favorite/RemoveFavoritePlaylist.js'
 import { ListFavoritePlaylistsUseCase } from '#application/useCases/favorite/ListFavoritePlaylists.js'
+import { AddFavoriteAlbumUseCase } from '#application/useCases/favorite/AddFavoriteAlbum.js'
+import { RemoveFavoriteAlbumUseCase } from '#application/useCases/favorite/RemoveFavoriteAlbum.js'
+import { ListFavoriteAlbumsUseCase } from '#application/useCases/favorite/ListFavoriteAlbums.js'
+import { AlbumNotFoundError } from '#application/errors/AlbumNotFoundError.js'
 
 describe('Favorite Playlist Use Cases', () => {
   const userId = 'user-1'
@@ -413,6 +419,132 @@ describe('Favorite Playlist Use Cases', () => {
       expect(result).toHaveLength(1)
       expect(result[0].id).toBe(playlist.id)
       expect(result[0].name).toBe(playlist.name)
+    })
+  })
+})
+
+class AlbumRepositoryMemory implements AlbumRepository {
+  private albums: Album[] = []
+
+  constructor(initial?: Album[]) {
+    if (initial) this.albums = [...initial]
+  }
+
+  async create(album: Album): Promise<Album> {
+    this.albums.push(album)
+    return album
+  }
+
+  async delete(id: string): Promise<void> {
+    const album = this.albums.find((a) => a.id === id)
+    if (album) {
+      Object.assign(album, { isDeleted: true, isPublic: false })
+    }
+  }
+
+  async findById(id: string): Promise<Album | null> {
+    return this.albums.find((a) => a.id === id && !a.isDeleted) ?? null
+  }
+
+  async listByIds(ids: string[]): Promise<Album[]> {
+    return this.albums.filter((a) => ids.includes(a.id) && !a.isDeleted)
+  }
+
+  async list(page: number, limit: number): Promise<Album[]> {
+    const start = (page - 1) * limit
+    return this.albums.filter((a) => !a.isDeleted).slice(start, start + limit)
+  }
+
+  async update(_id: string, _data: Partial<Album>): Promise<void> {
+    // no-op for tests
+  }
+}
+
+describe('Favorite Album Use Cases', () => {
+  const userId = 'user-1'
+  let albumRepo: AlbumRepositoryMemory
+  let favoriteRepo: FavoriteRepositoryMemory
+  let addFav: AddFavoriteAlbumUseCase
+  let removeFav: RemoveFavoriteAlbumUseCase
+  let listFav: ListFavoriteAlbumsUseCase
+  let album: Album
+
+  beforeEach(() => {
+    album = Album.create({
+      albumType: 'album',
+      artistIds: ['artist-1'],
+      label: 'Test Label',
+      name: 'Test Album',
+      releaseDate: new Date('2024-01-01'),
+      releasePrecision: 'day',
+      totalTracks: 10,
+    })
+    albumRepo = new AlbumRepositoryMemory([album])
+    favoriteRepo = new FavoriteRepositoryMemory()
+    addFav = new AddFavoriteAlbumUseCase(albumRepo, favoriteRepo)
+    removeFav = new RemoveFavoriteAlbumUseCase(favoriteRepo)
+    listFav = new ListFavoriteAlbumsUseCase(albumRepo, favoriteRepo)
+  })
+
+  describe('AddFavoriteAlbumUseCase', () => {
+    it('should add an album to favorites', async () => {
+      await addFav.execute({ userId, albumId: album.id })
+
+      const ids = await favoriteRepo.findEntityIdsByUserAndType(userId, 'ALBUM')
+      expect(ids).toContain(album.id)
+    })
+
+    it('should be idempotent when adding same album twice', async () => {
+      await addFav.execute({ userId, albumId: album.id })
+      await addFav.execute({ userId, albumId: album.id })
+
+      const ids = await favoriteRepo.findEntityIdsByUserAndType(userId, 'ALBUM')
+      expect(ids).toHaveLength(1)
+    })
+
+    it('should throw AlbumNotFoundError when album does not exist', async () => {
+      const fakeId = '00000000-0000-0000-0000-000000000000'
+      await expect(addFav.execute({ userId, albumId: fakeId })).rejects.toThrow(AlbumNotFoundError)
+    })
+  })
+
+  describe('RemoveFavoriteAlbumUseCase', () => {
+    it('should remove an album from favorites', async () => {
+      await addFav.execute({ userId, albumId: album.id })
+      await removeFav.execute({ userId, albumId: album.id })
+
+      const ids = await favoriteRepo.findEntityIdsByUserAndType(userId, 'ALBUM')
+      expect(ids).not.toContain(album.id)
+    })
+
+    it('should not throw when removing a non-favorited album', async () => {
+      await expect(
+        removeFav.execute({ userId, albumId: album.id }),
+      ).resolves.toBeUndefined()
+    })
+  })
+
+  describe('ListFavoriteAlbumsUseCase', () => {
+    it('should return empty list when user has no favorites', async () => {
+      const result = await listFav.execute({ userId })
+      expect(result).toHaveLength(0)
+    })
+
+    it('should return favorited albums', async () => {
+      await addFav.execute({ userId, albumId: album.id })
+
+      const result = await listFav.execute({ userId })
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe(album.id)
+      expect(result[0].name).toBe(album.name)
+    })
+
+    it('should exclude soft-deleted albums from the list', async () => {
+      await addFav.execute({ userId, albumId: album.id })
+      await albumRepo.delete(album.id)
+
+      const result = await listFav.execute({ userId })
+      expect(result).toHaveLength(0)
     })
   })
 })

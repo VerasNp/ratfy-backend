@@ -12,15 +12,50 @@ import { ListFavoriteArtistsUseCase } from '#application/useCases/favorite/ListF
 import { AddFavoritePlaylistUseCase } from '#application/useCases/favorite/AddFavoritePlaylist.js'
 import { RemoveFavoritePlaylistUseCase } from '#application/useCases/favorite/RemoveFavoritePlaylist.js'
 import { ListFavoritePlaylistsUseCase } from '#application/useCases/favorite/ListFavoritePlaylists.js'
+import { AddFavoriteAlbumUseCase } from '#application/useCases/favorite/AddFavoriteAlbum.js'
+import { RemoveFavoriteAlbumUseCase } from '#application/useCases/favorite/RemoveFavoriteAlbum.js'
+import { ListFavoriteAlbumsUseCase } from '#application/useCases/favorite/ListFavoriteAlbums.js'
 import FavoriteController from '#infra/controllers/FavoriteController.js'
 import type ExpressAdapter from '#infra/http/ExpressAdapter.js'
 import Track from '#domain/track/Track.js'
 import Artist from '#domain/artist/Artist.js'
 import Playlist from '#domain/playlist/Playlist.js'
+import Album from '#domain/album/Album.js'
+import type { AlbumRepository } from '#application/ports/AlbumRepository.js'
 import { describe, it, expect, beforeEach } from 'vitest'
 import request from 'supertest'
 
 type FavoriteEntityType = 'TRACK' | 'ALBUM' | 'ARTIST' | 'PLAYLIST'
+
+class AlbumRepositoryMock implements AlbumRepository {
+  private albums: Album[] = []
+
+  constructor(initial: Album[]) { this.albums = [...initial] }
+
+  async create(album: Album): Promise<Album> { this.albums.push(album); return album }
+  async delete(id: string): Promise<void> {
+    const a = this.albums.find((a) => a.id === id)
+    if (a) { (a as any).isDeleted = true; (a as any).isPublic = false }
+  }
+  async findById(id: string): Promise<Album | null> { return this.albums.find((a) => a.id === id && !(a as any).isDeleted) ?? null }
+  async listByIds(ids: string[]): Promise<Album[]> { return this.albums.filter((a) => ids.includes(a.id) && !(a as any).isDeleted) }
+  async list(_page: number, _limit: number): Promise<Album[]> { return this.albums.filter((a) => !(a as any).isDeleted) }
+  async update(_id: string, _data: Partial<Album>): Promise<void> {}
+}
+
+class ArtistRepositoryMock implements ArtistRepository {
+  private artists: Artist[] = []
+
+  constructor(initial: Artist[]) { this.artists = [...initial] }
+
+  async create(artist: Artist): Promise<Artist> { this.artists.push(artist); return artist }
+  async delete(_id: string): Promise<void> {}
+  async findById(id: string): Promise<Artist | null> { return this.artists.find((a) => a.id === id) ?? null }
+  async findByUserId(userId: string): Promise<Artist | null> { return this.artists.find((a) => a.userId === userId) ?? null }
+  async listByIds(ids: string[]): Promise<Artist[]> { return this.artists.filter((a) => ids.includes(a.id)) }
+  async list(_page: number, _limit: number): Promise<Artist[]> { return this.artists }
+  async update(_id: string, _data: Partial<Artist>): Promise<void> {}
+}
 
 class FavoriteRepositoryMock implements FavoriteRepository {
   private favorites: { userId: string; entityId: string; entityType: FavoriteEntityType }[] = []
@@ -51,6 +86,22 @@ class FavoriteRepositoryMock implements FavoriteRepository {
   }
 }
 
+class PlaylistRepositoryMock implements PlaylistRepository {
+  private playlists: Playlist[] = []
+
+  constructor(initial: Playlist[]) { this.playlists = [...initial] }
+
+  async create(playlist: Playlist): Promise<Playlist> { this.playlists.push(playlist); return playlist }
+  async delete(_id: string): Promise<void> {}
+  async findById(id: string): Promise<Playlist | null> { return this.playlists.find((p) => p.id === id) ?? null }
+  async listByIds(ids: string[]): Promise<Playlist[]> { return this.playlists.filter((p) => ids.includes(p.id)) }
+  async listByOwnerId(_ownerId: string, _page: number, _limit: number): Promise<Playlist[]> { return this.playlists }
+  async list(_page: number, _limit: number): Promise<Playlist[]> { return this.playlists }
+  async update(_id: string, _data: Partial<Playlist>): Promise<void> {}
+  async addTrack(_playlistId: string, _trackId: string): Promise<void> {}
+  async removeTrack(_playlistId: string, _trackId: string): Promise<void> {}
+}
+
 class TrackRepositoryMock implements TrackRepository {
   private tracks: Track[] = []
 
@@ -68,45 +119,17 @@ class TrackRepositoryMock implements TrackRepository {
   async update(_id: string, _data: Partial<Track>): Promise<void> {}
 }
 
-class PlaylistRepositoryMock implements PlaylistRepository {
-  private playlists: Playlist[] = []
-
-  constructor(initial: Playlist[]) { this.playlists = [...initial] }
-
-  async create(playlist: Playlist): Promise<Playlist> { this.playlists.push(playlist); return playlist }
-  async delete(_id: string): Promise<void> {}
-  async findById(id: string): Promise<Playlist | null> { return this.playlists.find((p) => p.id === id) ?? null }
-  async listByIds(ids: string[]): Promise<Playlist[]> { return this.playlists.filter((p) => ids.includes(p.id)) }
-  async listByOwnerId(_ownerId: string, _page: number, _limit: number): Promise<Playlist[]> { return this.playlists }
-  async list(_page: number, _limit: number): Promise<Playlist[]> { return this.playlists }
-  async update(_id: string, _data: Partial<Playlist>): Promise<void> {}
-  async addTrack(_playlistId: string, _trackId: string): Promise<void> {}
-  async removeTrack(_playlistId: string, _trackId: string): Promise<void> {}
-}
-
-class ArtistRepositoryMock implements ArtistRepository {
-  private artists: Artist[] = []
-
-  constructor(initial: Artist[]) { this.artists = [...initial] }
-
-  async create(artist: Artist): Promise<Artist> { this.artists.push(artist); return artist }
-  async delete(_id: string): Promise<void> {}
-  async findById(id: string): Promise<Artist | null> { return this.artists.find((a) => a.id === id) ?? null }
-  async findByUserId(userId: string): Promise<Artist | null> { return this.artists.find((a) => a.userId === userId) ?? null }
-  async listByIds(ids: string[]): Promise<Artist[]> { return this.artists.filter((a) => ids.includes(a.id)) }
-  async list(_page: number, _limit: number): Promise<Artist[]> { return this.artists }
-  async update(_id: string, _data: Partial<Artist>): Promise<void> {}
-}
-
 describe('FavoriteController', () => {
   let server: ExpressAdapter
   let trackRepo: TrackRepositoryMock
   let artistRepo: ArtistRepositoryMock
   let playlistRepo: PlaylistRepositoryMock
+  let albumRepo: AlbumRepositoryMock
   let favoriteRepo: FavoriteRepositoryMock
   let track: Track
   let artist: Artist
   let playlist: Playlist
+  let album: Album
   const authMiddlewareMock = {
     handle: () => (req: any, _res: any, next: any) => {
       req.user = { userId: 'test-user' }
@@ -125,9 +148,19 @@ describe('FavoriteController', () => {
     })
     artist = Artist.create({ userId: 'artist-user-1', bio: 'Test bio' })
     playlist = Playlist.create({ name: 'Test Playlist', ownerId: 'owner-1' })
+    album = Album.create({
+      albumType: 'album',
+      artistIds: ['artist-1'],
+      label: 'Test Label',
+      name: 'Controller Test Album',
+      releaseDate: new Date('2024-01-01'),
+      releasePrecision: 'day',
+      totalTracks: 10,
+    })
     trackRepo = new TrackRepositoryMock([track])
     artistRepo = new ArtistRepositoryMock([artist])
     playlistRepo = new PlaylistRepositoryMock([playlist])
+    albumRepo = new AlbumRepositoryMock([album])
     favoriteRepo = new FavoriteRepositoryMock()
     server = createTestServer()
 
@@ -143,6 +176,9 @@ describe('FavoriteController', () => {
       new AddFavoritePlaylistUseCase(playlistRepo, favoriteRepo),
       new RemoveFavoritePlaylistUseCase(favoriteRepo),
       new ListFavoritePlaylistsUseCase(playlistRepo, favoriteRepo),
+      new AddFavoriteAlbumUseCase(albumRepo, favoriteRepo),
+      new RemoveFavoriteAlbumUseCase(favoriteRepo),
+      new ListFavoriteAlbumsUseCase(albumRepo, favoriteRepo),
     )
     server.registerErrorHandler()
   })
@@ -289,6 +325,54 @@ describe('FavoriteController', () => {
       expect(res.body).toHaveLength(1)
       expect(res.body[0].id).toBe(playlist.id)
       expect(res.body[0].name).toBe(playlist.name)
+    })
+  })
+
+  describe('POST /favorites/albums/:albumId', () => {
+    it('should return 204 when favoriting an album', async () => {
+      const res = await request(server.app).post(`/favorites/albums/${album.id}`)
+      expect(res.status).toBe(204)
+    })
+
+    it('should return 400 for invalid albumId', async () => {
+      const res = await request(server.app).post('/favorites/albums/invalid-id')
+      expect(res.status).toBe(400)
+    })
+
+    it('should return 404 when album does not exist', async () => {
+      const fakeId = '00000000-0000-0000-0000-000000000000'
+      const res = await request(server.app).post(`/favorites/albums/${fakeId}`)
+      expect(res.status).toBe(404)
+    })
+  })
+
+  describe('DELETE /favorites/albums/:albumId', () => {
+    it('should return 204 when unfavoriting an album', async () => {
+      const res = await request(server.app).delete(`/favorites/albums/${album.id}`)
+      expect(res.status).toBe(204)
+    })
+
+    it('should return 400 for invalid albumId', async () => {
+      const res = await request(server.app).delete('/favorites/albums/invalid-id')
+      expect(res.status).toBe(400)
+    })
+  })
+
+  describe('GET /favorites/albums', () => {
+    it('should return empty array when no favorites', async () => {
+      const res = await request(server.app).get('/favorites/albums')
+      expect(res.status).toBe(200)
+      expect(res.body).toEqual([])
+    })
+
+    it('should return favorited albums', async () => {
+      await request(server.app).post(`/favorites/albums/${album.id}`)
+
+      const res = await request(server.app).get('/favorites/albums')
+      expect(res.status).toBe(200)
+      expect(res.body).toHaveLength(1)
+      expect(res.body[0].id).toBe(album.id)
+      expect(res.body[0].name).toBe(album.name)
     })
   })
 })

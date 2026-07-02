@@ -39,6 +39,13 @@ class AlbumRepositoryPrisma implements AlbumRepository {
 	    return row ? this.toDomain(row) : null
 	 }
 
+	async listByIds(ids: string[]): Promise<Album[]> {
+	    const rows = await this.orm.album.findMany({
+	        where: { id: { in: ids }, isDeleted: false },
+	    })
+	    return rows.map((row) => this.toDomain(row))
+	 }
+
 	async list(page: number, limit: number): Promise<Album[]> {
 	const rows = await this.orm.album.findMany({
 	    orderBy: { createdAt: 'desc' },
