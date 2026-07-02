@@ -5,6 +5,7 @@ export interface TrackRepository {
   delete(id: string): Promise<void>
   findByAlbumId(albumId: string): Promise<Track[]>
   findById(id: string): Promise<Track | null>
+  listByIds(ids: string[]): Promise<Track[]>
   list(page: number, limit: number): Promise<Track[]>
   update(id: string, data: Partial<Track>): Promise<void>
 }

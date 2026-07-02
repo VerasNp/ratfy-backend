@@ -1,3 +1,8 @@
+import { AddFavoriteTrackUseCase } from '#application/useCases/favorite/AddFavoriteTrack.js'
+import { RemoveFavoriteTrackUseCase } from '#application/useCases/favorite/RemoveFavoriteTrack.js'
+import { ListFavoriteTracksUseCase } from '#application/useCases/favorite/ListFavoriteTracks.js'
+import FavoriteController from '#infra/controllers/FavoriteController.js'
+import FavoriteRepositoryPrisma from '#infra/repository/FavoriteRepositoryPrisma.js'
 import ForgotPasswordUseCase from '#application/useCases/auth/ForgotPasswordUseCase.js'
 import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
 import LoginUseCase from '#application/useCases/auth/LoginUseCase.js'
@@ -102,6 +107,7 @@ container.register({
 	unitOfWork: asClass(UnitOfWorkPrismaORM).singleton(),
 	userRoleRepository: asClass(UserRoleRepositoryPrismaORM).singleton(),
 	operationRepository: asClass(OperationRepositoryPrismaORM).singleton(),
+	favoriteRepository: asClass(FavoriteRepositoryPrisma).singleton(),
 
 	// use cases
 	signUpUserCase: asClass(SignupUseCase).scoped(),
@@ -145,6 +151,9 @@ container.register({
 	revokePermissionFromRoleUseCase: asClass(RevokePermissionFromRoleUseCase).scoped(),
 	assignRoleToUserUseCase: asClass(AssignRoleToUserUseCase).scoped(),
 	removeRoleFromUserUseCase: asClass(RemoveRoleFromUserUseCase).scoped(),
+	addFavoriteTrackUseCase: asClass(AddFavoriteTrackUseCase).scoped(),
+	removeFavoriteTrackUseCase: asClass(RemoveFavoriteTrackUseCase).scoped(),
+	listFavoriteTracksUseCase: asClass(ListFavoriteTracksUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),
@@ -154,6 +163,7 @@ container.register({
 	artistController: asClass(ArtistController).singleton(),
 	playlistController: asClass(PlaylistController).singleton(),
 	rbacController: asClass(RBACController).singleton(),
+	favoriteController: asClass(FavoriteController).singleton(),
 
 	// middlewares
 	authMiddleware: asClass(AuthMiddleware).singleton(),

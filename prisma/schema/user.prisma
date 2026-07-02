@@ -11,4 +11,5 @@ model User {
     playlists     Playlist[]
     refreshTokens RefreshToken[]
     roles         UserRole[]
+    favorites     Favorite[]
 }

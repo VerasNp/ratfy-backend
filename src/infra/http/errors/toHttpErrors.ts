@@ -1,8 +1,12 @@
 import type ApplicationError from '#application/errors/ApplicationError.js'
+import { AlbumNotFoundError } from '#application/errors/AlbumNotFoundError.js'
+import { ArtistNotFoundError } from '#application/errors/ArtistNotFoundError.js'
 import InvalidTokenError from '#application/errors/InvalidTokenError.js'
 import MissingApplicationSetupError from '#application/errors/MissingApplicationSetupError.js'
+import { PlaylistNotFoundError } from '#application/errors/PlaylistNotFoundError.js'
 import ResourceAlreadyExistsError from '#application/errors/ResourceAlreadyExistsError.js'
 import ResourceNotFoundError from '#application/errors/ResourceNotFoundError.js'
+import { TrackNotFoundError } from '#application/errors/TrackNotFoundError.js'
 import UnauthorizedError from '#application/errors/UnauthorizedError.js'
 import UserNotFoundError from '#application/errors/UserNotFoundError.js'
 import ValidationError from '#domain/errors/ValidationError.js'
@@ -28,7 +32,11 @@ export default function toHttpErrors(error: ApplicationError) {
 	if (
 		error instanceof UserNotFoundError ||
 		error instanceof NotFoundError ||
-		error instanceof ResourceNotFoundError
+		error instanceof ResourceNotFoundError ||
+		error instanceof TrackNotFoundError ||
+		error instanceof AlbumNotFoundError ||
+		error instanceof ArtistNotFoundError ||
+		error instanceof PlaylistNotFoundError
 	) {
 		return new HttpError(404, error.message)
 	}

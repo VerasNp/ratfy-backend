@@ -50,6 +50,13 @@ class TrackRepositoryPrisma implements TrackRepository {
 
 
 
+  async listByIds(ids: string[]): Promise<Track[]> {
+    const rows = await this.orm.track.findMany({
+      where: { id: { in: ids }, isDeleted: false },
+    })
+    return rows.map((row) => this.toDomain(row))
+  }
+
   async list(page: number, limit: number): Promise<Track[]> {
     const rows = await this.orm.track.findMany({
       orderBy: { createdAt: 'desc' },
