@@ -31,6 +31,13 @@ export interface ArtistRepository {
     findByUserId(userId: string): Promise<Artist | null>
 
     /**
+     * Finds Artists by their IDs.
+     * @param ids - The unique identifiers of the Artists.
+     * @returns A promise that resolves to an array of Artists.
+     */
+    listByIds(ids: string[]): Promise<Artist[]>
+
+    /**
      * Retrieves a paginated list of Artists.
      * @param page - The page number to retrieve (1-indexed).
      * @param limit - The maximum number of Artists to return per page.

@@ -33,6 +33,13 @@ class ArtistRepositoryPrisma implements ArtistRepository {
     return row ? this.toDomain(row) : null
   }
 
+  async listByIds(ids: string[]): Promise<Artist[]> {
+    const rows = await this.orm.artist.findMany({
+      where: { id: { in: ids } },
+    })
+    return rows.map((row) => this.toDomain(row))
+  }
+
   async list(page: number, limit: number): Promise<Artist[]> {
     const rows = await this.orm.artist.findMany({
       orderBy: { createdAt: 'desc' },
