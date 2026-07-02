@@ -79,6 +79,10 @@ class User {
 		return this.verifiedAt !== null
 	}
 
+	public changePassword(passwordHash: string): void {
+		this.password = Password.fromHash(passwordHash)
+	}
+
 	public assignRole(role: Role): void {
 		const alreadyAssigned = this.roles.some((r) => r.id === role.id)
 		if (alreadyAssigned) {

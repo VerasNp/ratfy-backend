@@ -2,6 +2,7 @@ import type { DocsPort } from '#application/ports/DocsPort.js'
 import { OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi'
 import AuthControllerSwagger from './routes/auth/AuthController.swagger'
 
+import PasswordResetControllerSwagger from './routes/passwordReset/PasswordResetController.swagger.js'
 import PlaylistControllerSwagger from './routes/playlist/PlaylistController.swagger.js'
 import UserControllerSwagger from './routes/user/UserController.swagger'
 import VerifyEmailControllerSwagger from './routes/email/VerifyEmailController.swagger'
@@ -43,6 +44,7 @@ class SwaggerDocs implements DocsPort {
 		new UserControllerSwagger(this.registry)
 		new VerifyEmailControllerSwagger(this.registry)
 		new TrackControllerSwagger(this.registry)
+		new PasswordResetControllerSwagger(this.registry)
 	}
 }
 

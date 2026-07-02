@@ -1,12 +1,15 @@
+import ForgotPasswordUseCase from '#application/useCases/auth/ForgotPasswordUseCase.js'
 import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
 import LoginUseCase from '#application/useCases/auth/LoginUseCase.js'
 import LogoutUseCase from '#application/useCases/auth/LogoutUseCase.js'
 import RefreshTokenUseCase from '#application/useCases/auth/RefreshTokenUseCase.js'
 import ResendVerificationEmailUseCase from '#application/useCases/auth/ResendVerificationEmailUseCase.js'
+import ResetPasswordUseCase from '#application/useCases/auth/ResetPasswordUseCase.js'
 import SignupUseCase from '#application/useCases/user/SignupUseCase.js'
 import VerifyUserMailUseCase from '#application/useCases/mail/VerifyUserMailUseCase.js'
 import { config } from '#config.js'
 import AuthController from '#infra/controllers/AuthController.js'
+import PasswordResetController from '#infra/controllers/PasswordResetController.js'
 import UserController from '#infra/controllers/UserController.js'
 import VerifyEmailController from '#infra/controllers/VerifyEmailController.js'
 import { prisma } from '#infra/database/prisma.js'
@@ -116,10 +119,12 @@ container.register({
 	listPlaylistsByOwnerIdUseCase: asClass(ListPlaylistsByOwnerIdUseCase).scoped(),
 	addTrackToPlaylistUseCase: asClass(AddTrackToPlaylistUseCase).scoped(),
 	removeTrackFromPlaylistUseCase: asClass(RemoveTrackFromPlaylistUseCase).scoped(),
+	forgotPasswordUseCase: asClass(ForgotPasswordUseCase).scoped(),
 	loginUseCase: asClass(LoginUseCase).scoped(),
 	logoutUseCase: asClass(LogoutUseCase).scoped(),
 	getAccountUseCase: asClass(GetAccountUseCase).scoped(),
 	refreshTokenUseCase: asClass(RefreshTokenUseCase).scoped(),
+	resetPasswordUseCase: asClass(ResetPasswordUseCase).scoped(),
 	getUserUseCase: asClass(GetUserUseCase).scoped(),
 	listUsersUseCase: asClass(ListUsersUseCase).scoped(),
 	createRoleUseCase: asClass(CreateRoleUseCase).scoped(),
@@ -142,6 +147,7 @@ container.register({
 	userController: asClass(UserController).singleton(),
 	verifyEmailController: asClass(VerifyEmailController).singleton(),
 	authController: asClass(AuthController).singleton(),
+	passwordResetController: asClass(PasswordResetController).singleton(),
 	artistController: asClass(ArtistController).singleton(),
 	playlistController: asClass(PlaylistController).singleton(),
 	rbacController: asClass(RBACController).singleton(),
