@@ -8,12 +8,15 @@ import { RemoveFavoriteArtistUseCase } from '#application/useCases/favorite/Remo
 import { ListFavoriteArtistsUseCase } from '#application/useCases/favorite/ListFavoriteArtists.js'
 import { TrackNotFoundError } from '#application/errors/TrackNotFoundError.js'
 import { ArtistNotFoundError } from '#application/errors/ArtistNotFoundError.js'
+import { PlaylistNotFoundError } from '#application/errors/PlaylistNotFoundError.js'
 import type { TrackRepository } from '#application/ports/TrackRepository.js'
 import type { ArtistRepository } from '#application/ports/ArtistRepository.js'
+import type { PlaylistRepository } from '#application/ports/PlaylistRepository.js'
 import type { FavoriteRepository } from '#application/ports/FavoriteRepository.js'
 type FavoriteEntityType = 'TRACK' | 'ALBUM' | 'ARTIST' | 'PLAYLIST'
 import Track from '#domain/track/Track.js'
 import Artist from '#domain/artist/Artist.js'
+import Playlist from '#domain/playlist/Playlist.js'
 
 class FavoriteRepositoryMemory implements FavoriteRepository {
   private favorites: { userId: string; entityId: string; entityType: FavoriteEntityType }[] = []
@@ -288,6 +291,128 @@ describe('Favorite Artist Use Cases', () => {
       expect(result[0].id).toBe(artist.id)
       expect(result[0].userId).toBe(artist.userId)
       expect(result[0].bio).toBe(artist.bio)
+    })
+  })
+})
+
+class PlaylistRepositoryMemory implements PlaylistRepository {
+  private playlists: Playlist[] = []
+
+  constructor(initial?: Playlist[]) {
+    if (initial) this.playlists = [...initial]
+  }
+
+  async create(playlist: Playlist): Promise<Playlist> {
+    this.playlists.push(playlist)
+    return playlist
+  }
+
+  async delete(_id: string): Promise<void> {
+    // no-op for tests
+  }
+
+  async findById(id: string): Promise<Playlist | null> {
+    return this.playlists.find((p) => p.id === id) ?? null
+  }
+
+  async listByIds(ids: string[]): Promise<Playlist[]> {
+    return this.playlists.filter((p) => ids.includes(p.id))
+  }
+
+  async listByOwnerId(_ownerId: string, _page: number, _limit: number): Promise<Playlist[]> {
+    return this.playlists
+  }
+
+  async list(_page: number, _limit: number): Promise<Playlist[]> {
+    return this.playlists
+  }
+
+  async update(_id: string, _data: Partial<Playlist>): Promise<void> {
+    // no-op for tests
+  }
+
+  async addTrack(_playlistId: string, _trackId: string): Promise<void> {
+    // no-op for tests
+  }
+
+  async removeTrack(_playlistId: string, _trackId: string): Promise<void> {
+    // no-op for tests
+  }
+}
+
+import { AddFavoritePlaylistUseCase } from '#application/useCases/favorite/AddFavoritePlaylist.js'
+import { RemoveFavoritePlaylistUseCase } from '#application/useCases/favorite/RemoveFavoritePlaylist.js'
+import { ListFavoritePlaylistsUseCase } from '#application/useCases/favorite/ListFavoritePlaylists.js'
+
+describe('Favorite Playlist Use Cases', () => {
+  const userId = 'user-1'
+  let playlistRepo: PlaylistRepositoryMemory
+  let favoriteRepo: FavoriteRepositoryMemory
+  let addFav: AddFavoritePlaylistUseCase
+  let removeFav: RemoveFavoritePlaylistUseCase
+  let listFav: ListFavoritePlaylistsUseCase
+  let playlist: Playlist
+
+  beforeEach(() => {
+    playlist = Playlist.create({ name: 'Test Playlist', ownerId: 'owner-1' })
+    playlistRepo = new PlaylistRepositoryMemory([playlist])
+    favoriteRepo = new FavoriteRepositoryMemory()
+    addFav = new AddFavoritePlaylistUseCase(playlistRepo, favoriteRepo)
+    removeFav = new RemoveFavoritePlaylistUseCase(favoriteRepo)
+    listFav = new ListFavoritePlaylistsUseCase(playlistRepo, favoriteRepo)
+  })
+
+  describe('AddFavoritePlaylistUseCase', () => {
+    it('should add a playlist to favorites', async () => {
+      await addFav.execute({ userId, playlistId: playlist.id })
+
+      const ids = await favoriteRepo.findEntityIdsByUserAndType(userId, 'PLAYLIST')
+      expect(ids).toContain(playlist.id)
+    })
+
+    it('should be idempotent when adding same playlist twice', async () => {
+      await addFav.execute({ userId, playlistId: playlist.id })
+      await addFav.execute({ userId, playlistId: playlist.id })
+
+      const ids = await favoriteRepo.findEntityIdsByUserAndType(userId, 'PLAYLIST')
+      expect(ids).toHaveLength(1)
+    })
+
+    it('should throw PlaylistNotFoundError when playlist does not exist', async () => {
+      const fakeId = '00000000-0000-0000-0000-000000000000'
+      await expect(addFav.execute({ userId, playlistId: fakeId })).rejects.toThrow(PlaylistNotFoundError)
+    })
+  })
+
+  describe('RemoveFavoritePlaylistUseCase', () => {
+    it('should remove a playlist from favorites', async () => {
+      await addFav.execute({ userId, playlistId: playlist.id })
+      await removeFav.execute({ userId, playlistId: playlist.id })
+
+      const ids = await favoriteRepo.findEntityIdsByUserAndType(userId, 'PLAYLIST')
+      expect(ids).not.toContain(playlist.id)
+    })
+
+    it('should not throw when removing a non-favorited playlist', async () => {
+      await expect(
+        removeFav.execute({ userId, playlistId: playlist.id }),
+      ).resolves.toBeUndefined()
+    })
+  })
+
+  describe('ListFavoritePlaylistsUseCase', () => {
+    it('should return empty list when user has no favorites', async () => {
+      const result = await listFav.execute({ userId })
+      expect(result).toHaveLength(0)
+    })
+
+    it('should return favorited playlists', async () => {
+      await addFav.execute({ userId, playlistId: playlist.id })
+
+      const result = await listFav.execute({ userId })
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe(playlist.id)
+      expect(result[0].name).toBe(playlist.name)
     })
   })
 })

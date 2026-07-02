@@ -29,6 +29,13 @@ class PlaylistRepositoryPrisma implements PlaylistRepository {
     return row ? this.toDomain(row) : null
   }
 
+  async listByIds(ids: string[]): Promise<Playlist[]> {
+    const rows = await this.orm.playlist.findMany({
+      where: { id: { in: ids } },
+    })
+    return rows.map((row) => this.toDomain(row))
+  }
+
   async listByOwnerId(ownerId: string, page: number, limit: number): Promise<Playlist[]> {
     const rows = await this.orm.playlist.findMany({
       where:   { ownerId },

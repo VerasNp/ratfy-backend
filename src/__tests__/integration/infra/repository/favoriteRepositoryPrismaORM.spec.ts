@@ -68,6 +68,22 @@ describe('FavoriteRepositoryPrisma', () => {
       })
       expect(rows).toHaveLength(1)
     })
+
+    it('should create a new favorite for a playlist', async () => {
+      const entityId = 'playlist-1'
+
+      await favoriteRepository.add(dummyUser.id, entityId, 'PLAYLIST')
+
+      const row = await prisma.favorite.findUnique({
+        where: {
+          userId_entityId_entityType: { userId: dummyUser.id, entityId, entityType: 'PLAYLIST' },
+        },
+      })
+      expect(row).not.toBeNull()
+      expect(row!.userId).toBe(dummyUser.id)
+      expect(row!.entityId).toBe(entityId)
+      expect(row!.entityType).toBe('PLAYLIST')
+    })
   })
 
   describe('remove', () => {
@@ -94,6 +110,20 @@ describe('FavoriteRepositoryPrisma', () => {
       const row = await prisma.favorite.findUnique({
         where: {
           userId_entityId_entityType: { userId: dummyUser.id, entityId, entityType: 'ARTIST' },
+        },
+      })
+      expect(row).toBeNull()
+    })
+
+    it('should remove an existing playlist favorite', async () => {
+      const entityId = 'playlist-1'
+      await favoriteRepository.add(dummyUser.id, entityId, 'PLAYLIST')
+
+      await favoriteRepository.remove(dummyUser.id, entityId, 'PLAYLIST')
+
+      const row = await prisma.favorite.findUnique({
+        where: {
+          userId_entityId_entityType: { userId: dummyUser.id, entityId, entityType: 'PLAYLIST' },
         },
       })
       expect(row).toBeNull()
@@ -132,6 +162,16 @@ describe('FavoriteRepositoryPrisma', () => {
 
       expect(ids).toEqual(['artist-1', 'artist-2'])
     })
+
+    it('should return only playlist IDs when filtering by PLAYLIST type', async () => {
+      await favoriteRepository.add(dummyUser.id, 'playlist-1', 'PLAYLIST')
+      await favoriteRepository.add(dummyUser.id, 'playlist-2', 'PLAYLIST')
+      await favoriteRepository.add(dummyUser.id, 'track-1', 'TRACK')
+
+      const ids = await favoriteRepository.findEntityIdsByUserAndType(dummyUser.id, 'PLAYLIST')
+
+      expect(ids).toEqual(['playlist-1', 'playlist-2'])
+    })
   })
 
   describe('isFavorited', () => {
@@ -149,6 +189,15 @@ describe('FavoriteRepositoryPrisma', () => {
       await favoriteRepository.add(dummyUser.id, entityId, 'ARTIST')
 
       const result = await favoriteRepository.isFavorited(dummyUser.id, entityId, 'ARTIST')
+
+      expect(result).toBe(true)
+    })
+
+    it('should return true when a playlist is favorited', async () => {
+      const entityId = 'playlist-1'
+      await favoriteRepository.add(dummyUser.id, entityId, 'PLAYLIST')
+
+      const result = await favoriteRepository.isFavorited(dummyUser.id, entityId, 'PLAYLIST')
 
       expect(result).toBe(true)
     })
@@ -182,6 +231,18 @@ describe('FavoriteRepositoryPrisma', () => {
       const artistFav = await prisma.favorite.findMany({ where: { entityId: 'artist-1', entityType: 'ARTIST' } })
       const albumFav = await prisma.favorite.findMany({ where: { entityId: 'artist-1', entityType: 'ALBUM' } })
       expect(artistFav).toHaveLength(0)
+      expect(albumFav).toHaveLength(1)
+    })
+
+    it('should remove all playlist favorites for a given entity', async () => {
+      await favoriteRepository.add(dummyUser.id, 'playlist-1', 'PLAYLIST')
+      await favoriteRepository.add(dummyUser.id, 'playlist-1', 'ALBUM')
+
+      await favoriteRepository.removeAllByEntity('playlist-1', 'PLAYLIST')
+
+      const playlistFav = await prisma.favorite.findMany({ where: { entityId: 'playlist-1', entityType: 'PLAYLIST' } })
+      const albumFav = await prisma.favorite.findMany({ where: { entityId: 'playlist-1', entityType: 'ALBUM' } })
+      expect(playlistFav).toHaveLength(0)
       expect(albumFav).toHaveLength(1)
     })
 

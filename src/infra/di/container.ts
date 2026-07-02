@@ -4,6 +4,9 @@ import { ListFavoriteTracksUseCase } from '#application/useCases/favorite/ListFa
 import { AddFavoriteArtistUseCase } from '#application/useCases/favorite/AddFavoriteArtist.js'
 import { RemoveFavoriteArtistUseCase } from '#application/useCases/favorite/RemoveFavoriteArtist.js'
 import { ListFavoriteArtistsUseCase } from '#application/useCases/favorite/ListFavoriteArtists.js'
+import { AddFavoritePlaylistUseCase } from '#application/useCases/favorite/AddFavoritePlaylist.js'
+import { RemoveFavoritePlaylistUseCase } from '#application/useCases/favorite/RemoveFavoritePlaylist.js'
+import { ListFavoritePlaylistsUseCase } from '#application/useCases/favorite/ListFavoritePlaylists.js'
 import FavoriteController from '#infra/controllers/FavoriteController.js'
 import FavoriteRepositoryPrisma from '#infra/repository/FavoriteRepositoryPrisma.js'
 import ForgotPasswordUseCase from '#application/useCases/auth/ForgotPasswordUseCase.js'
@@ -162,6 +165,9 @@ container.register({
 	addFavoriteArtistUseCase: asClass(AddFavoriteArtistUseCase).scoped(),
 	removeFavoriteArtistUseCase: asClass(RemoveFavoriteArtistUseCase).scoped(),
 	listFavoriteArtistsUseCase: asClass(ListFavoriteArtistsUseCase).scoped(),
+	addFavoritePlaylistUseCase: asClass(AddFavoritePlaylistUseCase).scoped(),
+	removeFavoritePlaylistUseCase: asClass(RemoveFavoritePlaylistUseCase).scoped(),
+	listFavoritePlaylistsUseCase: asClass(ListFavoritePlaylistsUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),
