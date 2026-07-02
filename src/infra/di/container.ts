@@ -38,6 +38,7 @@ import { ListArtistsUseCase } from '#application/useCases/artist/ListArtists.js'
 import { UpdateArtistUseCase } from '#application/useCases/artist/UpdateArtist.js'
 import ArtistController from '#infra/controllers/ArtistController.js'
 import PlaylistRepositoryPrisma from '#infra/repository/PlaylistRepositoryPrisma.js'
+import TrackRepositoryPrismaORM from '#infra/repository/TrackRepositoryPrismaORM.js'
 import { CreatePlaylistUseCase } from '#application/useCases/playlist/CreatePlaylist.js'
 import { DeletePlaylistUseCase } from '#application/useCases/playlist/DeletePlaylist.js'
 import { GetPlaylistUseCase } from '#application/useCases/playlist/GetPlaylist.js'
@@ -107,6 +108,7 @@ container.register({
 	unitOfWork: asClass(UnitOfWorkPrismaORM).singleton(),
 	userRoleRepository: asClass(UserRoleRepositoryPrismaORM).singleton(),
 	operationRepository: asClass(OperationRepositoryPrismaORM).singleton(),
+	trackRepository: asClass(TrackRepositoryPrismaORM).singleton(),
 	favoriteRepository: asClass(FavoriteRepositoryPrisma).singleton(),
 
 	// use cases

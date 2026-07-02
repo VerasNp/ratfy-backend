@@ -4,15 +4,15 @@ import type { TrackListItemOutputDTO } from '#application/DTOs/track/TrackListOu
 
 export class ListFavoriteTracksUseCase {
   constructor(
-    private readonly trackRepo: TrackRepository,
-    private readonly favoriteRepo: FavoriteRepository,
+    private readonly trackRepository: TrackRepository,
+    private readonly favoriteRepository: FavoriteRepository,
   ) {}
 
   async execute(dto: { userId: string }): Promise<TrackListItemOutputDTO[]> {
-    const ids = await this.favoriteRepo.findEntityIdsByUserAndType(dto.userId, 'TRACK')
+    const ids = await this.favoriteRepository.findEntityIdsByUserAndType(dto.userId, 'TRACK')
     if (ids.length === 0) return []
 
-    const tracks = await this.trackRepo.listByIds(ids)
+    const tracks = await this.trackRepository.listByIds(ids)
 
     return tracks.map((t) => ({
       albumId:     t.albumId,

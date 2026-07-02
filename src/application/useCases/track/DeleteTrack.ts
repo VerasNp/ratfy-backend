@@ -7,14 +7,14 @@ import { TrackNotFoundError } from '#application/errors/TrackNotFoundError.js'
 
 export class DeleteTrackUseCase {
   constructor(
-    private readonly trackRepo: TrackRepository,
-    private readonly favoriteRepo: FavoriteRepository,
+    private readonly trackRepository: TrackRepository,
+    private readonly favoriteRepository: FavoriteRepository,
   ) {}
 
   async execute(dto: TrackDeleteInputDTO): Promise<TrackDeleteOutputDTO> {
-    const exists = await this.trackRepo.findById(dto.id)
+    const exists = await this.trackRepository.findById(dto.id)
     if (!exists) throw new TrackNotFoundError(dto.id)
-    await this.trackRepo.delete(dto.id)
-    await this.favoriteRepo.removeAllByEntity(dto.id, 'TRACK')
+    await this.trackRepository.delete(dto.id)
+    await this.favoriteRepository.removeAllByEntity(dto.id, 'TRACK')
   }
 }

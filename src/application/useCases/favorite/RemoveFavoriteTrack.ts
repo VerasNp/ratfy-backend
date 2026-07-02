@@ -1,9 +1,9 @@
 import type { FavoriteRepository } from '#application/ports/FavoriteRepository.js'
 
 export class RemoveFavoriteTrackUseCase {
-  constructor(private readonly favoriteRepo: FavoriteRepository) {}
+  constructor(private readonly favoriteRepository: FavoriteRepository) {}
 
   async execute(dto: { userId: string; trackId: string }): Promise<void> {
-    await this.favoriteRepo.remove(dto.userId, dto.trackId, 'TRACK')
+    await this.favoriteRepository.remove(dto.userId, dto.trackId, 'TRACK')
   }
 }
