@@ -20,6 +20,8 @@ const envSchema = z.object({
 	SIGNUP_RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
 	RESEND_VERIFICATION_RATE_LIMIT_MAX: z.coerce.number().default(3),
 	RESEND_VERIFICATION_RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
+	RESET_PASSWORD_RATE_LIMIT_MAX: z.coerce.number().default(5),
+	RESET_PASSWORD_RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
 })
 
 const env = envSchema.safeParse(process.env)
@@ -66,6 +68,10 @@ export const config = {
 		resendVerification: {
 			max: env.data.RESEND_VERIFICATION_RATE_LIMIT_MAX,
 			windowMs: env.data.RESEND_VERIFICATION_RATE_LIMIT_WINDOW_MS,
+		},
+		resetPassword: {
+			max: env.data.RESET_PASSWORD_RATE_LIMIT_MAX,
+			windowMs: env.data.RESET_PASSWORD_RATE_LIMIT_WINDOW_MS,
 		},
 	},
 	database: {
