@@ -1,88 +1,67 @@
-import crypto from "crypto"
+import ValidationError from '#domain/errors/ValidationError.js'
+import type User from '#domain/user/User.js'
+import crypto from 'crypto'
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     Artist:
- *       type: object
- *       required:
- *         - id
- *         - userId
- *         - createdAt
- *         - updatedAt
- *       properties:
- *         id:
- *           type: string
- *           format: uuid
- *           description: The unique identifier for the artist.
- *         userId:
- *           type: string
- *           format: uuid
- *           description: The unique identifier of the user who became an artist.
- *         bio:
- *           type: string
- *           nullable: true
- *           description: The biography of the artist.
- *         createdAt:
- *           type: string
- *           format: date-time
- *           description: The timestamp of when the artist was created.
- *         updatedAt:
- *           type: string
- *           format: date-time
- *           description: The timestamp of when the artist was last updated.
- */
 class Artist {
-  public readonly id: string
-  public readonly userId: string
-  public bio: string | null
-  public readonly createdAt: Date
-  public updatedAt: Date
+	public readonly id: string
+	private _bio: string | null
+	private _userId: string
+	private _user: User | null
 
-  private constructor(params: {
-    id: string
-    userId: string
-    bio?: string | null
-    createdAt: Date
-    updatedAt: Date
-  }) {
-    if (params.bio && params.bio.length > 2000) {
-      throw new Error(
-        `Artist bio exceeds the maximum allowed length of 2000 characters.`
-      )
-    }
+	private constructor(params: {
+		id: string
+		bio: string | null
+		userId: string
+		user: User | null
+	}) {
+		this.id = params.id
+		this._bio = params.bio
+		this._userId = params.userId
+		this._user = params.user
+	}
 
-    this.id = params.id
-    this.userId = params.userId
-    this.bio = params.bio ?? null
-    this.createdAt = params.createdAt
-    this.updatedAt = params.updatedAt
-  }
+	public static create(params: {
+		bio: string | null
+		user: User
+		createdAt?: Date
+		updatedAt?: Date
+	}): Artist {
+		return new Artist({
+			id: crypto.randomUUID(),
+			bio: params.bio,
+			userId: params.user.id,
+			user: params.user,
+		})
+	}
 
-  public static create(params: {
-    userId: string
-    bio?: string | null
-  }): Artist {
-    const now = new Date()
-    return new Artist({
-      id: crypto.randomUUID(),
-      userId: params.userId,
-      bio: params.bio ?? null,
-      createdAt: now,
-      updatedAt: now,
-    })
-  }
+	public static restore(params: {
+		id: string
+		bio: string | null
+		userId: string
+		user?: User | null
+	}): Artist {
+		return new Artist({
+			...params,
+			bio: params.bio,
+			user: params.user ?? null,
+		})
+	}
 
-  public static restore(params: {
-    id: string
-    userId: string
-    bio: string | null
-    createdAt: Date
-    updatedAt: Date
-  }): Artist {
-    return new Artist(params)
-  }
+	public updateData(data: { bio?: string | null }): void {
+		if (data.bio !== undefined) {
+			this._bio = data.bio
+		}
+	}
+
+	public get bio() {
+		return this._bio
+	}
+	public get userId() {
+		return this._userId
+	}
+	public get user() {
+		return this._user
+	}
 }
 
 export default Artist

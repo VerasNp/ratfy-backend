@@ -39,14 +39,7 @@ import UserRepositoryPrismaORM from '#infra/repository/UserRepositoryPrismaORM.j
 import Argon2Adapter from '#infra/security/Argon2Adapter.js'
 import JwtAdapter from '#infra/security/JwtAdapter.js'
 import HandlebarsRendererAdapter from '#infra/templateRenderer/HandlebarsRendererAdapter.js'
-import ArtistRepositoryPrisma from '#infra/repository/ArtistRepositoryPrisma.js'
-import { CreateArtistUseCase } from '#application/useCases/artist/CreateArtist.js'
-import { DeleteArtistUseCase } from '#application/useCases/artist/DeleteArtist.js'
-import { GetArtistUseCase } from '#application/useCases/artist/GetArtist.js'
-import { GetArtistByUserIdUseCase } from '#application/useCases/artist/GetArtistByUserId.js'
-import { ListArtistsUseCase } from '#application/useCases/artist/ListArtists.js'
-import { UpdateArtistUseCase } from '#application/useCases/artist/UpdateArtist.js'
-import { BecomeArtistUseCase } from '#application/useCases/artist/BecomeArtistUseCase.js'
+import ArtistRepositoryPrismaORM from '#infra/repository/ArtistRepositoryPrismaORM.js'
 import ArtistController from '#infra/controllers/ArtistController.js'
 import PlaylistRepositoryPrisma from '#infra/repository/PlaylistRepositoryPrisma.js'
 import TrackRepositoryPrismaORM from '#infra/repository/TrackRepositoryPrismaORM.js'
@@ -85,6 +78,10 @@ import GrantPermissionToRoleUseCase from '#application/useCases/rbac/GrantPermis
 import RevokePermissionFromRoleUseCase from '#application/useCases/rbac/RevokePermissionFromRoleUseCase.js'
 import AssignRoleToUserUseCase from '#application/useCases/rbac/AssignRoleToUserUseCase.js'
 import RemoveRoleFromUserUseCase from '#application/useCases/rbac/RemoveRoleFromUserUseCase.js'
+import CreateArtistUseCase from '#application/useCases/artist/CreateArtistUseCase.js'
+import DeleteArtistUseCase from '#application/useCases/artist/DeleteArtistUseCase.js'
+import UpdateArtistUseCase from '#application/useCases/artist/UpdateArtistUseCase.js'
+import { BecomeArtistUseCase } from '#application/useCases/artist/BecomeArtistUseCase.js'
 
 const container = createContainer({ injectionMode: InjectionMode.CLASSIC })
 
@@ -110,7 +107,7 @@ container.register({
 
 	// repositories
 	userRepository: asClass(UserRepositoryPrismaORM).singleton(),
-	artistRepository: asClass(ArtistRepositoryPrisma).singleton(),
+	artistRepository: asClass(ArtistRepositoryPrismaORM).singleton(),
 	playlistRepository: asClass(PlaylistRepositoryPrisma).singleton(),
 	refreshTokenRepository: asClass(RefreshTokenRepositoryPrismaORM).singleton(),
 	roleRepository: asClass(RoleRepositoryPrismaORM).singleton(),
@@ -128,11 +125,8 @@ container.register({
 	verifyUserMailUserCase: asClass(VerifyUserMailUseCase).scoped(),
 	resendVerificationEmailUserCase: asClass(ResendVerificationEmailUseCase).scoped(),
 	createArtistUseCase: asClass(CreateArtistUseCase).scoped(),
-	getArtistUseCase: asClass(GetArtistUseCase).scoped(),
 	updateArtistUseCase: asClass(UpdateArtistUseCase).scoped(),
 	deleteArtistUseCase: asClass(DeleteArtistUseCase).scoped(),
-	listArtistsUseCase: asClass(ListArtistsUseCase).scoped(),
-	getArtistByUserIdUseCase: asClass(GetArtistByUserIdUseCase).scoped(),
 	becomeArtistUseCase: asClass(BecomeArtistUseCase).scoped(),
 	createPlaylistUseCase: asClass(CreatePlaylistUseCase).scoped(),
 	getPlaylistUseCase: asClass(GetPlaylistUseCase).scoped(),

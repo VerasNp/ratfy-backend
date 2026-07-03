@@ -41,7 +41,6 @@ export default function toHttpErrors(error: ApplicationError) {
 		return new HttpError(404, error.message)
 	}
 	if (error instanceof ResourceAlreadyExistsError) {
-		console.log('Resource already exists error:', error.message)
 		return new HttpError(409, error.message)
 	}
 	if (error instanceof UnauthorizedError || error instanceof ExpiredJWTError) {
