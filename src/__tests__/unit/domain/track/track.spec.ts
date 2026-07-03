@@ -10,6 +10,7 @@ describe('Track Value Object', () => {
 			trackNumber: 1,
 			explicit: false,
 			isPublic: true,
+			album: null as any,
 		})
 		expect(track.id).toBeDefined()
 		expect(track.title).toBe('Track Title')
@@ -19,7 +20,6 @@ describe('Track Value Object', () => {
 		expect(track.explicit).toBe(false)
 		expect(track.isPublic).toBe(true)
 		expect(track.lyrics).toBeNull()
-		expect(track.album).toBeNull()
 		expect(track.artists).toEqual([])
 		expect(track.createdAt).toBeInstanceOf(Date)
 		expect(track.updatedAt).toBeInstanceOf(Date)

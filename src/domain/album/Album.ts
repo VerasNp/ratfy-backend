@@ -20,10 +20,9 @@ class Album {
 	public readonly createdAt: Date
 	public readonly id: string
 	public isDeleted?: boolean
-	public isPublic: boolean
     public readonly label: string
     public readonly name: string
-	public readonly releaseDate: Date
+	public readonly releaseDate: string
 	public readonly releasePrecision: ReleasePrecision
 	public totalTracks: number
 	public updatedAt: Date
@@ -33,10 +32,9 @@ class Album {
     createdAt:        Date
     id:               string
     isDeleted?:		  boolean
-    isPublic:         boolean
     label:            string
     name:             string
-    releaseDate:      Date
+    releaseDate:      string
     releasePrecision: ReleasePrecision
     totalTracks:      number
     updatedAt:        Date
@@ -55,7 +53,6 @@ class Album {
     this.createdAt        = params.createdAt
     this.id               = params.id
     this.isDeleted        = params.isDeleted ?? false
-    this.isPublic         = params.isPublic
     this.label            = params.label
     this.name             = params.name
     this.releaseDate      = params.releaseDate
@@ -69,7 +66,7 @@ class Album {
 		isPublic?: boolean
 	    label:            string
 	    name:             string
-	    releaseDate:      Date
+	    releaseDate:      string
 	    releasePrecision: ReleasePrecision
 	    totalTracks:      number
   }): Album {
@@ -92,7 +89,7 @@ class Album {
     isPublic:         boolean
     label:            string
     name:             string
-    releaseDate:      Date
+    releaseDate:      string
     releasePrecision: ReleasePrecision
     totalTracks:      number
     updatedAt:        Date

@@ -1,4 +1,4 @@
-import type { TrackGetInputDTO }  from '#application/DTOs/track/TrackGetInputDTO.js'
+import type { TrackGetInputDTO }  from '#infra/http/schemas/TracksSchemas.js'
 import type { TrackGetOutputDTO } from '#application/DTOs/track/TrackGetOutputDTO.js'
 import type { TrackRepository }   from '#application/ports/TrackRepository.js'
 
