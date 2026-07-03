@@ -4,6 +4,7 @@ import { unitOfWorkMock } from '#application/ports/__mocks__/UnitOfWorkMock.js'
 import type { ArtistRepository } from '#application/ports/ArtistRepository.js'
 import BecomeArtistUseCase from '#application/useCases/artist/BecomeArtistUseCase.js'
 import InvalidTokenError from '#application/errors/InvalidTokenError.js'
+import UnauthorizedError from '#application/errors/UnauthorizedError.js'
 import Artist from '#domain/artist/Artist.js'
 import Role from '#domain/rbac/role/Role.js'
 import User from '#domain/user/User.js'
@@ -90,7 +91,7 @@ describe('ArtistController - POST /become-artist', () => {
 
 		beforeEach(() => {
 			server = createTestServer()
-			dummyUser = User.create('John Doe', 'john@example.com', 'Valid@123', new Date('1990-01-01'))
+			dummyUser = User.create('John Doe', 'john@example.com', 'Valid@123', new Date('1990-01-01'), new Date())
 			userRepository = new UserRepositoryMemory([dummyUser])
 			artistRole = Role.create(Role.PredefinedRoles.ARTIST, 'Artist role')
 			roleRepository = new RoleRepositoryMemory([artistRole])
@@ -141,6 +142,42 @@ describe('ArtistController - POST /become-artist', () => {
 
 			expect(res.status).toBe(409)
 			expect(res.body.message).toBe('User already has an artist profile')
+		})
+	})
+
+	describe('with unverified email', () => {
+		let dummyUser: User
+		let artistRole: Role
+		let authMiddlewareMock: any
+
+		beforeEach(() => {
+			server = createTestServer()
+			dummyUser = User.create('Jane Doe', 'jane@example.com', 'Valid@123', new Date('1990-01-01'))
+			userRepository = new UserRepositoryMemory([dummyUser])
+			artistRole = Role.create(Role.PredefinedRoles.ARTIST, 'Artist role')
+			roleRepository = new RoleRepositoryMemory([artistRole])
+			artistRepository = new ArtistRepositoryMemory()
+			userRoleRepository = new UserRoleRepositoryMemory()
+
+			authMiddlewareMock = {
+				handle: () => {
+					return (req: any, _res: any, next: any) => {
+						req.user = { userId: dummyUser.id }
+						next()
+					}
+				},
+			}
+
+			buildController(authMiddlewareMock)
+			server.registerErrorHandler()
+		})
+
+		it('should return 401 when email is not verified', async () => {
+			const res = await request(server.app)
+				.post('/become-artist')
+				.send({ bio: 'My bio' })
+
+			expect(res.status).toBe(401)
 		})
 	})
 

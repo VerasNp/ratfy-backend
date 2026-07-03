@@ -11,6 +11,7 @@ import Role from '#domain/rbac/role/Role.js'
 import ResourceNotFoundError from '#application/errors/ResourceNotFoundError.js'
 import ResourceAlreadyExistsError from '#application/errors/ResourceAlreadyExistsError.js'
 import MissingApplicationSetupError from '#application/errors/MissingApplicationSetupError.js'
+import UnauthorizedError from '#application/errors/UnauthorizedError.js'
 
 class BecomeArtistUseCase {
 	public constructor(
@@ -37,6 +38,13 @@ class BecomeArtistUseCase {
 				origin: 'BecomeArtistUseCase',
 			})
 			throw new ResourceAlreadyExistsError('User already has an artist profile')
+		}
+
+		if (!user.isEmailVerified()) {
+			this.loggerService.warn(`User ${userId} attempted to become an artist without verified email`, {
+				origin: 'BecomeArtistUseCase',
+			})
+			throw new UnauthorizedError('Email must be verified to become an artist')
 		}
 
 		const artistRole = await this.roleRepository.findRoleByName(Role.PredefinedRoles.ARTIST)

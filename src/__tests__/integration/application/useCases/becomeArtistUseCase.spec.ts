@@ -8,6 +8,7 @@ import User from '#domain/user/User.js'
 import ResourceNotFoundError from '#application/errors/ResourceNotFoundError.js'
 import ResourceAlreadyExistsError from '#application/errors/ResourceAlreadyExistsError.js'
 import MissingApplicationSetupError from '#application/errors/MissingApplicationSetupError.js'
+import UnauthorizedError from '#application/errors/UnauthorizedError.js'
 import RoleRepositoryMemory from '#infra/repository/rbac/RoleRepositoryMemory.js'
 import UserRepositoryMemory from '#infra/repository/UserRepositoryMemory.js'
 import UserRoleRepositoryMemory from '#infra/repository/rbac/UserRoleRepositoryMemory.js'
@@ -74,7 +75,7 @@ describe('BecomeArtistUseCase', () => {
 	})
 
 	it('should create an artist and assign the ARTIST role', async () => {
-		const user = User.create('John Doe', 'john@example.com', 'Valid@123', new Date('1990-01-01'))
+		const user = User.create('John Doe', 'john@example.com', 'Valid@123', new Date('1990-01-01'), new Date())
 		await userRepository.create(user)
 		const artistRole = Role.create(Role.PredefinedRoles.ARTIST, 'Artist role')
 		await roleRepository.createRole(artistRole)
@@ -97,7 +98,7 @@ describe('BecomeArtistUseCase', () => {
 	})
 
 	it('should create an artist with null bio when not provided', async () => {
-		const user = User.create('Jane Doe', 'jane@example.com', 'Valid@123', new Date('1990-01-01'))
+		const user = User.create('Jane Doe', 'jane@example.com', 'Valid@123', new Date('1990-01-01'), new Date())
 		await userRepository.create(user)
 		const artistRole = Role.create(Role.PredefinedRoles.ARTIST, 'Artist role')
 		await roleRepository.createRole(artistRole)
@@ -128,8 +129,17 @@ describe('BecomeArtistUseCase', () => {
 		).rejects.toThrow(ResourceAlreadyExistsError)
 	})
 
+	it('should throw UnauthorizedError when email is not verified', async () => {
+		const user = User.create('Dave', 'dave@example.com', 'Valid@123', new Date('1990-01-01'))
+		await userRepository.create(user)
+
+		await expect(
+			becomeArtistUseCase.execute(user.id, {}),
+		).rejects.toThrow(UnauthorizedError)
+	})
+
 	it('should throw MissingApplicationSetupError when ARTIST role does not exist', async () => {
-		const user = User.create('Charlie', 'charlie@example.com', 'Valid@123', new Date('1990-01-01'))
+		const user = User.create('Charlie', 'charlie@example.com', 'Valid@123', new Date('1990-01-01'), new Date())
 		await userRepository.create(user)
 
 		await expect(
