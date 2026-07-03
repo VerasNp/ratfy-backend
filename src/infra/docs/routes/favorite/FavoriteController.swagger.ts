@@ -5,6 +5,10 @@ import { AddFavoriteAlbumSchema } from '#application/DTOs/favorite/AddFavoriteAl
 import { AddFavoriteArtistSchema } from '#application/DTOs/favorite/AddFavoriteArtistInputDTO.js'
 import { AddFavoritePlaylistSchema } from '#application/DTOs/favorite/AddFavoritePlaylistInputDTO.js'
 import { AddFavoriteTrackSchema } from '#application/DTOs/favorite/AddFavoriteTrackInputDTO.js'
+import { RemoveFavoriteAlbumSchema } from '#application/DTOs/favorite/RemoveFavoriteAlbumInputDTO.js'
+import { RemoveFavoriteArtistSchema } from '#application/DTOs/favorite/RemoveFavoriteArtistInputDTO.js'
+import { RemoveFavoritePlaylistSchema } from '#application/DTOs/favorite/RemoveFavoritePlaylistInputDTO.js'
+import { RemoveFavoriteTrackSchema } from '#application/DTOs/favorite/RemoveFavoriteTrackInputDTO.js'
 
 class FavoriteControllerSwagger {
 	public constructor(private readonly registry: OpenAPIRegistry) {
@@ -27,11 +31,10 @@ class FavoriteControllerSwagger {
 			method: 'delete',
 			path: '/favorites/tracks/{trackId}',
 			request: {
-				params: AddFavoriteTrackSchema,
+				params: RemoveFavoriteTrackSchema,
 			},
 			responses: {
 				204: { description: 'Track unfavorited successfully. No response body.' },
-				404: { description: 'Favorite not found.' },
 			},
 			summary: 'Unfavorite a track',
 			tags: ['Favorites'],
@@ -89,11 +92,10 @@ class FavoriteControllerSwagger {
 			method: 'delete',
 			path: '/favorites/artists/{artistId}',
 			request: {
-				params: AddFavoriteArtistSchema,
+				params: RemoveFavoriteArtistSchema,
 			},
 			responses: {
 				204: { description: 'Artist unfavorited successfully. No response body.' },
-				404: { description: 'Favorite not found.' },
 			},
 			summary: 'Unfavorite an artist',
 			tags: ['Favorites'],
@@ -144,11 +146,10 @@ class FavoriteControllerSwagger {
 			method: 'delete',
 			path: '/favorites/playlists/{playlistId}',
 			request: {
-				params: AddFavoritePlaylistSchema,
+				params: RemoveFavoritePlaylistSchema,
 			},
 			responses: {
 				204: { description: 'Playlist unfavorited successfully. No response body.' },
-				404: { description: 'Favorite not found.' },
 			},
 			summary: 'Unfavorite a playlist',
 			tags: ['Favorites'],
@@ -200,11 +201,10 @@ class FavoriteControllerSwagger {
 			method: 'delete',
 			path: '/favorites/albums/{albumId}',
 			request: {
-				params: AddFavoriteAlbumSchema,
+				params: RemoveFavoriteAlbumSchema,
 			},
 			responses: {
 				204: { description: 'Album unfavorited successfully. No response body.' },
-				404: { description: 'Favorite not found.' },
 			},
 			summary: 'Unfavorite an album',
 			tags: ['Favorites'],
