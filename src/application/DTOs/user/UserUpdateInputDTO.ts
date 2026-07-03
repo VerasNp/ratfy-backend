@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { SignupSchema } from '../SignupInputDTO.js'
 
 export const UserUpdateSchema = SignupSchema.partial().refine(
-	(data) => Object.keys(data).length > 0,
+	(data) => Object.values(data).some((value) => value !== undefined),
 	{ message: 'At least one field must be provided for update' },
 )
 
