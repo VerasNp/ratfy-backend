@@ -7,13 +7,15 @@ import UpdateUserUseCase from '#application/useCases/user/UpdateUserUseCase.js'
 import User from '#domain/user/User.js'
 import Email from '#domain/shared/Email.js'
 import UserRepositoryMemory from '#infra/repository/UserRepositoryMemory.js'
-import { beforeEach, describe, expect, it } from 'vitest'
+import argon2 from 'argon2'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 let updateUser: UpdateUserUseCase
 let userRepository: UserRepositoryMemory
 let dummyUser: User
 
 beforeEach(async () => {
+	vi.clearAllMocks()
 	userRepository = new UserRepositoryMemory()
 	dummyUser = User.create('Original Name', 'original@email.com', 'Valid@123', new Date('1990-01-01'))
 	await userRepository.create(dummyUser)
@@ -43,17 +45,28 @@ describe('UpdateUserUseCase', () => {
 	})
 
 	it('should update user password successfully', async () => {
-		const originalPasswordValue = dummyUser.password.value
 		await updateUser.execute(dummyUser.id, { password: 'NewPass@123' })
 		const updatedUser = await userRepository.findById(dummyUser.id)
-		expect(updatedUser?.password.value).not.toBe(originalPasswordValue)
+		const isMatch = await argon2.verify(updatedUser!.password.value, 'NewPass@123')
+		expect(isMatch).toBe(true)
 	})
 
-	it('should update email and reset verifiedAt', async () => {
+	it('should update email, reset verifiedAt and send verification email', async () => {
 		await updateUser.execute(dummyUser.id, { email: 'new@email.com' })
 		const updatedUser = await userRepository.findById(dummyUser.id)
 		expect(updatedUser?.email.value).toBe('new@email.com')
 		expect(updatedUser?.verifiedAt).toBeNull()
+
+		expect(mailPortMock.sendMail).toHaveBeenCalledTimes(1)
+		expect(mailPortMock.sendMail).toHaveBeenCalledWith(
+			'new@email.com',
+			'Verify your new email',
+			undefined,
+		)
+		expect(tokenPortMock.generateToken).toHaveBeenCalledWith(
+			{ userId: dummyUser.id, email: 'new@email.com' },
+			expect.any(Number),
+		)
 	})
 
 	it('should update all fields at once', async () => {
