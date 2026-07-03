@@ -53,6 +53,7 @@ class SignupUseCase {
 				await this.userRepository.create(user, tx)
 				await this.userRoleRepository.assignRoleToUser(user.id, userRole.id, tx)
 			})
+			user.assignRole(userRole)
 		} catch (error) {
 			if (error instanceof UniqueConstraintError) {
 				this.loggerService.warn('SignupUseCase: email already in use (race condition)', {

@@ -54,6 +54,8 @@ class BecomeArtistUseCase {
 			await this.userRoleRepository.assignRoleToUser(userId, artistRole.id, tx)
 		})
 
+		user.assignRole(artistRole)
+
 		this.loggerService.info(`User ${userId} became an artist`, {
 			origin: 'BecomeArtistUseCase',
 		})
