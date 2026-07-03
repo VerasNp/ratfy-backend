@@ -1,7 +1,7 @@
 import { loggerPortMock } from '#application/ports/__mocks__/LoggerPort.js'
 import { unitOfWorkMock } from '#application/ports/__mocks__/UnitOfWorkMock.js'
 import type { ArtistRepository } from '#application/ports/ArtistRepository.js'
-import BecomeArtistUseCase from '#application/useCases/artist/BecomeArtistUseCase.js'
+import { BecomeArtistUseCase } from '#application/useCases/artist/BecomeArtistUseCase.js'
 import Artist from '#domain/artist/Artist.js'
 import Role from '#domain/rbac/role/Role.js'
 import User from '#domain/user/User.js'

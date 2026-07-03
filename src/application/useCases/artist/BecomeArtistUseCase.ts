@@ -13,7 +13,7 @@ import ResourceAlreadyExistsError from '#application/errors/ResourceAlreadyExist
 import MissingApplicationSetupError from '#application/errors/MissingApplicationSetupError.js'
 import UnauthorizedError from '#application/errors/UnauthorizedError.js'
 
-class BecomeArtistUseCase {
+export class BecomeArtistUseCase {
 	public constructor(
 		private readonly userRepository: UserRepository,
 		private readonly artistRepository: ArtistRepository,
@@ -78,4 +78,4 @@ class BecomeArtistUseCase {
 	}
 }
 
-export default BecomeArtistUseCase
+

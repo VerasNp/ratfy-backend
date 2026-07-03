@@ -15,7 +15,7 @@ import { GetArtistUseCase } from "#application/useCases/artist/GetArtist.js"
 import { ListArtistsUseCase } from "#application/useCases/artist/ListArtists.js"
 import { UpdateArtistUseCase } from "#application/useCases/artist/UpdateArtist.js"
 import { GetArtistByUserIdUseCase } from "#application/useCases/artist/GetArtistByUserId.js"
-import BecomeArtistUseCase from "#application/useCases/artist/BecomeArtistUseCase.js"
+import { BecomeArtistUseCase } from "#application/useCases/artist/BecomeArtistUseCase.js"
 
 class ArtistController {
   public constructor(
