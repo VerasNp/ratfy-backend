@@ -8,6 +8,8 @@ model Album {
   label                 String
   artistIds             String[]
   tracks                Track[]
+  isDeleted             Boolean              @default(false)
+  isPublic              Boolean              @default(true)
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 }
