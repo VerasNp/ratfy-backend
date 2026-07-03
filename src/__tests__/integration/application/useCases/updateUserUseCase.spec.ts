@@ -2,8 +2,10 @@ import { loggerPortMock } from '#application/ports/__mocks__/LoggerPort.js'
 import { mailPortMock } from '#application/ports/__mocks__/MailPortMock.js'
 import { templateRendererPortMock } from '#application/ports/__mocks__/TemplateRendererPortMock.js'
 import { tokenPortMock } from '#application/ports/__mocks__/TokenPortMock.js'
+import UniqueConstraintError from '#domain/errors/UniqueConstraintError.js'
 import UpdateUserUseCase from '#application/useCases/user/UpdateUserUseCase.js'
 import User from '#domain/user/User.js'
+import Email from '#domain/shared/Email.js'
 import UserRepositoryMemory from '#infra/repository/UserRepositoryMemory.js'
 import { beforeEach, describe, expect, it } from 'vitest'
 
@@ -89,5 +91,18 @@ describe('UpdateUserUseCase', () => {
 		await expect(
 			updateUser.execute(dummyUser.id, { password: 'weak' }),
 		).rejects.toThrow('Password must be at least 8 characters long')
+	})
+
+	it('should throw ResourceAlreadyExistsError when email uniqueness is violated at repository level', async () => {
+		const anotherUser = User.create(
+			'Another User',
+			'taken@email.com',
+			'Valid@123',
+			new Date('1990-01-01'),
+		)
+		await userRepository.create(anotherUser)
+		const user = (await userRepository.findById(dummyUser.id))!
+		user.email = new Email('taken@email.com')
+		await expect(userRepository.updateUser(user)).rejects.toThrow(UniqueConstraintError)
 	})
 })

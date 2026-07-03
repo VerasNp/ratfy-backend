@@ -1,4 +1,5 @@
 import type { UserRepository } from '#application/ports/UserRepository.js'
+import UniqueConstraintError from '#domain/errors/UniqueConstraintError.js'
 import Role from '#domain/rbac/role/Role.js'
 import User from '#domain/user/User.js'
 import { Prisma, PrismaClient } from '#prisma/client'
@@ -27,23 +28,30 @@ class UserRepositoryPrismaORM implements UserRepository {
 	}
 
 	public async create(user: User): Promise<User> {
-		const createdUser = await this.orm.user.create({
-			data: {
-				id: user.id,
-				name: user.name,
-				email: user.email.value,
-				password: user.password.value,
-				birthDate: user.birthDate.value,
-			},
-		})
-		return User.restore(
-			createdUser.id,
-			createdUser.name,
-			createdUser.email,
-			createdUser.password,
-			createdUser.birthDate,
-			createdUser.verifiedAt,
-		)
+		try {
+			const createdUser = await this.orm.user.create({
+				data: {
+					id: user.id,
+					name: user.name,
+					email: user.email.value,
+					password: user.password.value,
+					birthDate: user.birthDate.value,
+				},
+			})
+			return User.restore(
+				createdUser.id,
+				createdUser.name,
+				createdUser.email,
+				createdUser.password,
+				createdUser.birthDate,
+				createdUser.verifiedAt,
+			)
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+				throw new UniqueConstraintError('Email already in use')
+			}
+			throw error
+		}
 	}
 
 	async findByEmail(email: string): Promise<User | null> {
@@ -111,8 +119,13 @@ class UserRepositoryPrismaORM implements UserRepository {
 			)
 			return updatedUser
 		} catch (error) {
-			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-				return null
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
+				if (error.code === 'P2025') {
+					return null
+				}
+				if (error.code === 'P2002') {
+					throw new UniqueConstraintError('Email already in use')
+				}
 			}
 			throw error
 		}

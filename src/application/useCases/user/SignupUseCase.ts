@@ -7,6 +7,7 @@ import type { UserRepository } from '#application/ports/UserRepository.js'
 import User from '#domain/user/User.js'
 import type { MailPort } from '#application/ports/MailPort.js'
 import type { TemplateRendererPort } from '#application/ports/TemplateRendererPort.js'
+import UniqueConstraintError from '#domain/errors/UniqueConstraintError.js'
 import argon2 from 'argon2'
 import type { RoleRepository } from '#application/ports/RoleRepository.js'
 import type { UnitOfWork } from '#application/ports/UnitOfWork.js'
@@ -47,10 +48,21 @@ class SignupUseCase {
 		}
 		const passwordHash = await argon2.hash(userData.password)
 		const user = User.create(userData.name, userData.email, passwordHash, userData.birthDate)
-		await this.unitOfWork.execute(async () => {
-			await this.userRepository.create(user)
-			await this.userRoleRepository.assignRoleToUser(user.id, userRole.id)
-		})
+		try {
+			await this.unitOfWork.execute(async () => {
+				await this.userRepository.create(user)
+				await this.userRoleRepository.assignRoleToUser(user.id, userRole.id)
+			})
+		} catch (error) {
+			if (error instanceof UniqueConstraintError) {
+				this.loggerService.warn('SignupUseCase: email already in use (race condition)', {
+					origin: 'SignupUseCase',
+					email: userData.email,
+				})
+				throw new ResourceAlreadyExistsError('User with this email already exists')
+			}
+			throw error
+		}
 		const token = this.tokenService.generateToken(
 			{ userId: user.id, email: user.email.value },
 			this._VERIFY_EMAIL_TOKEN_EXPIRE_TIME,

@@ -7,6 +7,7 @@ import type { MailPort } from '#application/ports/MailPort.js'
 import type { TemplateRendererPort } from '#application/ports/TemplateRendererPort.js'
 import type { TokenPort } from '#application/ports/TokenPort.js'
 import type { UserRepository } from '#application/ports/UserRepository.js'
+import UniqueConstraintError from '#domain/errors/UniqueConstraintError.js'
 import ValidationError from '#domain/errors/ValidationError.js'
 import type User from '#domain/user/User.js'
 import BirthDate from '#domain/user/BirthDate.js'
@@ -69,10 +70,23 @@ class UpdateUserUseCase {
 			user.birthDate = new BirthDate(dto.birthDate)
 		}
 
-		const updatedUser = await this.userRepository.updateUser(user)
-		if (!updatedUser) {
-			this.loggerService.error('UpdateUserUseCase: failed to update user', { userId: id })
-			throw new UserNotFoundError()
+		let updatedUser: User
+		try {
+			const result = await this.userRepository.updateUser(user)
+			if (!result) {
+				this.loggerService.error('UpdateUserUseCase: failed to update user', { userId: id })
+				throw new UserNotFoundError()
+			}
+			updatedUser = result
+		} catch (error) {
+			if (error instanceof UniqueConstraintError) {
+				this.loggerService.warn('UpdateUserUseCase: email already in use (race condition)', {
+					userId: id,
+					email: dto.email,
+				})
+				throw new ResourceAlreadyExistsError('User with this email already exists')
+			}
+			throw error
 		}
 
 		if (emailChanged) {
