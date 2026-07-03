@@ -1,4 +1,5 @@
 import type { UserRepository } from '#application/ports/UserRepository.js'
+import Role from '#domain/rbac/role/Role.js'
 import User from '#domain/user/User.js'
 import { Prisma, PrismaClient } from '#prisma/client'
 
@@ -6,17 +7,23 @@ class UserRepositoryPrismaORM implements UserRepository {
 	constructor(private orm: PrismaClient) {}
 
 	public async findAll(): Promise<User[]> {
-		const users = await this.orm.user.findMany()
-		return users.map((user) =>
-			User.restore(
+		const users = await this.orm.user.findMany({
+			include: { roles: { include: { role: true } } },
+		})
+		return users.map((user) => {
+			const roles = user.roles.map((ur) =>
+				Role.restore(ur.role.id, ur.role.name, ur.role.description),
+			)
+			return User.restore(
 				user.id,
 				user.name,
 				user.email,
 				user.password,
 				user.birthDate,
 				user.verifiedAt,
-			),
-		)
+				roles,
+			)
+		})
 	}
 
 	public async create(user: User): Promise<User> {
@@ -44,10 +51,14 @@ class UserRepositoryPrismaORM implements UserRepository {
 			where: {
 				email: email,
 			},
+			include: { roles: { include: { role: true } } },
 		})
 		if (!user) {
 			return null
 		}
+		const roles = user.roles.map((ur) =>
+			Role.restore(ur.role.id, ur.role.name, ur.role.description),
+		)
 		return User.restore(
 			user.id,
 			user.name,
@@ -55,6 +66,7 @@ class UserRepositoryPrismaORM implements UserRepository {
 			user.password,
 			user.birthDate,
 			user.verifiedAt,
+			roles,
 		)
 	}
 
@@ -111,10 +123,14 @@ class UserRepositoryPrismaORM implements UserRepository {
 			where: {
 				id: id,
 			},
+			include: { roles: { include: { role: true } } },
 		})
 		if (!user) {
 			return null
 		}
+		const roles = user.roles.map((ur) =>
+			Role.restore(ur.role.id, ur.role.name, ur.role.description),
+		)
 		return User.restore(
 			user.id,
 			user.name,
@@ -122,6 +138,7 @@ class UserRepositoryPrismaORM implements UserRepository {
 			user.password,
 			user.birthDate,
 			user.verifiedAt,
+			roles,
 		)
 	}
 }
