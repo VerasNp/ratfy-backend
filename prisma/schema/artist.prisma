@@ -1,7 +1,7 @@
 model Artist {
   id        String   @id
   userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   bio       String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
