@@ -49,9 +49,9 @@ class SignupUseCase {
 		const passwordHash = await argon2.hash(userData.password)
 		const user = User.create(userData.name, userData.email, passwordHash, userData.birthDate)
 		try {
-			await this.unitOfWork.execute(async () => {
-				await this.userRepository.create(user)
-				await this.userRoleRepository.assignRoleToUser(user.id, userRole.id)
+			await this.unitOfWork.execute(async (tx) => {
+				await this.userRepository.create(user, tx)
+				await this.userRoleRepository.assignRoleToUser(user.id, userRole.id, tx)
 			})
 		} catch (error) {
 			if (error instanceof UniqueConstraintError) {

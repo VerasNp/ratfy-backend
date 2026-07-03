@@ -49,9 +49,9 @@ class BecomeArtistUseCase {
 
 		const artist = Artist.create({ userId, bio: input.bio ?? null })
 
-		await this.unitOfWork.execute(async () => {
-			await this.artistRepository.create(artist)
-			await this.userRoleRepository.assignRoleToUser(userId, artistRole.id)
+		await this.unitOfWork.execute(async (tx) => {
+			await this.artistRepository.create(artist, tx)
+			await this.userRoleRepository.assignRoleToUser(userId, artistRole.id, tx)
 		})
 
 		this.loggerService.info(`User ${userId} became an artist`, {

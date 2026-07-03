@@ -1,3 +1,4 @@
+import type { TransactionHandle } from '#application/ports/TransactionHandle.js'
 import type { UserRepository } from '#application/ports/UserRepository.js'
 import UniqueConstraintError from '#domain/errors/UniqueConstraintError.js'
 import Role from '#domain/rbac/role/Role.js'
@@ -27,9 +28,10 @@ class UserRepositoryPrismaORM implements UserRepository {
 		})
 	}
 
-	public async create(user: User): Promise<User> {
+	public async create(user: User, tx?: TransactionHandle): Promise<User> {
 		try {
-			const createdUser = await this.orm.user.create({
+			const client = tx ? (tx as unknown as Prisma.TransactionClient) : this.orm
+			const createdUser = await client.user.create({
 				data: {
 					id: user.id,
 					name: user.name,

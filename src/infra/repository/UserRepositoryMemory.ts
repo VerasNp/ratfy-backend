@@ -1,4 +1,5 @@
 import UniqueConstraintError from '#domain/errors/UniqueConstraintError.js'
+import type { TransactionHandle } from '#application/ports/TransactionHandle.js'
 import type { UserRepository } from '#application/ports/UserRepository.js'
 import type User from '#domain/user/User.js'
 
@@ -13,7 +14,7 @@ class UserRepositoryMemory implements UserRepository {
 		return Promise.resolve(this.users)
 	}
 
-	public async create(user: User): Promise<User> {
+	public async create(user: User, _tx?: TransactionHandle): Promise<User> {
 		const existing = this.users.find((u) => u.email.value === user.email.value)
 		if (existing) {
 			throw new UniqueConstraintError('Email already in use')

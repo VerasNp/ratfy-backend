@@ -1,3 +1,4 @@
+import type { TransactionHandle } from '#application/ports/TransactionHandle.js'
 import type Role from '#domain/rbac/role/Role.js'
 import type User from '#domain/user/User.js'
 
@@ -5,8 +6,9 @@ export interface UserRepository {
 	/**
 	 * Creates a new user in the repository on persistence layer
 	 * @param user The user entity to be created
+	 * @param tx Optional transaction handle for scoping the operation within a unit of work
 	 */
-	create(user: User): Promise<User>
+	create(user: User, tx?: TransactionHandle): Promise<User>
 	/**
 	 * Finds a user by their email address
 	 * @param email The email address to search for

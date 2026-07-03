@@ -22,7 +22,7 @@ class ArtistRepositoryMemory implements ArtistRepository {
 		this.artists = initialArtists
 	}
 
-	public create(artist: Artist): Promise<Artist> {
+	public create(artist: Artist, _tx?: any): Promise<Artist> {
 		this.artists.push(artist)
 		return Promise.resolve(artist)
 	}
