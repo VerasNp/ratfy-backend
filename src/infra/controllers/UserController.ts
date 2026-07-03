@@ -158,7 +158,8 @@ class UserController {
 				}
 				const hasPermission = user.roles.some((role) => role.hasPermission(operation, resource))
 				return { data: { can: hasPermission } }
-			}
+			},
+			[this.authMiddleware.handle()],
 		)
 	}
 }
