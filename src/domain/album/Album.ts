@@ -1,114 +1,156 @@
 import crypto from 'crypto'
-
-export type AlbumType = 'album' | 'single'
-export type ReleasePrecision = 'day' | 'month' | 'year'
-
-const RELEASE_PATTERNS: Record<ReleasePrecision, RegExp> = {
-	day: /^\d{4}-\d{2}-\d{2}$/,
-	month: /^\d{4}-\d{2}$/,
-	year: /^\d{4}$/,
-}
+import ReleaseDate from './ReleaseDate'
+import ArtistCredit from './ArtistCredit'
+import AlbumType from './AlbumType'
+import TotalTracks from './TotalTracks'
+import type Artist from '#domain/artist/Artist.js'
 
 class Album {
 	public readonly id: string
-	public readonly albumType: AlbumType
-	public readonly artistIds: string[]
-	public readonly createdAt: Date
-	public isDeleted?: boolean
-	public readonly label: string
-	public readonly name: string
-	public readonly releaseDate: string
-	public readonly releasePrecision: ReleasePrecision
-	public totalTracks: number
-	public updatedAt: Date
-  private constructor(params: {
-    albumType:        AlbumType
-    artistIds:        string[]
-    createdAt:        Date
-    id:               string
-    isDeleted?:		  boolean
-    label:            string
-    name:             string
-    releaseDate:      string
-    releasePrecision: ReleasePrecision
-    totalTracks:      number
-    updatedAt:        Date
-  }) {
-    // Invariant 1 — date format must match precision
-    const releaseDateStr = formatDate(params.releaseDate, params.releasePrecision)
-    if (!isReleaseDateValid(releaseDateStr, params.releasePrecision)) {
-      throw new Error(
-        `releaseDate "${releaseDateStr}" does not match precision "${params.releasePrecision}". ` +
-        `Expected format: ${String(RELEASE_PATTERNS[params.releasePrecision])}`
-      )
-    }
+	private _name: string
+	private _albumType: AlbumType
+	private _releaseDate: ReleaseDate
+	private _totalTracks: TotalTracks
+	private _label: string
+	private _isPublic: boolean
+	private _artistCredits: ArtistCredit[]
+	private _updatedAt: Date
+	private _createdAt: Date
+	private _deletedAt: Date | null
 
-		this.albumType = params.albumType
-		this.artistIds = params.artistIds
-		this.createdAt = params.createdAt
-		this.id = params.id
-		this.isDeleted = params.isDeleted ?? false
-		this.label = params.label
-		this.name = params.name
-		this.releaseDate = params.releaseDate
-		this.releasePrecision = params.releasePrecision
-		this.totalTracks = normaliseTotalTracks(params.albumType, params.totalTracks)
-		this.updatedAt = params.updatedAt
-	}
-	public static create(params: {
-		albumType: AlbumType
-		artistIds: string[]
-		isPublic?: boolean
-		label: string
+	private constructor(params: {
+		id: string
 		name: string
+		albumType: AlbumType
+		releaseDate: ReleaseDate
+		totalTracks: TotalTracks
+		label: string
+		isPublic: boolean
+		artistCredits: ArtistCredit[]
+		updatedAt: Date
+		createdAt: Date
+		deletedAt: Date | null
+	}) {
+		this.id = params.id
+		this._name = params.name
+		this._albumType = params.albumType
+		this._releaseDate = params.releaseDate
+		this._totalTracks = params.totalTracks
+		this._label = params.label
+		this._isPublic = params.isPublic
+		this._artistCredits = params.artistCredits
+		this._updatedAt = params.updatedAt
+		this._createdAt = params.createdAt
+		this._deletedAt = params.deletedAt
+	}
+
+	public static create(params: {
+		name: string
+		albumType: string
 		releaseDate: string
-		releasePrecision: ReleasePrecision
+		releasePrecision: string
 		totalTracks: number
+		label: string
+		isPublic: boolean
+		artists: Artist[]
 	}): Album {
-		const now = new Date()
+		const id = crypto.randomUUID()
+		const releaseDate = new ReleaseDate(params.releaseDate, params.releasePrecision)
+		const albumType = new AlbumType(params.albumType)
+		const totalTracks = new TotalTracks(params.totalTracks, albumType)
+		const artistCredits = params.artists.map((artist) => {
+			return ArtistCredit.create(artist.id, artist)
+		})
 		return new Album({
-			createdAt: now,
-			id: crypto.randomUUID(),
-			isDeleted: false,
-			isPublic: params.isPublic ?? true,
-			updatedAt: now,
-			...params,
+			id,
+			name: params.name,
+			albumType: albumType,
+			releaseDate,
+			totalTracks: totalTracks,
+			label: params.label,
+			isPublic: params.isPublic,
+			artistCredits: artistCredits,
+			updatedAt: new Date(),
+			createdAt: new Date(),
+			deletedAt: null,
 		})
 	}
+
 	public static restore(params: {
-		albumType: AlbumType
-		artistIds: string[]
-		createdAt: Date
 		id: string
-		isDeleted: boolean
-		isPublic: boolean
-		label: string
 		name: string
+		albumType: string
 		releaseDate: string
-		releasePrecision: ReleasePrecision
+		releasePrecision: string
 		totalTracks: number
+		label: string
+		isPublic: boolean
+		artistCredits: ArtistCredit[]
 		updatedAt: Date
+		createdAt: Date
+		deletedAt: Date | null
 	}): Album {
-		return new Album(params)
+		const releaseDate = new ReleaseDate(params.releaseDate, params.releasePrecision)
+		const albumType = new AlbumType(params.albumType)
+		const totalTracks = new TotalTracks(params.totalTracks, albumType)
+		return new Album({
+			id: params.id,
+			name: params.name,
+			albumType: albumType,
+			releaseDate,
+			totalTracks: totalTracks,
+			label: params.label,
+			isPublic: params.isPublic,
+			artistCredits: params.artistCredits,
+			updatedAt: params.updatedAt,
+			createdAt: params.createdAt,
+			deletedAt: params.deletedAt,
+		})
 	}
-}
 
-function formatDate(date: Date, precision: ReleasePrecision): string {
-  const parts = date.toISOString().split('T')
-  const iso = parts[0] ?? ''
-  return (
-    precision === 'day' ? iso :
-    precision === 'month' ? iso.slice(0, 7) :
-    iso.slice(0, 4)
-  )
-}
+	public get name(): string {
+		return this._name
+	}
 
-function isReleaseDateValid(releaseDate: string, precision: ReleasePrecision): boolean {
-	return RELEASE_PATTERNS[precision].test(releaseDate)
-}
+	public get albumType(): string {
+		return this._albumType.value
+	}
 
-function normaliseTotalTracks(albumType: AlbumType, totalTracks: number): number {
-	return albumType === 'single' ? 1 : totalTracks
+	public get releaseDate(): string {
+		return this._releaseDate.value
+	}
+
+	public get releasePrecision(): string {
+		return this._releaseDate.precision
+	}
+
+	public get totalTracks(): number {
+		return this._totalTracks.value
+	}
+
+	public get label(): string {
+		return this._label
+	}
+
+	public get isPublic(): boolean {
+		return this._isPublic
+	}
+
+	public get artistCredits(): ArtistCredit[] {
+		return this._artistCredits
+	}
+
+	public get updatedAt(): Date {
+		return this._updatedAt
+	}
+
+	public get createdAt(): Date {
+		return this._createdAt
+	}
+
+	public get deletedAt(): Date | null {
+		return this._deletedAt
+	}
 }
 
 export default Album

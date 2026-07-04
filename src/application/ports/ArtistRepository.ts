@@ -63,4 +63,10 @@ export interface ArtistRepository {
 	 * @param query An optional search query string to filter Artists by name
 	 */
 	search(page: number, limit: number, query?: string): Promise<Artist[]>
+
+	/**
+	 * Retrieves a list of Artists by their unique IDs.
+	 * @param artistIds - An array of unique identifiers for the Artists to retrieve.
+	 */
+	listByIds(artistIds: string[]): Promise<Artist[]>
 }

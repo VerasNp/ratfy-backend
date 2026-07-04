@@ -11,7 +11,7 @@ import { RemoveFavoriteArtistUseCase } from '#application/useCases/favorite/Remo
 import { RemoveFavoritePlaylistUseCase } from '#application/useCases/favorite/RemoveFavoritePlaylist.js'
 import { RemoveFavoriteTrackUseCase } from '#application/useCases/favorite/RemoveFavoriteTrack.js'
 import FavoriteController from '#infra/controllers/FavoriteController.js'
-import AlbumRepositoryPrisma from '#infra/repository/AlbumRepositoryPrisma.js'
+import AlbumRepositoryPrismaORM from '#infra/repository/AlbumRepositoryPrismaORM.js'
 import FavoriteRepositoryPrisma from '#infra/repository/FavoriteRepositoryPrisma.js'
 import ForgotPasswordUseCase from '#application/useCases/auth/ForgotPasswordUseCase.js'
 import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
@@ -117,7 +117,7 @@ container.register({
 	userRoleRepository: asClass(UserRoleRepositoryPrismaORM).singleton(),
 	operationRepository: asClass(OperationRepositoryPrismaORM).singleton(),
 	trackRepository: asClass(TrackRepositoryPrismaORM).singleton(),
-	albumRepository: asClass(AlbumRepositoryPrisma).singleton(),
+	albumRepository: asClass(AlbumRepositoryPrismaORM).singleton(),
 	favoriteRepository: asClass(FavoriteRepositoryPrisma).singleton(),
 
 	// use cases

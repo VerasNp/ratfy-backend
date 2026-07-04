@@ -4,20 +4,30 @@ import type Album from '#domain/album/Album.js'
 class AlbumRepositoryMemory implements AlbumRepository {
 	public albuns: Album[]
 
-	public constructor(initialAlbuns: Album[]) {
+	public constructor(initialAlbuns: Album[] = []) {
 		this.albuns = initialAlbuns
 	}
 
+	public listByIds(ids: string[]): Promise<Album[]> {
+		const albuns = this.albuns.filter((album) => ids.includes(album.id))
+		return Promise.resolve(albuns)
+	}
+
 	public create(album: Album): Promise<Album> {
-		throw new Error('Method not implemented.')
+		this.albuns.push(album)
+		return Promise.resolve(album)
 	}
 
 	public delete(id: string): Promise<void> {
 		throw new Error('Method not implemented.')
 	}
 
-	public findById(id: string): Promise<Album | null> {
-		throw new Error('Method not implemented.')
+	public findById(albumId: string): Promise<Album | null> {
+		const foundAlbum = this.albuns.find((album) => album.id === albumId)
+		if (!foundAlbum) {
+			return Promise.resolve(null)
+		}
+		return Promise.resolve(foundAlbum)
 	}
 
 	public list(page: number, limit: number): Promise<Album[]> {

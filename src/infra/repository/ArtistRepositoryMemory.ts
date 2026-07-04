@@ -8,8 +8,9 @@ class ArtistRepositoryMemory implements ArtistRepository {
 		this.artists = initialArtists
 	}
 
-	public listByIds(ids: string[]): Promise<Artist[]> {
-		throw new Error('Method not implemented.')
+	public listByIds(artistIds: string[]): Promise<Artist[]> {
+		const artists = this.artists.filter((artist) => artistIds.includes(artist.id))
+		return Promise.resolve(artists)
 	}
 
 	public search(page: number, limit: number, query?: string): Promise<Artist[]> {

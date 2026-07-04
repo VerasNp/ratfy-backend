@@ -1,4 +1,3 @@
-import type { AlbumType } from '#domain/album/Album.js'
 import Album from '#domain/album/Album.js'
 import type { PrismaClient, Album as PrismaAlbum } from '#prisma/client'
 
@@ -11,7 +10,7 @@ export async function createDummyAlbumPrismaORM(
 		data: {
 			id: data.id || crypto.randomUUID(),
 			name: data.name || 'Dummy Album',
-			albumType: data.albumType || ('album' as AlbumType),
+			albumType: data.albumType || 'album',
 			releaseDate: data.releaseDate || '2024-01-15',
 			releasePrecision: data.releasePrecision || 'day',
 			totalTracks: data.totalTracks || 30,
@@ -26,11 +25,12 @@ export async function createDummyAlbumPrismaORM(
 export function createDummyAlbum(data: any = {}): Album {
 	return Album.create({
 		name: data.name || 'Dummy Album',
-		albumType: data.albumType || ('album' as AlbumType),
+		albumType: data.albumType || 'album',
 		releaseDate: data.releaseDate || '2024-01-15',
 		releasePrecision: data.releasePrecision || 'day',
 		totalTracks: data.totalTracks || 30,
 		label: data.label || 'Dummy Label',
-		artistIds: [data.artistId],
+		artists: data.artists || [],
+		isPublic: data.isPublic || true,
 	})
 }

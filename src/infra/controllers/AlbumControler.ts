@@ -1,14 +1,21 @@
 import type { AlbumRepository } from '#application/ports/AlbumRepository.js'
+import type CreateAlbumUseCase from '#application/useCases/album/CreateAlbumUseCase.js'
+import NotFoundError from '#infra/errors/NotFoundError.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 
 import type AuthMiddleware from '#infra/http/middlewares/AuthMiddleware.js'
-import { AlbumListSchema } from '#infra/http/schemas/AlbunsSchemas.js'
+import {
+	AlbumCreateSchema,
+	AlbumListSchema,
+	AlbumUpdateSchema,
+} from '#infra/http/schemas/AlbunsSchemas.js'
 
 class AlbumController {
 	public constructor(
 		private readonly httpServer: HttpServerPort,
 		private readonly authMiddleware: AuthMiddleware,
 		private readonly albumRepository: AlbumRepository,
+		private readonly createAlbumUseCase: CreateAlbumUseCase,
 	) {
 		this.httpServer.register(
 			'get',
@@ -27,28 +34,45 @@ class AlbumController {
 			'post',
 			'/albums',
 			async (_params: any, body: any, _query: any) => {
-				//   const input = AlbumCreateSchema.parse(body)
-				//   return this.createAlbumUseCase.execute(input)
+				const input = AlbumCreateSchema.parse(body)
+				const result = await this.createAlbumUseCase.execute(input)
+				return {
+					body: result,
+				}
 			},
 			[this.authMiddleware.handle()],
 		)
 
 		this.httpServer.register(
 			'get',
-			'/albums/:id',
+			'/albums/:albumId',
 			async (params: any, _body: any, _query: any) => {
-				//   const input = AlbumGetSchema.parse(params)
-				//   return this.getAlbumUseCase.execute(input)
+				const { albumId } = params
+				const foundAlbum = await this.albumRepository.findById(albumId)
+				if (!foundAlbum) {
+					throw new NotFoundError(`Album not found`)
+				}
+				return {
+					body: {
+						id: foundAlbum.id,
+						name: foundAlbum.name,
+						albumType: foundAlbum.albumType,
+						releaseDate: foundAlbum.releaseDate,
+						releasePrecision: foundAlbum.releasePrecision,
+						totalTracks: foundAlbum.totalTracks,
+						label: foundAlbum.label,
+					},
+				}
 			},
 			[this.authMiddleware.handle()],
 		)
 
 		this.httpServer.register(
 			'patch',
-			'/albums/:id',
+			'/albums/:albumId',
 			async (params: any, body: any, _query: any) => {
-				//   const { id } = AlbumGetSchema.parse(params)
-				//   const input  = AlbumUpdateSchema.parse(body)
+				const { albumId } = params
+				const input = AlbumUpdateSchema.parse(body)
 				//   return this.updateAlbumUseCase.execute(id, input)
 			},
 			[this.authMiddleware.handle()],
