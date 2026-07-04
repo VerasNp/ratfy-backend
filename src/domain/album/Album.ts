@@ -42,9 +42,10 @@ class Album {
     updatedAt:        Date
   }) {
     // Invariant 1 — date format must match precision
-    if (!isReleaseDateValid(params.releaseDate.toString(), params.releasePrecision)) {
+    const releaseDateStr = formatDate(params.releaseDate, params.releasePrecision)
+    if (!isReleaseDateValid(releaseDateStr, params.releasePrecision)) {
       throw new Error(
-        `releaseDate "${params.releaseDate.toString()}" does not match precision "${params.releasePrecision}". ` +
+        `releaseDate "${releaseDateStr}" does not match precision "${params.releasePrecision}". ` +
         `Expected format: ${String(RELEASE_PATTERNS[params.releasePrecision])}`
       )
     }
@@ -100,9 +101,20 @@ class Album {
   }
 }
 
+function formatDate(date: Date, precision: ReleasePrecision): string {
+  const parts = date.toISOString().split('T')
+  const iso = parts[0] ?? ''
+  return (
+    precision === 'day' ? iso :
+    precision === 'month' ? iso.slice(0, 7) :
+    iso.slice(0, 4)
+  )
+}
+
 function isReleaseDateValid(releaseDate: string, precision: ReleasePrecision): boolean {
   return RELEASE_PATTERNS[precision].test(releaseDate)
 }
+
 function normaliseTotalTracks(albumType: AlbumType, totalTracks: number): number {
   return albumType === 'single' ? 1 : totalTracks
 }

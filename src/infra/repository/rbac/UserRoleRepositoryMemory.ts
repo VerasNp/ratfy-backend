@@ -1,3 +1,4 @@
+import type { TransactionHandle } from '#application/ports/TransactionHandle.js'
 import type { UserRoleRepository } from '#application/ports/UserRoleRepository.js'
 import Role from '#domain/rbac/role/Role.js'
 
@@ -22,7 +23,7 @@ class UserRoleRepositoryMemory implements UserRoleRepository {
 		return Promise.resolve(roles)
 	}
 
-	public assignRoleToUser(userId: string, roleId: string): Promise<void> {
+	public assignRoleToUser(userId: string, roleId: string, _tx?: TransactionHandle): Promise<void> {
 		this.usersRoles.push({ userId, roleId })
 		return Promise.resolve()
 	}

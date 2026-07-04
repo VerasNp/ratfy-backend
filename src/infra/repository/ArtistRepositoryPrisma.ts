@@ -1,12 +1,14 @@
+import type { TransactionHandle } from '#application/ports/TransactionHandle.js'
 import type { ArtistRepository } from '#application/ports/ArtistRepository.js'
 import Artist from '#domain/artist/Artist.js'
-import type { Artist as PrismaArtist, PrismaClient } from '../../../prisma/generated/prisma/client'
+import type { Artist as PrismaArtist, PrismaClient, Prisma } from '../../../prisma/generated/prisma/client'
 
 class ArtistRepositoryPrisma implements ArtistRepository {
   constructor(private readonly orm: PrismaClient) {}
 
-  async create(artist: Artist): Promise<Artist> {
-    const row = await this.orm.artist.create({
+  async create(artist: Artist, tx?: TransactionHandle): Promise<Artist> {
+    const client = tx ? (tx as unknown as Prisma.TransactionClient) : this.orm
+    const row = await client.artist.create({
       data: {
         id:        artist.id,
         userId:    artist.userId,
@@ -31,6 +33,13 @@ class ArtistRepositoryPrisma implements ArtistRepository {
   async findByUserId(userId: string): Promise<Artist | null> {
     const row = await this.orm.artist.findUnique({ where: { userId } })
     return row ? this.toDomain(row) : null
+  }
+
+  async listByIds(ids: string[]): Promise<Artist[]> {
+    const rows = await this.orm.artist.findMany({
+      where: { id: { in: ids } },
+    })
+    return rows.map((row) => this.toDomain(row))
   }
 
   async list(page: number, limit: number): Promise<Artist[]> {

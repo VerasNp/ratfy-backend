@@ -1,12 +1,14 @@
+import type { TransactionHandle } from '#application/ports/TransactionHandle.js'
 import Artist from '#domain/artist/Artist.js'
 
 export interface ArtistRepository {
     /**
      * Creates a new Artist to the database.
      * @param artist - The Artist domain entity to be created.
+     * @param tx - Optional transaction handle for scoping the operation within a unit of work.
      * @returns A promise that resolves to the created Artist.
      */
-    create(artist: Artist): Promise<Artist>
+    create(artist: Artist, tx?: TransactionHandle): Promise<Artist>
 
     /**
      * Deletes an Artist from the database by their ID.
@@ -29,6 +31,13 @@ export interface ArtistRepository {
      * @returns A promise that resolves to the Artist if found, or null otherwise.
      */
     findByUserId(userId: string): Promise<Artist | null>
+
+    /**
+     * Finds Artists by their IDs.
+     * @param ids - The unique identifiers of the Artists.
+     * @returns A promise that resolves to an array of Artists.
+     */
+    listByIds(ids: string[]): Promise<Artist[]>
 
     /**
      * Retrieves a paginated list of Artists.

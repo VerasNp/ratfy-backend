@@ -1,9 +1,10 @@
 import Album from '#domain/album/Album.js'
 
 export interface AlbumRepository {
-	create(album: Album): Promise<Album>,
-   	delete(id: string): Promise<void>;
-	findById(id: string): Promise<Album | null>,
-    list(page: number, limit: number): Promise<Album[]>
+    create(album: Album): Promise<Album>,
+    delete(id: string): Promise<void>;
+    findById(id: string): Promise<Album | null>,
+    list(page: number, limit: number): Promise<Album[]>,
+    listByIds(ids: string[]): Promise<Album[]>
     update(id: string, data: Partial<Album>): Promise<void>
 }

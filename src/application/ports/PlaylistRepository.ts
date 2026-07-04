@@ -23,6 +23,13 @@ export interface PlaylistRepository {
     findById(id: string): Promise<Playlist | null>
 
     /**
+     * Finds Playlists by their IDs.
+     * @param ids - The unique identifiers of the Playlists.
+     * @returns A promise that resolves to an array of Playlists.
+     */
+    listByIds(ids: string[]): Promise<Playlist[]>
+
+    /**
      * Retrieves a paginated list of Playlists owned by a specific User.
      * @param ownerId - The unique identifier of the User who owns the playlists.
      * @param page - The page number to retrieve (1-indexed).

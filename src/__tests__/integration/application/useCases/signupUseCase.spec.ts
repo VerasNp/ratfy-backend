@@ -4,6 +4,7 @@ import { templateRendererPortMock } from '#application/ports/__mocks__/TemplateR
 import { tokenPortMock } from '#application/ports/__mocks__/TokenPortMock.js'
 import { unitOfWorkMock } from '#application/ports/__mocks__/UnitOfWorkMock.js'
 import type { UserRoleRepository } from '#application/ports/UserRoleRepository.js'
+import UniqueConstraintError from '#domain/errors/UniqueConstraintError.js'
 import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
 import SignupUseCase from '#application/useCases/user/SignupUseCase.js'
 import Role from '#domain/rbac/role/Role.js'
@@ -14,12 +15,13 @@ import UserRepositoryMemory from '#infra/repository/UserRepositoryMemory.js'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 let signup: SignupUseCase
+let userRepository: UserRepositoryMemory
 let dummyUser: User
 let getAccount: GetAccountUseCase
 let userRoleRepository: UserRoleRepository
 
 beforeEach(async () => {
-	const userRepository = new UserRepositoryMemory()
+	userRepository = new UserRepositoryMemory()
 	const dummyRole = Role.create(Role.PredefinedRoles.USER, 'Regular user role')
 	const roleRepository = new RoleRepositoryMemory([dummyRole])
 	userRoleRepository = new UserRoleRepositoryMemory([dummyRole])
@@ -91,5 +93,15 @@ describe('Signup use case', () => {
 		await expect(signup.execute(signupInput)).rejects.toThrow(
 			'User with this email already exists',
 		)
+	})
+
+	it('should throw UniqueConstraintError when email uniqueness is violated at repository level', async () => {
+		const duplicate = User.create(
+			'Duplicate',
+			'foo@bar.com',
+			'Valid@123',
+			new Date('1990-01-01'),
+		)
+		await expect(userRepository.create(duplicate)).rejects.toThrow(UniqueConstraintError)
 	})
 })

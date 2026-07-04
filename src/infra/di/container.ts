@@ -1,12 +1,31 @@
+import { AddFavoriteAlbumUseCase } from '#application/useCases/favorite/AddFavoriteAlbum.js'
+import { AddFavoriteArtistUseCase } from '#application/useCases/favorite/AddFavoriteArtist.js'
+import { AddFavoritePlaylistUseCase } from '#application/useCases/favorite/AddFavoritePlaylist.js'
+import { AddFavoriteTrackUseCase } from '#application/useCases/favorite/AddFavoriteTrack.js'
+import { ListFavoriteAlbumsUseCase } from '#application/useCases/favorite/ListFavoriteAlbums.js'
+import { ListFavoriteArtistsUseCase } from '#application/useCases/favorite/ListFavoriteArtists.js'
+import { ListFavoritePlaylistsUseCase } from '#application/useCases/favorite/ListFavoritePlaylists.js'
+import { ListFavoriteTracksUseCase } from '#application/useCases/favorite/ListFavoriteTracks.js'
+import { RemoveFavoriteAlbumUseCase } from '#application/useCases/favorite/RemoveFavoriteAlbum.js'
+import { RemoveFavoriteArtistUseCase } from '#application/useCases/favorite/RemoveFavoriteArtist.js'
+import { RemoveFavoritePlaylistUseCase } from '#application/useCases/favorite/RemoveFavoritePlaylist.js'
+import { RemoveFavoriteTrackUseCase } from '#application/useCases/favorite/RemoveFavoriteTrack.js'
+import FavoriteController from '#infra/controllers/FavoriteController.js'
+import AlbumRepositoryPrisma from '#infra/repository/AlbumRepositoryPrisma.js'
+import FavoriteRepositoryPrisma from '#infra/repository/FavoriteRepositoryPrisma.js'
+import ForgotPasswordUseCase from '#application/useCases/auth/ForgotPasswordUseCase.js'
 import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
 import LoginUseCase from '#application/useCases/auth/LoginUseCase.js'
 import LogoutUseCase from '#application/useCases/auth/LogoutUseCase.js'
 import RefreshTokenUseCase from '#application/useCases/auth/RefreshTokenUseCase.js'
 import ResendVerificationEmailUseCase from '#application/useCases/auth/ResendVerificationEmailUseCase.js'
+import ResetPasswordUseCase from '#application/useCases/auth/ResetPasswordUseCase.js'
 import SignupUseCase from '#application/useCases/user/SignupUseCase.js'
 import VerifyUserMailUseCase from '#application/useCases/mail/VerifyUserMailUseCase.js'
 import { config } from '#config.js'
 import AuthController from '#infra/controllers/AuthController.js'
+import PasswordResetController from '#infra/controllers/PasswordResetController.js'
+import RateLimitMiddleware from '#infra/http/middlewares/RateLimitMiddleware.js'
 import UserController from '#infra/controllers/UserController.js'
 import VerifyEmailController from '#infra/controllers/VerifyEmailController.js'
 import { prisma } from '#infra/database/prisma.js'
@@ -27,8 +46,10 @@ import { GetArtistUseCase } from '#application/useCases/artist/GetArtist.js'
 import { GetArtistByUserIdUseCase } from '#application/useCases/artist/GetArtistByUserId.js'
 import { ListArtistsUseCase } from '#application/useCases/artist/ListArtists.js'
 import { UpdateArtistUseCase } from '#application/useCases/artist/UpdateArtist.js'
+import { BecomeArtistUseCase } from '#application/useCases/artist/BecomeArtistUseCase.js'
 import ArtistController from '#infra/controllers/ArtistController.js'
 import PlaylistRepositoryPrisma from '#infra/repository/PlaylistRepositoryPrisma.js'
+import TrackRepositoryPrismaORM from '#infra/repository/TrackRepositoryPrismaORM.js'
 import { CreatePlaylistUseCase } from '#application/useCases/playlist/CreatePlaylist.js'
 import { DeletePlaylistUseCase } from '#application/useCases/playlist/DeletePlaylist.js'
 import { GetPlaylistUseCase } from '#application/useCases/playlist/GetPlaylist.js'
@@ -38,9 +59,10 @@ import { UpdatePlaylistUseCase } from '#application/useCases/playlist/UpdatePlay
 import { AddTrackToPlaylistUseCase } from '#application/useCases/playlist/AddTrackToPlaylist.js'
 import { RemoveTrackFromPlaylistUseCase } from '#application/useCases/playlist/RemoveTrackFromPlaylist.js'
 import PlaylistController from '#infra/controllers/PlaylistController.js'
-import { asClass, asValue, createContainer, InjectionMode } from 'awilix'
+import { asClass, asFunction, asValue, createContainer, InjectionMode } from 'awilix'
 import GetUserUseCase from '#application/useCases/user/GetUserUseCase.js'
 import ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
+import UpdateUserUseCase from '#application/useCases/user/UpdateUserUseCase.js'
 import UnitOfWorkPrismaORM from '#infra/repository/UnitOfWorkPrismaORM.js'
 import PermissionRepositoryPrismaORM from '#infra/repository/rbac/OperationRepositoryPrismaORM.js'
 import ResourceRepositoryPrismaORM from '#infra/repository/rbac/ResourceRepositoryPrismaORM.js'
@@ -97,6 +119,9 @@ container.register({
 	unitOfWork: asClass(UnitOfWorkPrismaORM).singleton(),
 	userRoleRepository: asClass(UserRoleRepositoryPrismaORM).singleton(),
 	operationRepository: asClass(OperationRepositoryPrismaORM).singleton(),
+	trackRepository: asClass(TrackRepositoryPrismaORM).singleton(),
+	albumRepository: asClass(AlbumRepositoryPrisma).singleton(),
+	favoriteRepository: asClass(FavoriteRepositoryPrisma).singleton(),
 
 	// use cases
 	signUpUserCase: asClass(SignupUseCase).scoped(),
@@ -108,6 +133,7 @@ container.register({
 	deleteArtistUseCase: asClass(DeleteArtistUseCase).scoped(),
 	listArtistsUseCase: asClass(ListArtistsUseCase).scoped(),
 	getArtistByUserIdUseCase: asClass(GetArtistByUserIdUseCase).scoped(),
+	becomeArtistUseCase: asClass(BecomeArtistUseCase).scoped(),
 	createPlaylistUseCase: asClass(CreatePlaylistUseCase).scoped(),
 	getPlaylistUseCase: asClass(GetPlaylistUseCase).scoped(),
 	updatePlaylistUseCase: asClass(UpdatePlaylistUseCase).scoped(),
@@ -116,12 +142,15 @@ container.register({
 	listPlaylistsByOwnerIdUseCase: asClass(ListPlaylistsByOwnerIdUseCase).scoped(),
 	addTrackToPlaylistUseCase: asClass(AddTrackToPlaylistUseCase).scoped(),
 	removeTrackFromPlaylistUseCase: asClass(RemoveTrackFromPlaylistUseCase).scoped(),
+	forgotPasswordUseCase: asClass(ForgotPasswordUseCase).scoped(),
 	loginUseCase: asClass(LoginUseCase).scoped(),
 	logoutUseCase: asClass(LogoutUseCase).scoped(),
 	getAccountUseCase: asClass(GetAccountUseCase).scoped(),
 	refreshTokenUseCase: asClass(RefreshTokenUseCase).scoped(),
+	resetPasswordUseCase: asClass(ResetPasswordUseCase).scoped(),
 	getUserUseCase: asClass(GetUserUseCase).scoped(),
 	listUsersUseCase: asClass(ListUsersUseCase).scoped(),
+	updateUserUseCase: asClass(UpdateUserUseCase).scoped(),
 	createRoleUseCase: asClass(CreateRoleUseCase).scoped(),
 	updateRoleUseCase: asClass(UpdateRoleUseCase).scoped(),
 	createOperationUseCase: asClass(CreateOperationUseCase).scoped(),
@@ -137,17 +166,71 @@ container.register({
 	revokePermissionFromRoleUseCase: asClass(RevokePermissionFromRoleUseCase).scoped(),
 	assignRoleToUserUseCase: asClass(AssignRoleToUserUseCase).scoped(),
 	removeRoleFromUserUseCase: asClass(RemoveRoleFromUserUseCase).scoped(),
+	addFavoriteTrackUseCase: asClass(AddFavoriteTrackUseCase).scoped(),
+	removeFavoriteTrackUseCase: asClass(RemoveFavoriteTrackUseCase).scoped(),
+	listFavoriteTracksUseCase: asClass(ListFavoriteTracksUseCase).scoped(),
+	addFavoriteArtistUseCase: asClass(AddFavoriteArtistUseCase).scoped(),
+	removeFavoriteArtistUseCase: asClass(RemoveFavoriteArtistUseCase).scoped(),
+	listFavoriteArtistsUseCase: asClass(ListFavoriteArtistsUseCase).scoped(),
+	addFavoritePlaylistUseCase: asClass(AddFavoritePlaylistUseCase).scoped(),
+	removeFavoritePlaylistUseCase: asClass(RemoveFavoritePlaylistUseCase).scoped(),
+	listFavoritePlaylistsUseCase: asClass(ListFavoritePlaylistsUseCase).scoped(),
+	addFavoriteAlbumUseCase: asClass(AddFavoriteAlbumUseCase).scoped(),
+	removeFavoriteAlbumUseCase: asClass(RemoveFavoriteAlbumUseCase).scoped(),
+	listFavoriteAlbumsUseCase: asClass(ListFavoriteAlbumsUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),
 	verifyEmailController: asClass(VerifyEmailController).singleton(),
 	authController: asClass(AuthController).singleton(),
+	passwordResetController: asClass(PasswordResetController).singleton(),
 	artistController: asClass(ArtistController).singleton(),
+	favoriteController: asClass(FavoriteController).singleton(),
 	playlistController: asClass(PlaylistController).singleton(),
 	rbacController: asClass(RBACController).singleton(),
 
 	// middlewares
 	authMiddleware: asClass(AuthMiddleware).singleton(),
+	forgotPasswordRateLimiter: asFunction(
+		({ loggerService }: { loggerService: any }) =>
+			new RateLimitMiddleware(
+				loggerService,
+				config.rateLimit.forgotPassword.windowMs,
+				config.rateLimit.forgotPassword.max,
+			),
+	).singleton(),
+	resetPasswordRateLimiter: asFunction(
+		({ loggerService }: { loggerService: any }) =>
+			new RateLimitMiddleware(
+				loggerService,
+				config.rateLimit.resetPassword.windowMs,
+				config.rateLimit.resetPassword.max,
+			),
+	).singleton(),
+	loginRateLimiter: asFunction(
+		({ loggerService }: { loggerService: any }) =>
+			new RateLimitMiddleware(
+				loggerService,
+				config.rateLimit.login.windowMs,
+				config.rateLimit.login.max,
+			),
+	).singleton(),
+	signupRateLimiter: asFunction(
+		({ loggerService }: { loggerService: any }) =>
+			new RateLimitMiddleware(
+				loggerService,
+				config.rateLimit.signup.windowMs,
+				config.rateLimit.signup.max,
+			),
+	).singleton(),
+	resendVerificationRateLimiter: asFunction(
+		({ loggerService }: { loggerService: any }) =>
+			new RateLimitMiddleware(
+				loggerService,
+				config.rateLimit.resendVerification.windowMs,
+				config.rateLimit.resendVerification.max,
+			),
+	).singleton(),
 })
 
 export default container

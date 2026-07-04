@@ -1,8 +1,8 @@
 model UserRole {
     userId String
     roleId String
-    user   User   @relation(fields: [userId], references: [id])
-    role   Role   @relation(fields: [roleId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id])
 
     @@id([userId, roleId])
 }

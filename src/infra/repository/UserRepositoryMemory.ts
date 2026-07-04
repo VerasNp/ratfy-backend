@@ -1,3 +1,5 @@
+import UniqueConstraintError from '#domain/errors/UniqueConstraintError.js'
+import type { TransactionHandle } from '#application/ports/TransactionHandle.js'
 import type { UserRepository } from '#application/ports/UserRepository.js'
 import type User from '#domain/user/User.js'
 
@@ -12,9 +14,13 @@ class UserRepositoryMemory implements UserRepository {
 		return Promise.resolve(this.users)
 	}
 
-	public create(user: User): Promise<User> {
+	public async create(user: User, _tx?: TransactionHandle): Promise<User> {
+		const existing = this.users.find((u) => u.email.value === user.email.value)
+		if (existing) {
+			throw new UniqueConstraintError('Email already in use')
+		}
 		this.users.push(user)
-		return Promise.resolve(user)
+		return user
 	}
 
 	findByEmail(email: string): Promise<User | null> {
@@ -22,13 +28,19 @@ class UserRepositoryMemory implements UserRepository {
 		return Promise.resolve(user || null)
 	}
 
-	updateUser(userData: User): Promise<User | null> {
+	async updateUser(userData: User): Promise<User | null> {
 		const index = this.users.findIndex((u) => u.id === userData.id)
 		if (index === -1) {
-			return Promise.resolve(null)
+			return null
+		}
+		const duplicate = this.users.find(
+			(u) => u.email.value === userData.email.value && u.id !== userData.id,
+		)
+		if (duplicate) {
+			throw new UniqueConstraintError('Email already in use')
 		}
 		this.users[index] = userData
-		return Promise.resolve(userData)
+		return userData
 	}
 
 	findById(id: string): Promise<User | null> {
