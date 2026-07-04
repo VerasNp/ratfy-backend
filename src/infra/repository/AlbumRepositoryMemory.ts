@@ -19,7 +19,8 @@ class AlbumRepositoryMemory implements AlbumRepository {
 	}
 
 	public delete(id: string): Promise<void> {
-		throw new Error('Method not implemented.')
+		this.albuns = this.albuns.filter((album) => album.id !== id)
+		return Promise.resolve()
 	}
 
 	public findById(albumId: string): Promise<Album | null> {
@@ -37,8 +38,13 @@ class AlbumRepositoryMemory implements AlbumRepository {
 		return Promise.resolve(paginatedAlbuns)
 	}
 
-	public update(id: string, data: Partial<Album>): Promise<void> {
-		throw new Error('Method not implemented.')
+	public update(albumId: string, data: Partial<Album>): Promise<Album | null> {
+		const foundAlbum = this.albuns.find((album) => album.id === albumId)
+		if (!foundAlbum) {
+			return Promise.resolve(null)
+		}
+		foundAlbum.updateData(data)
+		return Promise.resolve(foundAlbum)
 	}
 }
 

@@ -1,9 +1,7 @@
 import type { AlbumRepository } from '#application/ports/AlbumRepository.js'
-
-import { AlbumNotFoundError } from '#application/errors/AlbumNotFoundError.js'
-import Album, { type AlbumType, type ReleasePrecision } from '#domain/album/Album.js'
-
-import type { Album as PrismaAlbum, PrismaClient } from '../../../prisma/generated/prisma/client'
+import { Prisma, type Album as PrismaAlbum, type PrismaClient } from '#prisma/client'
+import Album from '#domain/album/Album.js'
+import type { TransactionHandle } from '#application/ports/TransactionHandle.js'
 
 class AlbumRepositoryPrismaORM implements AlbumRepository {
 	public constructor(private readonly orm: PrismaClient) {}
@@ -12,78 +10,118 @@ class AlbumRepositoryPrismaORM implements AlbumRepository {
 		const row = await this.orm.album.create({
 			data: {
 				albumType: album.albumType,
-				artistIds: album.artistIds,
 				createdAt: album.createdAt,
 				id: album.id,
-				isDeleted: album.isDeleted,
 				isPublic: album.isPublic,
 				label: album.label,
 				name: album.name,
 				releaseDate: album.releaseDate.toString(),
 				releasePrecision: album.releasePrecision,
 				totalTracks: album.totalTracks,
+				updatedAt: album.updatedAt,
+				deletedAt: album.deletedAt,
+				artists: {
+					createMany: {
+						data: album.artistCredits.map((artistCredit) => ({
+							artistId: artistCredit.artistId,
+						})),
+					},
+				},
 			},
+			include: { artists: true },
 		})
-		return this.toDomain(row)
-	}
-	
-	async delete(id: string): Promise<void> {
-		await this.orm.album.update({
-			data: { isDeleted: true, isPublic: false },
-			where: { id },
-		})
-	}
-	async findById(id: string): Promise<Album | null> {
-		const row = await this.orm.album.findUnique({ where: { id } })
-		return row ? this.toDomain(row) : null
+		return this._toDomain(row)
 	}
 
-	async listByIds(ids: string[]): Promise<Album[]> {
+	public async delete(albumId: string, tx?: TransactionHandle): Promise<void> {
+		const client = tx ? (tx as unknown as Prisma.TransactionClient) : this.orm
+		try {
+			await client.album.delete({ where: { id: albumId } })
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+				return
+			}
+			throw error
+		}
+	}
+
+	public async findById(id: string): Promise<Album | null> {
+		const row = await this.orm.album.findUnique({ where: { id }, include: { artists: true } })
+		return row ? this._toDomain(row) : null
+	}
+
+	public async listByIds(ids: string[]): Promise<Album[]> {
 		const rows = await this.orm.album.findMany({
-			where: { id: { in: ids }, isDeleted: false },
+			where: { id: { in: ids }, deletedAt: { equals: null } },
+			include: { artists: true },
 		})
-		return rows.map((row) => this.toDomain(row))
+		return rows.map((row) => this._toDomain(row))
 	}
 
-	async list(page: number, limit: number): Promise<Album[]> {
+	public async list(page: number, limit: number): Promise<Album[]> {
 		const rows = await this.orm.album.findMany({
 			orderBy: { createdAt: 'desc' },
 			skip: (page - 1) * limit,
 			take: limit,
-			where: { isDeleted: false },
+			where: { deletedAt: { equals: null } },
+			include: { artists: true },
 		})
-		return rows.map((row) => this.toDomain(row))
+		return rows.map((row) => this._toDomain(row))
 	}
-	async update(id: string, data: Partial<Album>): Promise<void> {
-		await this.orm.album.update({
-			data: {
-				...(data.name != null && { name: data.name }),
-				...(data.albumType != null && { albumType: data.albumType }),
-				...(data.releaseDate != null && { releaseDate: data.releaseDate }),
-				...(data.releasePrecision != null && { releasePrecision: data.releasePrecision }),
-				...(data.totalTracks != null && { totalTracks: data.totalTracks }),
-				...(data.label != null && { label: data.label }),
-				...(data.artistIds != null && { artistIds: data.artistIds }),
-				...(data.isPublic != null && { isPublic: data.isPublic }),
-			},
-			where: { id },
-		})
-		return Promise.resolve()
+
+	public async update(albumId: string, data: Partial<Album>): Promise<Album | null> {
+		try {
+			const row = await this.orm.album.update({
+				data: {
+					...(data.name != null && { name: data.name }),
+					...(data.albumType != null && { albumType: data.albumType }),
+					...(data.releaseDate != null && { releaseDate: data.releaseDate }),
+					...(data.releasePrecision != null && {
+						releasePrecision: data.releasePrecision,
+					}),
+					...(data.totalTracks != null && { totalTracks: data.totalTracks }),
+					...(data.label != null && { label: data.label }),
+					...(data.isPublic != null && { isPublic: data.isPublic }),
+					...(data.artistCredits != null && {
+						artists: {
+							deleteMany: {},
+							createMany: {
+								data: data.artistCredits.map((artistCredit) => ({
+									artistId: artistCredit.artistId,
+								})),
+							},
+						},
+					}),
+				},
+				where: { id: albumId },
+				include: { artists: true },
+			})
+			return this._toDomain(row)
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+				return null
+			}
+			throw error
+		}
 	}
-	private toDomain(row: PrismaAlbum): Album {
+
+	private _toDomain(row: any): Album {
 		return Album.restore({
-			albumType: row.albumType as AlbumType,
-			artistIds: row.artistIds,
+			albumType: row.albumType,
+			artistCredits: row.artists.map((artist: any) => ({
+				artistId: artist.artistId,
+				albumId: row.id,
+			})),
 			createdAt: row.createdAt,
 			id: row.id,
-			isDeleted: row.isDeleted,
 			isPublic: row.isPublic,
 			label: row.label,
 			name: row.name,
-			releaseDate: new Date(row.releaseDate),
-			releasePrecision: row.releasePrecision as ReleasePrecision,
+			releaseDate: row.releaseDate,
+			releasePrecision: row.releasePrecision,
 			totalTracks: row.totalTracks,
 			updatedAt: row.updatedAt,
+			deletedAt: row.deletedAt,
 		})
 	}
 }

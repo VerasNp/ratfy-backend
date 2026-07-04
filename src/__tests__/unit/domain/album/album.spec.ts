@@ -1,3 +1,4 @@
+import { createDummyAlbum } from '#__tests__/factories/AlbumFactory.js'
 import { createDummyArtist } from '#__tests__/factories/ArtistFactory.js'
 import { createDummyUser } from '#__tests__/factories/UserFactory.js'
 import Album from '#domain/album/Album.js'
@@ -31,5 +32,18 @@ describe('Album domain model', () => {
 				}),
 			]),
 		)
+	})
+	it('should update Album data', () => {
+		const dummyUser = createDummyUser()
+		const dummyArtist = createDummyArtist(dummyUser)
+		const album = createDummyAlbum({
+			artists: [dummyArtist],
+		})
+		album.updateData({
+			name: 'Updated Album Name',
+			albumType: 'ep',
+		})
+		expect(album.name).toBe('Updated Album Name')
+		expect(album.albumType).toBe('ep')
 	})
 })

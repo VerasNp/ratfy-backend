@@ -58,6 +58,7 @@ describe('CreateAlbumUseCase', () => {
 			isPublic: true,
 			artistIds: dummyArtists.slice(0, 2).map((artist) => artist.id),
 		}
+
 		const output = await createAlbumUseCase.execute(input)
 		expect(output.id).toBeDefined()
 		expect(output.name).toBe(input.name)

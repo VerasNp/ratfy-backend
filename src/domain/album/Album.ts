@@ -108,6 +108,38 @@ class Album {
 		})
 	}
 
+	public updateData(data: {
+		name?: string
+		albumType?: string
+		releaseDate?: string
+		releasePrecision?: string
+		totalTracks?: number
+		label?: string
+		isPublic?: boolean
+		artists?: Artist[]
+	}): void {
+		if (data.name !== undefined) this._name = data.name
+		if (data.albumType !== undefined) this._albumType = new AlbumType(data.albumType)
+		if (data.releaseDate !== undefined && data.releasePrecision !== undefined) {
+			this._releaseDate = new ReleaseDate(data.releaseDate, data.releasePrecision)
+		}
+		if (data.totalTracks !== undefined) {
+			this._totalTracks = new TotalTracks(data.totalTracks, this._albumType)
+		}
+		if (data.label !== undefined) this._label = data.label
+		if (data.isPublic !== undefined) this._isPublic = data.isPublic
+		if (data.artists !== undefined) {
+			this._artistCredits = data.artists.map((artist) => {
+				return ArtistCredit.create(artist.id, artist)
+			})
+		}
+		this._updatedAt = new Date()
+	}
+
+	public set deletedAt(date: Date | null) {
+		this._deletedAt = date
+	}
+
 	public get name(): string {
 		return this._name
 	}

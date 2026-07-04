@@ -1,13 +1,13 @@
 import Artist from '#domain/artist/Artist.js'
 import type User from '#domain/user/User.js'
-import type { Artist as PrismaArtist, PrismaClient } from '#prisma/client'
+import type { PrismaClient } from '#prisma/client'
 
 export async function createDummyArtistPrismaORM(
 	orm: PrismaClient,
 	userId: string,
-	data: Partial<PrismaArtist> = {},
-): Promise<PrismaArtist> {
-	return orm.artist.create({
+	data: any = {},
+): Promise<Artist> {
+	const row = await orm.artist.create({
 		data: {
 			id: data.id || crypto.randomUUID(),
 			bio: data.bio || 'Dummy Bio',
@@ -15,6 +15,12 @@ export async function createDummyArtistPrismaORM(
 			createdAt: data.createdAt || new Date(),
 			updatedAt: data.updatedAt || new Date(),
 		},
+		include: { user: true },
+	})
+	return Artist.restore({
+		id: row.id,
+		bio: row.bio,
+		userId: row.userId,
 	})
 }
 

@@ -1,12 +1,11 @@
 import Album from '#domain/album/Album.js'
-import type { PrismaClient, Album as PrismaAlbum } from '#prisma/client'
+import type { PrismaClient } from '#prisma/client'
 
 export async function createDummyAlbumPrismaORM(
 	orm: PrismaClient,
-	artistId: string,
-	data: Partial<PrismaAlbum> = {},
-): Promise<PrismaAlbum> {
-	return orm.album.create({
+	data: any = {},
+): Promise<Album> {
+	const row = await orm.album.create({
 		data: {
 			id: data.id || crypto.randomUUID(),
 			name: data.name || 'Dummy Album',
@@ -15,10 +14,27 @@ export async function createDummyAlbumPrismaORM(
 			releasePrecision: data.releasePrecision || 'day',
 			totalTracks: data.totalTracks || 30,
 			label: data.label || 'Dummy Label',
-			artistIds: [artistId],
+			artists: data.artists,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		},
+		include: { artists: true },
+	})
+	return Album.restore({
+		id: row.id,
+		name: row.name,
+		albumType: row.albumType,
+		releaseDate: row.releaseDate,
+		releasePrecision: row.releasePrecision,
+		totalTracks: row.totalTracks,
+		label: row.label,
+		artistCredits: row.artists.map((artist: any) => ({
+			artistId: artist.artistId,
+			albumId: row.id,
+		})),
+		isPublic: row.isPublic,
+		createdAt: row.createdAt,
+		updatedAt: row.updatedAt,
 	})
 }
 

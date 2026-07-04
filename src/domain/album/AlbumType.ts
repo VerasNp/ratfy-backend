@@ -10,7 +10,7 @@ class AlbumType {
 	public readonly value: string
 
 	public constructor(value: string) {
-		if (value !== AlbumTypeEnum.ALBUM && value !== AlbumTypeEnum.SINGLE) {
+		if (value !== AlbumTypeEnum.ALBUM && value !== AlbumTypeEnum.SINGLE && value !== AlbumTypeEnum.EP) {
 			throw new ValidationError(`Invalid AlbumType value: ${value}`)
 		}
 		this.value = value

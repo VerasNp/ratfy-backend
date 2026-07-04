@@ -1,5 +1,7 @@
 import type { AlbumRepository } from '#application/ports/AlbumRepository.js'
 import type CreateAlbumUseCase from '#application/useCases/album/CreateAlbumUseCase.js'
+import type DeleteAlbumUseCase from '#application/useCases/album/DeleteAlbumUseCase.js'
+import type UpdateAlbumUseCase from '#application/useCases/album/UpdateAlbumUseCase.js'
 import NotFoundError from '#infra/errors/NotFoundError.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 
@@ -16,6 +18,8 @@ class AlbumController {
 		private readonly authMiddleware: AuthMiddleware,
 		private readonly albumRepository: AlbumRepository,
 		private readonly createAlbumUseCase: CreateAlbumUseCase,
+		private readonly updateAlbumUseCase: UpdateAlbumUseCase,
+		private readonly deleteAlbumUseCase: DeleteAlbumUseCase,
 	) {
 		this.httpServer.register(
 			'get',
@@ -73,17 +77,23 @@ class AlbumController {
 			async (params: any, body: any, _query: any) => {
 				const { albumId } = params
 				const input = AlbumUpdateSchema.parse(body)
-				//   return this.updateAlbumUseCase.execute(id, input)
+				const result = await this.updateAlbumUseCase.execute(albumId, input)
+				return {
+					body: result,
+				}
 			},
 			[this.authMiddleware.handle()],
 		)
 
 		this.httpServer.register(
 			'delete',
-			'/albums/:id',
+			'/albums/:albumId',
 			async (params: any, _body: any, _query: any) => {
-				//   const input = AlbumDeleteSchema.parse(params)
-				//   return this.deleteAlbumUseCase.execute(input)
+				const { albumId } = params
+				const result = await this.deleteAlbumUseCase.execute(albumId)
+				return {
+					body: result,
+				}
 			},
 			[this.authMiddleware.handle()],
 		)

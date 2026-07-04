@@ -1,8 +1,6 @@
 model AlbumArtist {
     albumId  String
     artistId String
-    role     String
-    position Int
 
     album  Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
     artist Artist @relation(fields: [artistId], references: [id], onDelete: Restrict)
