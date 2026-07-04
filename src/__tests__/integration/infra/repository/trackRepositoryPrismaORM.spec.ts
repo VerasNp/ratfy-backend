@@ -1,4 +1,4 @@
-import { createDummyAlbum } from '#__tests__/factories/AlbumFactory.js'
+import { createDummyAlbumPrismaORM } from '#__tests__/factories/AlbumFactory.js'
 import { createDummyArtistPrismaORM } from '#__tests__/factories/ArtistFactory.js'
 import { createDummyUserPrismaORM } from '#__tests__/factories/UserFactory.js'
 import Album from '#domain/album/Album.js'
@@ -32,7 +32,7 @@ describe('TrackRepositoryPrismaORM', () => {
 	it('should search tracks with limit, page and query', async () => {
 		const dummyUser = await createDummyUserPrismaORM(prisma)
 		const dummyArtist = await createDummyArtistPrismaORM(prisma, dummyUser.id)
-		const dummyAlbum = await createDummyAlbum(prisma, dummyArtist.id)
+		const dummyAlbum = await createDummyAlbumPrismaORM(prisma, dummyArtist.id)
 		const dummyTracks: Track[] = []
 		for (let i = 1; i <= 30; i++) {
 			const track = Track.create({

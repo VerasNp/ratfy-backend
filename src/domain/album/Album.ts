@@ -1,27 +1,22 @@
-import crypto from "crypto";
+import crypto from 'crypto'
 
-export type AlbumType =
-	| 'album'
-	| 'single'
-export type ReleasePrecision =
-	| 'day'
-	| 'month'
-	| 'year'
+export type AlbumType = 'album' | 'single'
+export type ReleasePrecision = 'day' | 'month' | 'year'
 
 const RELEASE_PATTERNS: Record<ReleasePrecision, RegExp> = {
-  day:   /^\d{4}-\d{2}-\d{2}$/,
-  month: /^\d{4}-\d{2}$/,
-  year:  /^\d{4}$/,
+	day: /^\d{4}-\d{2}-\d{2}$/,
+	month: /^\d{4}-\d{2}$/,
+	year: /^\d{4}$/,
 }
 
 class Album {
-    public readonly albumType: AlbumType
-    public readonly artistIds: string[]
-	public readonly createdAt: Date
 	public readonly id: string
+	public readonly albumType: AlbumType
+	public readonly artistIds: string[]
+	public readonly createdAt: Date
 	public isDeleted?: boolean
-    public readonly label: string
-    public readonly name: string
+	public readonly label: string
+	public readonly name: string
 	public readonly releaseDate: string
 	public readonly releasePrecision: ReleasePrecision
 	public totalTracks: number
@@ -48,54 +43,54 @@ class Album {
       )
     }
 
-    this.albumType        = params.albumType
-    this.artistIds        = params.artistIds
-    this.createdAt        = params.createdAt
-    this.id               = params.id
-    this.isDeleted        = params.isDeleted ?? false
-    this.label            = params.label
-    this.name             = params.name
-    this.releaseDate      = params.releaseDate
-    this.releasePrecision = params.releasePrecision
-    this.totalTracks      = normaliseTotalTracks(params.albumType, params.totalTracks)
-    this.updatedAt        = params.updatedAt
-  }
-  public static create(params: {
-	    albumType: AlbumType
-	    artistIds: string[]
+		this.albumType = params.albumType
+		this.artistIds = params.artistIds
+		this.createdAt = params.createdAt
+		this.id = params.id
+		this.isDeleted = params.isDeleted ?? false
+		this.label = params.label
+		this.name = params.name
+		this.releaseDate = params.releaseDate
+		this.releasePrecision = params.releasePrecision
+		this.totalTracks = normaliseTotalTracks(params.albumType, params.totalTracks)
+		this.updatedAt = params.updatedAt
+	}
+	public static create(params: {
+		albumType: AlbumType
+		artistIds: string[]
 		isPublic?: boolean
-	    label:            string
-	    name:             string
-	    releaseDate:      string
-	    releasePrecision: ReleasePrecision
-	    totalTracks:      number
-  }): Album {
-    const now = new Date()
-    return new Album({
-      createdAt:        now,
-      id:               crypto.randomUUID(),
-      isDeleted:        false,
-      isPublic:         params.isPublic ?? true,
-      updatedAt:        now,
-      ...params,
-    })
-  }
+		label: string
+		name: string
+		releaseDate: string
+		releasePrecision: ReleasePrecision
+		totalTracks: number
+	}): Album {
+		const now = new Date()
+		return new Album({
+			createdAt: now,
+			id: crypto.randomUUID(),
+			isDeleted: false,
+			isPublic: params.isPublic ?? true,
+			updatedAt: now,
+			...params,
+		})
+	}
 	public static restore(params: {
-    albumType:        AlbumType
-    artistIds:        string[]
-    createdAt:        Date
-    id:               string
-    isDeleted:        boolean
-    isPublic:         boolean
-    label:            string
-    name:             string
-    releaseDate:      string
-    releasePrecision: ReleasePrecision
-    totalTracks:      number
-    updatedAt:        Date
-  }): Album {
-    return new Album(params)
-  }
+		albumType: AlbumType
+		artistIds: string[]
+		createdAt: Date
+		id: string
+		isDeleted: boolean
+		isPublic: boolean
+		label: string
+		name: string
+		releaseDate: string
+		releasePrecision: ReleasePrecision
+		totalTracks: number
+		updatedAt: Date
+	}): Album {
+		return new Album(params)
+	}
 }
 
 function formatDate(date: Date, precision: ReleasePrecision): string {
@@ -109,11 +104,11 @@ function formatDate(date: Date, precision: ReleasePrecision): string {
 }
 
 function isReleaseDateValid(releaseDate: string, precision: ReleasePrecision): boolean {
-  return RELEASE_PATTERNS[precision].test(releaseDate)
+	return RELEASE_PATTERNS[precision].test(releaseDate)
 }
 
 function normaliseTotalTracks(albumType: AlbumType, totalTracks: number): number {
-  return albumType === 'single' ? 1 : totalTracks
+	return albumType === 'single' ? 1 : totalTracks
 }
 
-export default Album;
+export default Album
