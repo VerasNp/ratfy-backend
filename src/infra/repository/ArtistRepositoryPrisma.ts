@@ -1,4 +1,5 @@
 import type { ArtistRepository } from '#application/ports/ArtistRepository.js'
+import ConcurrentUpdateError from '#application/errors/ConcurrentUpdateError.js'
 import Artist from '#domain/artist/Artist.js'
 import type { Artist as PrismaArtist, PrismaClient } from '../../../prisma/generated/prisma/client'
 
@@ -8,10 +9,12 @@ class ArtistRepositoryPrisma implements ArtistRepository {
   async create(artist: Artist): Promise<Artist> {
     const row = await this.orm.artist.create({
       data: {
-        id:        artist.id,
-        userId:    artist.userId,
-        bio:       artist.bio,
-        createdAt: artist.createdAt,
+        id:               artist.id,
+        userId:           artist.userId,
+        bio:              artist.bio,
+        profileImageKey:  artist.profileImageKey,
+        profileImageSize: artist.profileImageSize,
+        createdAt:        artist.createdAt,
       },
     })
     return this.toDomain(row)
@@ -42,23 +45,36 @@ class ArtistRepositoryPrisma implements ArtistRepository {
     return rows.map((row) => this.toDomain(row))
   }
 
-  async update(id: string, data: Partial<Artist>): Promise<void> {
+  async update(id: string, data: Partial<Artist>, expectedProfileImageKey?: string | null): Promise<void> {
+    if (expectedProfileImageKey !== undefined) {
+      const row = await this.orm.artist.findUnique({
+        where: { id },
+        select: { profileImageKey: true },
+      })
+      if (!row || row.profileImageKey !== expectedProfileImageKey) {
+        throw new ConcurrentUpdateError('Artist')
+      }
+    }
+
     await this.orm.artist.update({
       data: {
         ...(data.bio !== undefined && { bio: data.bio }),
+        ...(data.profileImageKey !== undefined && { profileImageKey: data.profileImageKey }),
+        ...(data.profileImageSize !== undefined && { profileImageSize: data.profileImageSize }),
       },
       where: { id },
     })
-    return Promise.resolve()
   }
 
   private toDomain(row: PrismaArtist): Artist {
     return Artist.restore({
-      id:        row.id,
-      userId:    row.userId,
-      bio:       row.bio,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
+      id:               row.id,
+      userId:           row.userId,
+      bio:              row.bio,
+      profileImageKey:  row.profileImageKey,
+      profileImageSize: row.profileImageSize,
+      createdAt:        row.createdAt,
+      updatedAt:        row.updatedAt,
     })
   }
 }

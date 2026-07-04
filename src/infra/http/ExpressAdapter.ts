@@ -1,4 +1,5 @@
 import express, { type Application } from 'express'
+import { type Server } from 'http'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import swaggerUi from 'swagger-ui-express'
@@ -15,6 +16,7 @@ import DomainError from '#domain/errors/DomainError.js'
 
 class ExpressAdapter implements HttpServerPort {
 	public app: Application
+	private server: Server | undefined
 	public constructor(
 		private port: number,
 		private readonly loggerService: LoggerPort,
@@ -34,8 +36,18 @@ class ExpressAdapter implements HttpServerPort {
 	}
 
 	public listen(): void {
-		this.app.listen(this.port, () => {
+		this.server = this.app.listen(this.port, () => {
 			console.log(`Server running on port ${this.port}`)
+		})
+	}
+
+	public async close(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			if (!this.server) {
+				resolve()
+				return
+			}
+			this.server.close((err) => (err ? reject(err) : resolve()))
 		})
 	}
 
@@ -49,15 +61,26 @@ class ExpressAdapter implements HttpServerPort {
 			url,
 			...middlewares.map((m) => asyncHandler(m)),
 			asyncHandler(async (req: any, res: any) => {
-				const output: HttpResponse = await callback(req.params, req.body, req.query, req)
-				if (output?.cookies) {
-					for (const cookie of output.cookies) {
-						res.cookie(cookie.name, cookie.value, cookie.options)
-					}
-				}
+				const output = await callback(req.params, req.body, req.query, req)
+
 				if (output === undefined) {
 					return res.status(204).send()
 				}
+
+				if (typeof output === 'object' && output !== null && ('cookies' in output || 'status' in output)) {
+					const httpRes = output as HttpResponse
+					if (httpRes.cookies) {
+						for (const cookie of httpRes.cookies) {
+							res.cookie(cookie.name, cookie.value, cookie.options)
+						}
+					}
+					const statusCode = httpRes.status ?? (httpRes.body === undefined ? 204 : 200)
+					if (httpRes.body === undefined) {
+						return res.status(statusCode).send()
+					}
+					return res.status(statusCode).json(httpRes.body)
+				}
+
 				return res.json(output)
 			}),
 		)
@@ -92,8 +115,8 @@ class ExpressAdapter implements HttpServerPort {
 			this.loggerService.error('Unhandled error', {
 				origin: 'ExpressAdapter',
 				error: err,
+				cause: err instanceof Error ? err.cause : undefined,
 			})
-			console.error('Unhandled error:', err)
 			return res.status(500).json({
 				message: 'Internal server error',
 			})

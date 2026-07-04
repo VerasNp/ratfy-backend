@@ -6,5 +6,5 @@ export interface TrackRepository {
   findByAlbumId(albumId: string): Promise<Track[]>
   findById(id: string): Promise<Track | null>
   list(page: number, limit: number): Promise<Track[]>
-  update(id: string, data: Partial<Track>): Promise<void>
+  update(id: string, data: Partial<Track>, expectedAudioFileKey?: string | null): Promise<void>
 }

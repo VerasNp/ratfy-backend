@@ -30,7 +30,21 @@ export default defineConfig({
 					name: 'controllers integration tests',
 					include: ['src/__tests__/integration/http/**/*.spec.ts'],
 				}
-			}
+			},
+			{
+				test: {
+					name: 'storage and cache integration tests',
+					include: [
+						'src/__tests__/integration/infra/storage/*.spec.ts',
+						'src/__tests__/integration/infra/cache/*.spec.ts',
+					],
+					globalSetup: [
+						'./src/__tests__/integration/infra/testContainerMinioRedisSetup.ts',
+					],
+					fileParallelism: false,
+					timeout: 60_000,
+				},
+			},
 		],
 	},
 })

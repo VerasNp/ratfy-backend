@@ -1,4 +1,5 @@
 import type { PlaylistRepository } from '#application/ports/PlaylistRepository.js'
+import ConcurrentUpdateError from '#application/errors/ConcurrentUpdateError.js'
 import Playlist from '#domain/playlist/Playlist.js'
 import type { Playlist as PrismaPlaylist, PrismaClient } from '../../../prisma/generated/prisma/client'
 
@@ -8,11 +9,13 @@ class PlaylistRepositoryPrisma implements PlaylistRepository {
   async create(playlist: Playlist): Promise<Playlist> {
     const row = await this.orm.playlist.create({
       data: {
-        id:        playlist.id,
-        name:      playlist.name,
-        isPublic:  playlist.isPublic,
-        ownerId:   playlist.ownerId,
-        createdAt: playlist.createdAt,
+        id:            playlist.id,
+        name:          playlist.name,
+        isPublic:      playlist.isPublic,
+        ownerId:       playlist.ownerId,
+        coverImageKey: playlist.coverImageKey,
+        coverImageSize: playlist.coverImageSize,
+        createdAt:     playlist.createdAt,
       },
     })
     return this.toDomain(row)
@@ -49,12 +52,23 @@ class PlaylistRepositoryPrisma implements PlaylistRepository {
     return rows.map((row) => this.toDomain(row)) 
   }
 
-  async update(id: string, data: Partial<Playlist>): Promise<void> {
+  async update(id: string, data: Partial<Playlist>, expectedCoverImageKey?: string | null): Promise<void> {
+    if (expectedCoverImageKey !== undefined) {
+      const row = await this.orm.playlist.findUnique({
+        where: { id },
+        select: { coverImageKey: true },
+      })
+      if (!row || row.coverImageKey !== expectedCoverImageKey) {
+        throw new ConcurrentUpdateError('Playlist')
+      }
+    }
+
     await this.orm.playlist.update({
       data: {
-
         ...(data.name !== undefined && { name: data.name }),
         ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
+        ...(data.coverImageKey !== undefined && { coverImageKey: data.coverImageKey }),
+        ...(data.coverImageSize !== undefined && { coverImageSize: data.coverImageSize }),
       },
       where: { id },
     })
@@ -84,12 +98,14 @@ class PlaylistRepositoryPrisma implements PlaylistRepository {
 
   private toDomain(row: PrismaPlaylist): Playlist {
     return Playlist.restore({
-      id:        row.id,
-      name:      row.name,
-      isPublic:  row.isPublic,
-      ownerId:   row.ownerId,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
+      id:            row.id,
+      name:          row.name,
+      isPublic:      row.isPublic,
+      ownerId:       row.ownerId,
+      coverImageKey: row.coverImageKey,
+      coverImageSize: row.coverImageSize,
+      createdAt:     row.createdAt,
+      updatedAt:     row.updatedAt,
     })
   }
 }

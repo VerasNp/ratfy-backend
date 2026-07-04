@@ -1,5 +1,6 @@
 import type { AlbumRepository } from '#application/ports/AlbumRepository.js'
 
+import ConcurrentUpdateError from '#application/errors/ConcurrentUpdateError.js'
 import { AlbumNotFoundError } from '#application/errors/AlbumNotFoundError.js'
 import Album, { type AlbumType, type ReleasePrecision } from '#domain/album/Album.js'
 
@@ -15,6 +16,8 @@ class AlbumRepositoryPrisma implements AlbumRepository {
       data: {
         albumType:        album.albumType,
         artistIds:        album.artistIds,
+        coverImageKey:    album.coverImageKey,
+        coverImageSize:   album.coverImageSize,
         createdAt:        album.createdAt,
         id:               album.id,
         isDeleted:        album.isDeleted,
@@ -48,26 +51,39 @@ class AlbumRepositoryPrisma implements AlbumRepository {
 	})
 	return rows.map((row) => this.toDomain(row))
 	}
-	async update(id: string, data: Partial<Album>): Promise<void> {
-	    await this.orm.album.update({
-	      data: {
-	        ...(data.name             != null && { name:             data.name }),
-	        ...(data.albumType        != null && { albumType:        data.albumType }),
-	        ...(data.releaseDate      != null && { releaseDate:      data.releaseDate }),
-	        ...(data.releasePrecision != null && { releasePrecision: data.releasePrecision }),
-	        ...(data.totalTracks      != null && { totalTracks:      data.totalTracks }),
-	        ...(data.label            != null && { label:            data.label }),
-	        ...(data.artistIds        != null && { artistIds:        data.artistIds }),
-	        ...(data.isPublic         != null && { isPublic:         data.isPublic }),
-	      },
-	      where: { id },
+	async update(id: string, data: Partial<Album>, expectedCoverImageKey?: string | null): Promise<void> {
+		if (expectedCoverImageKey !== undefined) {
+			const row = await this.orm.album.findUnique({
+				where: { id },
+				select: { coverImageKey: true },
+			})
+			if (!row || row.coverImageKey !== expectedCoverImageKey) {
+				throw new ConcurrentUpdateError('Album')
+			}
+		}
+
+		await this.orm.album.update({
+			data: {
+		    ...(data.name             != null && { name:             data.name }),
+		    ...(data.albumType        != null && { albumType:        data.albumType }),
+		    ...(data.releaseDate      != null && { releaseDate:      data.releaseDate }),
+		    ...(data.releasePrecision != null && { releasePrecision: data.releasePrecision }),
+		    ...(data.totalTracks      != null && { totalTracks:      data.totalTracks }),
+		    ...(data.label            != null && { label:            data.label }),
+		    ...(data.artistIds        != null && { artistIds:        data.artistIds }),
+		    ...(data.isPublic         != null && { isPublic:         data.isPublic }),
+		    ...(data.coverImageKey    != null && { coverImageKey:    data.coverImageKey }),
+		    ...(data.coverImageSize   != null && { coverImageSize:   data.coverImageSize }),
+			},
+			where: { id },
 		})
-		return Promise.resolve()
 	}
   private toDomain(row: PrismaAlbum): Album {
     return Album.restore({
       albumType:        row.albumType        as AlbumType,
       artistIds:        row.artistIds,
+      coverImageKey:    row.coverImageKey,
+      coverImageSize:   row.coverImageSize,
       createdAt:        row.createdAt,
       id:               row.id,
       isDeleted:        row.isDeleted,

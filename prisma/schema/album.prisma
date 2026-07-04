@@ -1,13 +1,17 @@
 model Album {
-  id                    String               @id @default(uuid())
-  name                  String
-  albumType             String
-  releaseDate           String               // "1981-12-15" | "1981-12" | "1981"
-  releasePrecision		String
-  totalTracks           Int
-  label                 String
-  artistIds             String[]
-  tracks                Track[]
-  createdAt             DateTime             @default(now())
-  updatedAt             DateTime             @updatedAt
+  id              String    @id @default(uuid())
+  name            String
+  albumType       String
+  releaseDate     String    // "1981-12-15" | "1981-12" | "1981"
+  releasePrecision String
+  totalTracks     Int
+  label           String
+  artistIds       String[]
+  tracks          Track[]
+  isDeleted       Boolean   @default(false)
+  isPublic        Boolean   @default(true)
+  coverImageKey   String?
+  coverImageSize  Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }

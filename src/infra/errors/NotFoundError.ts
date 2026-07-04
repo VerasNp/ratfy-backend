@@ -1,4 +1,4 @@
-import InfraError from './InfraError'
+import InfraError from './InfraError.js'
 
 class NotFoundError extends InfraError {
 	public constructor(message?: string) {

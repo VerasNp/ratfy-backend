@@ -5,6 +5,8 @@ class Playlist {
   public name: string
   public isPublic: boolean
   public readonly ownerId: string
+  public coverImageKey: string | null
+  public coverImageSize: number | null
   public readonly createdAt: Date
   public updatedAt: Date
 
@@ -13,6 +15,8 @@ class Playlist {
     name: string
     isPublic: boolean
     ownerId: string
+    coverImageKey: string | null
+    coverImageSize: number | null
     createdAt: Date
     updatedAt: Date
   }) {
@@ -28,6 +32,8 @@ class Playlist {
     this.name = params.name
     this.isPublic = params.isPublic
     this.ownerId = params.ownerId
+    this.coverImageKey = params.coverImageKey
+    this.coverImageSize = params.coverImageSize
     this.createdAt = params.createdAt
     this.updatedAt = params.updatedAt
   }
@@ -43,6 +49,8 @@ class Playlist {
       name: params.name,
       isPublic: params.isPublic ?? true,
       ownerId: params.ownerId,
+      coverImageKey: null,
+      coverImageSize: null,
       createdAt: now,
       updatedAt: now,
     })
@@ -53,6 +61,8 @@ class Playlist {
     name: string
     isPublic: boolean
     ownerId: string
+    coverImageKey: string | null
+    coverImageSize: number | null
     createdAt: Date
     updatedAt: Date
   }): Playlist {

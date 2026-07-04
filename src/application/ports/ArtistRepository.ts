@@ -44,5 +44,5 @@ export interface ArtistRepository {
      * @param data - The partial data to update the Artist with.
      * @returns A promise that resolves when the update is complete.
      */
-    update(id: string, data: Partial<Artist>): Promise<void>
+    update(id: string, data: Partial<Artist>, expectedProfileImageKey?: string | null): Promise<void>
 }

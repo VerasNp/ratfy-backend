@@ -17,6 +17,8 @@ const RELEASE_PATTERNS: Record<ReleasePrecision, RegExp> = {
 class Album {
     public readonly albumType: AlbumType
     public readonly artistIds: string[]
+    public          coverImageKey: string | null
+    public          coverImageSize: number | null
 	public readonly createdAt: Date
 	public readonly id: string
 	public isDeleted?: boolean
@@ -30,6 +32,8 @@ class Album {
   private constructor(params: {
     albumType:        AlbumType
     artistIds:        string[]
+    coverImageKey:    string | null
+    coverImageSize:   number | null
     createdAt:        Date
     id:               string
     isDeleted?:		  boolean
@@ -41,16 +45,18 @@ class Album {
     totalTracks:      number
     updatedAt:        Date
   }) {
-    // Invariant 1 — date format must match precision
-    if (!isReleaseDateValid(params.releaseDate.toString(), params.releasePrecision)) {
+    const dateStr = params.releaseDate.toISOString().split('T')[0] ?? ''
+    if (!isReleaseDateValid(dateStr, params.releasePrecision)) {
       throw new Error(
-        `releaseDate "${params.releaseDate.toString()}" does not match precision "${params.releasePrecision}". ` +
+        `releaseDate "${dateStr}" does not match precision "${params.releasePrecision}". ` +
         `Expected format: ${String(RELEASE_PATTERNS[params.releasePrecision])}`
       )
     }
 
     this.albumType        = params.albumType
     this.artistIds        = params.artistIds
+    this.coverImageKey    = params.coverImageKey
+    this.coverImageSize   = params.coverImageSize
     this.createdAt        = params.createdAt
     this.id               = params.id
     this.isDeleted        = params.isDeleted ?? false
@@ -74,17 +80,27 @@ class Album {
   }): Album {
     const now = new Date()
     return new Album({
+      albumType:        params.albumType,
+      artistIds:        params.artistIds,
+      coverImageKey:    null,
+      coverImageSize:   null,
       createdAt:        now,
       id:               crypto.randomUUID(),
       isDeleted:        false,
       isPublic:         params.isPublic ?? true,
+      label:            params.label,
+      name:             params.name,
+      releaseDate:      params.releaseDate,
+      releasePrecision: params.releasePrecision,
+      totalTracks:      params.totalTracks,
       updatedAt:        now,
-      ...params,
     })
   }
 	public static restore(params: {
     albumType:        AlbumType
     artistIds:        string[]
+    coverImageKey:    string | null
+    coverImageSize:   number | null
     createdAt:        Date
     id:               string
     isDeleted:        boolean

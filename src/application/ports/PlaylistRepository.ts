@@ -45,7 +45,7 @@ export interface PlaylistRepository {
      * @param data - The partial data to update the Playlist with.
      * @returns A promise that resolves when the update is complete.
      */
-    update(id: string, data: Partial<Playlist>): Promise<void>
+    update(id: string, data: Partial<Playlist>, expectedCoverImageKey?: string | null): Promise<void>
 
     /**
      * Adds a track to an existing playlist.

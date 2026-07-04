@@ -37,6 +37,8 @@ class Artist {
   public readonly id: string
   public readonly userId: string
   public bio: string | null
+  public profileImageKey: string | null
+  public profileImageSize: number | null
   public readonly createdAt: Date
   public updatedAt: Date
 
@@ -44,6 +46,8 @@ class Artist {
     id: string
     userId: string
     bio?: string | null
+    profileImageKey: string | null
+    profileImageSize: number | null
     createdAt: Date
     updatedAt: Date
   }) {
@@ -56,6 +60,8 @@ class Artist {
     this.id = params.id
     this.userId = params.userId
     this.bio = params.bio ?? null
+    this.profileImageKey = params.profileImageKey
+    this.profileImageSize = params.profileImageSize
     this.createdAt = params.createdAt
     this.updatedAt = params.updatedAt
   }
@@ -69,6 +75,8 @@ class Artist {
       id: crypto.randomUUID(),
       userId: params.userId,
       bio: params.bio ?? null,
+      profileImageKey: null,
+      profileImageSize: null,
       createdAt: now,
       updatedAt: now,
     })
@@ -78,6 +86,8 @@ class Artist {
     id: string
     userId: string
     bio: string | null
+    profileImageKey: string | null
+    profileImageSize: number | null
     createdAt: Date
     updatedAt: Date
   }): Artist {

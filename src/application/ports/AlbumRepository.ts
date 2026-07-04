@@ -5,5 +5,5 @@ export interface AlbumRepository {
    	delete(id: string): Promise<void>;
 	findById(id: string): Promise<Album | null>,
     list(page: number, limit: number): Promise<Album[]>
-    update(id: string, data: Partial<Album>): Promise<void>
+    update(id: string, data: Partial<Album>, expectedCoverImageKey?: string | null): Promise<void>
 }
