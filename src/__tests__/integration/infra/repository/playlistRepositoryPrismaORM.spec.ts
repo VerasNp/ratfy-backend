@@ -7,6 +7,7 @@ import Playlist from '#domain/playlist/Playlist.js'
 import { PrismaClient } from '#prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { afterAll, beforeEach, describe, expect, inject, it } from 'vitest'
+import { createDummyAlbumPrismaORM } from '#__tests__/factories/AlbumFactory.js'
 
 const adapter = new PrismaPg({ connectionString: inject('testPostgresURL') })
 const prisma = new PrismaClient({ adapter })
@@ -44,7 +45,11 @@ describe('PlaylistRepositoryPrisma', () => {
 		})
 
 		it('should create a private playlist', async () => {
-			const playlist = Playlist.create({ name: 'Private', ownerId: dummyUser.id, isPublic: false })
+			const playlist = Playlist.create({
+				name: 'Private',
+				ownerId: dummyUser.id,
+				isPublic: false,
+			})
 
 			const created = await playlistRepository.create(playlist)
 
@@ -202,17 +207,9 @@ describe('PlaylistRepositoryPrisma', () => {
 	describe('addTrack', () => {
 		it('should connect a track to the playlist', async () => {
 			const dummyPlaylist = await createDummyPlaylistPrismaORM(prisma, dummyUser.id)
-			const album = await prisma.album.create({
-				data: {
-					id: crypto.randomUUID(),
-					name: 'Test Album',
-					albumType: 'album',
-					releaseDate: '2024-01-01',
-					releasePrecision: 'day',
-					totalTracks: 1,
-					label: 'Test Label',
-					artistIds: [],
-				},
+			const album = await createDummyAlbumPrismaORM(prisma, {
+				artists: [],
+				name: 'Test Album',
 			})
 			const track = await prisma.track.create({
 				data: {
@@ -240,17 +237,9 @@ describe('PlaylistRepositoryPrisma', () => {
 	describe('removeTrack', () => {
 		it('should disconnect a track from the playlist', async () => {
 			const dummyPlaylist = await createDummyPlaylistPrismaORM(prisma, dummyUser.id)
-			const album = await prisma.album.create({
-				data: {
-					id: crypto.randomUUID(),
-					name: 'Test Album',
-					albumType: 'album',
-					releaseDate: '2024-01-01',
-					releasePrecision: 'day',
-					totalTracks: 1,
-					label: 'Test Label',
-					artistIds: [],
-				},
+			const album = await createDummyAlbumPrismaORM(prisma, {
+				artists: [],
+				name: 'Test Album',
 			})
 			const track = await prisma.track.create({
 				data: {
