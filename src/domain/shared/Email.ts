@@ -1,8 +1,10 @@
+import ValidationError from '#domain/errors/ValidationError.js'
+
 class Email {
 	public readonly value: string
 	constructor(value: string) {
 		if (!this.validateEmail(value)) {
-			throw new Error('Invalid email format')
+			throw new ValidationError('Invalid email format')
 		}
 		this.value = value
 	}

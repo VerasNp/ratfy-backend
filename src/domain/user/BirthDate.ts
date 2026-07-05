@@ -1,11 +1,13 @@
+import ValidationError from '#domain/errors/ValidationError.js'
+
 class BirthDate {
 	public readonly value: Date
 
 	constructor(value: Date) {
 		if (!this.isValidDatePast(value)) {
-			throw new Error('Birth date must be a valid date in the past')
+			throw new ValidationError('Birth date must be a valid date in the past')
 		} else if (!this.isGreaterThan18YearsAgo(value)) {
-			throw new Error('Must be at least 18 years old')
+			throw new ValidationError('Must be at least 18 years old')
 		}
 		this.value = value
 	}
