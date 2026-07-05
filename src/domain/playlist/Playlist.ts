@@ -1,3 +1,4 @@
+import ValidationError from '#domain/errors/ValidationError.js'
 import crypto from "crypto"
 
 class Playlist {
@@ -17,11 +18,11 @@ class Playlist {
     updatedAt: Date
   }) {
     if (!params.name || params.name.trim().length === 0) {
-      throw new Error("Playlist name cannot be empty.")
+      throw new ValidationError("Playlist name cannot be empty.")
     }
 
     if (params.name.length > 100) {
-      throw new Error("Playlist name exceeds the maximum allowed length of 100 characters.")
+      throw new ValidationError("Playlist name exceeds the maximum allowed length of 100 characters.")
     }
 
     this.id = params.id
