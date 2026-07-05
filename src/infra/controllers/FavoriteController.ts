@@ -13,15 +13,7 @@ import type { RemoveFavoriteTrackUseCase } from '#application/useCases/favorite/
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 import type AuthMiddleware from '#infra/http/middlewares/AuthMiddleware.js'
 
-import { AddFavoriteAlbumSchema } from '#application/DTOs/favorite/AddFavoriteAlbumInputDTO.js'
-import { AddFavoriteArtistSchema } from '#application/DTOs/favorite/AddFavoriteArtistInputDTO.js'
-import { AddFavoritePlaylistSchema } from '#application/DTOs/favorite/AddFavoritePlaylistInputDTO.js'
-import { AddFavoriteTrackSchema } from '#application/DTOs/favorite/AddFavoriteTrackInputDTO.js'
-import { RemoveFavoriteAlbumSchema } from '#application/DTOs/favorite/RemoveFavoriteAlbumInputDTO.js'
-import { RemoveFavoriteArtistSchema } from '#application/DTOs/favorite/RemoveFavoriteArtistInputDTO.js'
-import { RemoveFavoritePlaylistSchema } from '#application/DTOs/favorite/RemoveFavoritePlaylistInputDTO.js'
-import { RemoveFavoriteTrackSchema } from '#application/DTOs/favorite/RemoveFavoriteTrackInputDTO.js'
-import { TrackListSchema } from '#application/DTOs/track/TrackListInputDTO.js'
+import { AddFavoriteAlbumSchema, AddFavoriteArtistSchema, AddFavoritePlaylistSchema, AddFavoriteTrackSchema, RemoveFavoriteAlbumSchema, RemoveFavoriteArtistSchema, RemoveFavoritePlaylistSchema, RemoveFavoriteTrackSchema } from '#infra/http/schemas/FavoritesSchemas.js'
 
 class FavoriteController {
   public constructor(
@@ -65,7 +57,7 @@ class FavoriteController {
       '/favorites/tracks',
       async (_params: any, _body: any, _query: any, req: any) => {
         const tracks = await this.listFavoriteTracksUseCase.execute({ userId: req.user.userId })
-        return tracks
+        return { body: tracks }
       },
       [this.authMiddleware.handle()],
     )
@@ -95,7 +87,7 @@ class FavoriteController {
       '/favorites/artists',
       async (_params: any, _body: any, _query: any, req: any) => {
         const artists = await this.listFavoriteArtistsUseCase.execute({ userId: req.user.userId })
-        return artists
+        return { body: artists }
       },
       [this.authMiddleware.handle()],
     )
@@ -125,7 +117,7 @@ class FavoriteController {
       '/favorites/playlists',
       async (_params: any, _body: any, _query: any, req: any) => {
         const playlists = await this.listFavoritePlaylistsUseCase.execute({ userId: req.user.userId })
-        return playlists
+        return { body: playlists }
       },
       [this.authMiddleware.handle()],
     )
@@ -155,7 +147,7 @@ class FavoriteController {
       '/favorites/albums',
       async (_params: any, _body: any, _query: any, req: any) => {
         const albums = await this.listFavoriteAlbumsUseCase.execute({ userId: req.user.userId })
-        return albums
+        return { body: albums }
       },
       [this.authMiddleware.handle()],
     )
