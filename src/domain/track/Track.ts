@@ -118,14 +118,24 @@ class Track {
 
 	public updateData(data: {
 		title?: string
+		durationMs?: number
+		discNumber?: number
+		trackNumber?: number
 		explicit?: boolean
 		lyrics?: string | null
 		isPublic?: boolean
+		album?: Album
+		artists?: Artist[]
 	}): void {
 		if (data.title !== undefined) this._title = data.title
+		if (data.durationMs !== undefined) this._durationMs = new DurationMs(data.durationMs)
+		if (data.discNumber !== undefined) this._discNumber = new DiscNumber(data.discNumber)
+		if (data.trackNumber !== undefined) this._trackNumber = new TrackNumber(data.trackNumber)
 		if (data.explicit !== undefined) this._explicit = data.explicit
 		if (data.lyrics !== undefined) this._lyrics = data.lyrics
 		if (data.isPublic !== undefined) this._isPublic = data.isPublic
+		if (data.album !== undefined) this._album = data.album
+		if (data.artists !== undefined) this._artists = data.artists
 		this._updatedAt = new Date()
 	}
 

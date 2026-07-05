@@ -1,17 +1,19 @@
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
-
-import { TrackSearchSchema } from '#infra/http/schemas/TracksSchemas.js'
+import { TrackCreateSchema, TrackSearchSchema, TrackUpdateSchema } from '#infra/http/schemas/TracksSchemas.js'
 import type { TrackRepository } from '#application/ports/TrackRepository.js'
+import type CreateTrackUseCase from '#application/useCases/track/CreateTrackUseCase.js'
+import type GetTrackUseCase from '#application/useCases/track/GetTrackUseCase.js'
+import UpdateTrackUseCase from '#application/useCases/track/UpdateTrackUseCase.js'
+import DeleteTrackUseCase from '#application/useCases/track/DeleteTrackUseCase.js'
 
 class TrackController {
 	public constructor(
 		private readonly httpServer: HttpServerPort,
 		private readonly trackRepository: TrackRepository,
-		// private readonly createTrackUseCase: CreateTrackUseCase,
-		// private readonly getTrackUseCase: GetTrackUseCase,
-		// private readonly updateTrackUseCase: UpdateTrackUseCase,
-		// private readonly deleteTrackUseCase: DeleteTrackUseCase,
-		// private readonly listTracksUseCase: ListTracksUseCase,
+		private readonly createTrackUseCase: CreateTrackUseCase,
+		private readonly getTrackUseCase: GetTrackUseCase,
+		private readonly updateTrackUseCase: UpdateTrackUseCase,
+		private readonly deleteTrackUseCase: DeleteTrackUseCase,
 	) {
 		this.httpServer.register('get', '/tracks', async (_params: any, _body: any, query: any) => {
 			const parsedQuery = TrackSearchSchema.parse(query)
@@ -40,8 +42,12 @@ class TrackController {
 			'post',
 			'/tracks',
 			async (_params: any, body: any, _query: any) => {
-				// const input = TrackCreateSchema.parse(body)
-				// return this.createTrackUseCase.execute(input)
+				const input = TrackCreateSchema.parse(body)
+				const result = await this.createTrackUseCase.execute(input)
+				return {
+					statusCode: 201,
+					body: result,
+				}
 			},
 		)
 
@@ -49,8 +55,11 @@ class TrackController {
 			'get',
 			'/tracks/:trackId',
 			async (params: any, _body: any, _query: any) => {
-				// const { trackId } = params
-				// return this.getTrackUseCase.execute(trackId)
+				const { trackId } = params
+				const result = await this.getTrackUseCase.execute(trackId)
+				return {
+					body: result,
+				}
 			},
 		)
 
@@ -59,27 +68,23 @@ class TrackController {
 			'/tracks/:trackId',
 			async (params: any, body: any, _query: any) => {
 				const { trackId } = params
-				// const input = TrackUpdateSchema.parse(body)
-				// return this.updateTrackUseCase.execute(trackId, input)
+				const input = TrackUpdateSchema.parse(body)
+				const result = await this.updateTrackUseCase.execute(trackId, input)
+				return {
+					body: result,
+				}
 			},
 		)
 
 		this.httpServer.register(
 			'delete',
-			'/tracks/:id',
+			'/tracks/:trackId',
 			async (params: any, _body: any, _query: any) => {
-				// const input = TrackDeleteSchema.parse(params)
-				// return this.deleteTrackUseCase.execute(input)
-			},
-		)
-
-		this.httpServer.register(
-			'get',
-			'/albums/:albumId/tracks',
-			async (params: any, _body: any, query: any) => {
-				const { albumId } = params
-				// const input = TrackUpdateSchema.parse(params)
-				// return this.listTracksUseCase.execute(input)
+				const { trackId } = params
+				const result = await this.deleteTrackUseCase.execute(trackId)
+				return {
+					body: result,
+				}
 			},
 		)
 	}
