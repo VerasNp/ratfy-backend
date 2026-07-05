@@ -1,6 +1,5 @@
 import type { FavoriteRepository } from '#application/ports/FavoriteRepository.js'
 import type { PlaylistRepository } from '#application/ports/PlaylistRepository.js'
-import type { PlaylistListItemOutputDTO } from '#application/DTOs/playlist/PlaylistListOutputDTO.js'
 
 export class ListFavoritePlaylistsUseCase {
   constructor(
@@ -21,4 +20,11 @@ export class ListFavoritePlaylistsUseCase {
       ownerId:  p.ownerId,
     }))
   }
+}
+
+type PlaylistListItemOutputDTO = {
+  id: string
+  name: string
+  isPublic: boolean
+  ownerId: string
 }

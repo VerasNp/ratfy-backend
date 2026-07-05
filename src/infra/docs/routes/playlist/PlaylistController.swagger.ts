@@ -1,11 +1,6 @@
 import type { OpenAPIRegistry } from '@asteasolutions/zod-to-openapi'
 import z from 'zod'
-import { PlaylistCreateSchema } from '#application/DTOs/playlist/PlaylistCreateInputDTO.js'
-import { PlaylistDeleteSchema } from '#application/DTOs/playlist/PlaylistDeleteInputDTO.js'
-import { PlaylistGetSchema } from '#application/DTOs/playlist/PlaylistGetInputDTO.js'
-import { PlaylistListByOwnerIdSchema } from '#application/DTOs/playlist/PlaylistListByOwnerIdInputDTO.js'
-import { PlaylistListSchema } from '#application/DTOs/playlist/PlaylistListInputDTO.js'
-import { PlaylistUpdateSchema } from '#application/DTOs/playlist/PlaylistUpdateInputDTO.js'
+import { PlaylistCreateSchema, PlaylistDeleteSchema, PlaylistGetSchema, PlaylistListByOwnerIdSchema, PlaylistListSchema, PlaylistUpdateSchema } from '#infra/http/schemas/PlaylistsSchemas.js'
 
 class PlaylistControllerSwagger {
 	public constructor(private readonly registry: OpenAPIRegistry) {

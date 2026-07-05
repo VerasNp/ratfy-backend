@@ -1,5 +1,3 @@
-import type { PlaylistCreateInputDTO } from '#application/DTOs/playlist/PlaylistCreateInputDTO.js'
-import type { PlaylistCreateOutputDTO } from '#application/DTOs/playlist/PlaylistCreateOutputDTO.js'
 import type { PlaylistRepository } from '#application/ports/PlaylistRepository.js'
 
 import Playlist from '#domain/playlist/Playlist.js'
@@ -7,7 +5,7 @@ import Playlist from '#domain/playlist/Playlist.js'
 export class CreatePlaylistUseCase {
   constructor(private readonly playlistRepo: PlaylistRepository) {}
 
-  async execute(dto: PlaylistCreateInputDTO): Promise<PlaylistCreateOutputDTO> {
+  async execute(dto: Input): Promise<Output> {
     const playlist = Playlist.create({
       name:     dto.name,
       ownerId:  dto.ownerId,
@@ -25,4 +23,19 @@ export class CreatePlaylistUseCase {
       updatedAt: savedPlaylist.updatedAt,
     }
   }
+}
+
+type Input = {
+  name: string
+  isPublic: boolean
+  ownerId: string
+}
+
+type Output = {
+  id: string
+  name: string
+  isPublic: boolean
+  ownerId: string
+  createdAt: Date
+  updatedAt: Date
 }

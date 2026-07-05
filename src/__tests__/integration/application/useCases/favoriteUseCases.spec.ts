@@ -297,51 +297,7 @@ describe('Favorite Artist Use Cases', () => {
   })
 })
 
-class PlaylistRepositoryMemory implements PlaylistRepository {
-  private playlists: Playlist[] = []
-
-  constructor(initial?: Playlist[]) {
-    if (initial) this.playlists = [...initial]
-  }
-
-  async create(playlist: Playlist): Promise<Playlist> {
-    this.playlists.push(playlist)
-    return playlist
-  }
-
-  async delete(_id: string): Promise<void> {
-    // no-op for tests
-  }
-
-  async findById(id: string): Promise<Playlist | null> {
-    return this.playlists.find((p) => p.id === id) ?? null
-  }
-
-  async listByIds(ids: string[]): Promise<Playlist[]> {
-    return this.playlists.filter((p) => ids.includes(p.id))
-  }
-
-  async listByOwnerId(_ownerId: string, _page: number, _limit: number): Promise<Playlist[]> {
-    return this.playlists
-  }
-
-  async list(_page: number, _limit: number): Promise<Playlist[]> {
-    return this.playlists
-  }
-
-  async update(_id: string, _data: Partial<Playlist>): Promise<void> {
-    // no-op for tests
-  }
-
-  async addTrack(_playlistId: string, _trackId: string): Promise<void> {
-    // no-op for tests
-  }
-
-  async removeTrack(_playlistId: string, _trackId: string): Promise<void> {
-    // no-op for tests
-  }
-}
-
+import PlaylistRepositoryMemory from '#infra/repository/PlaylistRepositoryMemory.js'
 import { AddFavoritePlaylistUseCase } from '#application/useCases/favorite/AddFavoritePlaylist.js'
 import { RemoveFavoritePlaylistUseCase } from '#application/useCases/favorite/RemoveFavoritePlaylist.js'
 import { ListFavoritePlaylistsUseCase } from '#application/useCases/favorite/ListFavoritePlaylists.js'
