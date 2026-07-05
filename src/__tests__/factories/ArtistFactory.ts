@@ -10,10 +10,8 @@ export async function createDummyArtistPrismaORM(
 	const row = await orm.artist.create({
 		data: {
 			id: data.id || crypto.randomUUID(),
-			bio: data.bio || 'Dummy Bio',
+			bio: data.bio !== undefined ? data.bio : 'Dummy Bio',
 			userId: userId,
-			createdAt: data.createdAt || new Date(),
-			updatedAt: data.updatedAt || new Date(),
 		},
 		include: { user: true },
 	})
@@ -26,7 +24,7 @@ export async function createDummyArtistPrismaORM(
 
 export function createDummyArtist(user: User, data: any = {}): Artist {
 	return Artist.create({
-		bio: data.bio || 'Dummy Bio',
+		bio: data.bio !== undefined ? data.bio : 'Dummy Bio',
 		user: user,
 	})
 }

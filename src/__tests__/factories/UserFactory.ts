@@ -24,10 +24,12 @@ export async function createDummyUserPrismaORM(orm: PrismaClient, data: any = {}
 }
 
 export function createDummyUser(data: any = {}): User {
+	const verifiedAt = data.verifiedAt !== undefined ? data.verifiedAt : null
 	return User.create(
 		data.name || 'Dummy User',
 		data.email || 'foo@bar.com',
 		data.password || 'ValidPassword123!',
 		data.birthDate || new Date('2000-01-01'),
+		verifiedAt,
 	)
 }

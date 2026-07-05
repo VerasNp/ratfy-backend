@@ -19,6 +19,32 @@ describe('Artist domain model', () => {
 		expect(artist.userId).toBe(dummyUser.id)
 	})
 
+	it('should restore an Artist instance from persistence', () => {
+		const artist = Artist.restore({
+			id: crypto.randomUUID(),
+			bio: 'Restored bio',
+			userId: dummyUser.id,
+			user: dummyUser,
+		})
+		expect(artist).toBeInstanceOf(Artist)
+		expect(artist.id).toBeDefined()
+		expect(artist.bio).toBe('Restored bio')
+		expect(artist.userId).toBe(dummyUser.id)
+		expect(artist.user?.name).toBe(dummyUser.name)
+	})
+
+	it('should restore an Artist instance with null user', () => {
+		const artist = Artist.restore({
+			id: crypto.randomUUID(),
+			bio: null,
+			userId: dummyUser.id,
+			user: null,
+		})
+		expect(artist).toBeInstanceOf(Artist)
+		expect(artist.bio).toBeNull()
+		expect(artist.user).toBeNull()
+	})
+
 	it("should update the artist data", () => {
 		const artist = Artist.create({
 			bio: 'Initial bio.',
