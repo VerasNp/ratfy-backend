@@ -1,41 +1,52 @@
 import type { FavoriteRepository } from '#application/ports/FavoriteRepository.js'
 
-type FavoriteEntityType = 'TRACK' | 'ALBUM' | 'ARTIST' | 'PLAYLIST'
+type FavoriteEntry = { userId: string; entityId: string; entityType: 'TRACK' | 'ALBUM' | 'ARTIST' | 'PLAYLIST' }
 
 class FavoriteRepositoryMemory implements FavoriteRepository {
-  private favorites: { userId: string; entityId: string; entityType: FavoriteEntityType }[] = []
+  public favorites: FavoriteEntry[]
 
-  async add(userId: string, entityId: string, entityType: FavoriteEntityType): Promise<void> {
+  public constructor(initialFavorites: FavoriteEntry[] = []) {
+    this.favorites = initialFavorites
+  }
+
+  public add(userId: string, entityId: string, entityType: 'TRACK' | 'ALBUM' | 'ARTIST' | 'PLAYLIST'): Promise<void> {
     const exists = this.favorites.some(
       (f) => f.userId === userId && f.entityId === entityId && f.entityType === entityType,
     )
     if (!exists) {
       this.favorites.push({ userId, entityId, entityType })
     }
+    return Promise.resolve()
   }
 
-  async remove(userId: string, entityId: string, entityType: FavoriteEntityType): Promise<void> {
+  public remove(userId: string, entityId: string, entityType: 'TRACK' | 'ALBUM' | 'ARTIST' | 'PLAYLIST'): Promise<void> {
     this.favorites = this.favorites.filter(
       (f) => !(f.userId === userId && f.entityId === entityId && f.entityType === entityType),
     )
+    return Promise.resolve()
   }
 
-  async findEntityIdsByUserAndType(userId: string, entityType: FavoriteEntityType): Promise<string[]> {
-    return this.favorites
-      .filter((f) => f.userId === userId && f.entityType === entityType)
-      .map((f) => f.entityId)
-  }
-
-  async isFavorited(userId: string, entityId: string, entityType: FavoriteEntityType): Promise<boolean> {
-    return this.favorites.some(
-      (f) => f.userId === userId && f.entityId === entityId && f.entityType === entityType,
+  public findEntityIdsByUserAndType(userId: string, entityType: 'TRACK' | 'ALBUM' | 'ARTIST' | 'PLAYLIST'): Promise<string[]> {
+    return Promise.resolve(
+      this.favorites
+        .filter((f) => f.userId === userId && f.entityType === entityType)
+        .map((f) => f.entityId),
     )
   }
 
-  async removeAllByEntity(entityId: string, entityType: FavoriteEntityType): Promise<void> {
+  public isFavorited(userId: string, entityId: string, entityType: 'TRACK' | 'ALBUM' | 'ARTIST' | 'PLAYLIST'): Promise<boolean> {
+    return Promise.resolve(
+      this.favorites.some(
+        (f) => f.userId === userId && f.entityId === entityId && f.entityType === entityType,
+      ),
+    )
+  }
+
+  public removeAllByEntity(entityId: string, entityType: 'TRACK' | 'ALBUM' | 'ARTIST' | 'PLAYLIST'): Promise<void> {
     this.favorites = this.favorites.filter(
       (f) => !(f.entityId === entityId && f.entityType === entityType),
     )
+    return Promise.resolve()
   }
 }
 
