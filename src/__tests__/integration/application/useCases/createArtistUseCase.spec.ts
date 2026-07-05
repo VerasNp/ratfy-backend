@@ -52,5 +52,9 @@ describe('CreateArtistUseCase', () => {
 		expect(result.bio).toBe(input.bio)
 		expect(result.userId).toBe(dummyUser.id)
 		expect(result.user.name).toBe(dummyUser.name)
+
+		const found = await artistRepository.findById(result.id)
+		expect(found).not.toBeNull()
+		expect(found!.bio).toBe(input.bio)
 	})
 })

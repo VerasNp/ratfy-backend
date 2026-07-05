@@ -1,6 +1,5 @@
 import type { FavoriteRepository } from '#application/ports/FavoriteRepository.js'
 import type { ArtistRepository } from '#application/ports/ArtistRepository.js'
-import type { ArtistListItemOutputDTO } from '#application/DTOs/artist/ArtistListOutputDTO.js'
 
 export class ListFavoriteArtistsUseCase {
   constructor(
@@ -20,4 +19,10 @@ export class ListFavoriteArtistsUseCase {
       bio:    a.bio,
     }))
   }
+}
+
+type ArtistListItemOutputDTO = {
+  id: string
+  userId: string
+  bio: string | null
 }

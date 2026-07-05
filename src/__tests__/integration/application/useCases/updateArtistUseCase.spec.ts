@@ -36,5 +36,9 @@ describe('UpdateArtistUseCase', () => {
 		expect(result.bio).toBe(input.bio)
 		expect(result.userId).toBe(dummyArtist.userId)
 		expect(result.user.name).toBe(dummyUser.name)
+
+		const found = await artistRepository.findById(dummyArtist.id)
+		expect(found).not.toBeNull()
+		expect(found!.bio).toBe(input.bio)
 	})
 })

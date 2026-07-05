@@ -1,4 +1,3 @@
-import type { BecomeArtistInputDTO } from '#application/DTOs/artist/BecomeArtistInputDTO.js'
 import type { ArtistRepository } from '#application/ports/ArtistRepository.js'
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
 import type { RoleRepository } from '#application/ports/RoleRepository.js'
@@ -22,7 +21,7 @@ export class BecomeArtistUseCase {
 		private readonly loggerService: LoggerPort,
 	) {}
 
-	public async execute(userId: string, input: BecomeArtistInputDTO): Promise<BecomeArtistOutputDTO> {
+	public async execute(userId: string, input: Input): Promise<Output> {
 		const user = await this.userRepository.findById(userId)
 		if (!user) {
 			this.loggerService.warn(`User with id ${userId} not found`, {
@@ -75,7 +74,11 @@ export class BecomeArtistUseCase {
 	}
 }
 
-type BecomeArtistOutputDTO = {
+type Input = {
+	bio?: string | null
+}
+
+type Output = {
 	id: string
 	userId: string
 	bio: string | null
