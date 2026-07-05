@@ -4,7 +4,7 @@ import InvalidTokenError from '#application/errors/InvalidTokenError.js'
 
 class AuthMiddleware {
 	public constructor(
-		private tokenService: TokenPort,
+		private readonly tokenService: TokenPort,
 		private readonly loggerService: LoggerPort,
 	) {}
 

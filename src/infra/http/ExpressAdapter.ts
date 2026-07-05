@@ -55,10 +55,24 @@ class ExpressAdapter implements HttpServerPort {
 						res.cookie(cookie.name, cookie.value, cookie.options)
 					}
 				}
+
 				if (output === undefined) {
 					return res.status(204).send()
 				}
-				return res.json(output)
+
+				const statusCode = output.statusCode ?? 200
+
+				if (output.message && output.body !== undefined) {
+					return res
+						.status(statusCode)
+						.json({ message: output.message, data: output.body })
+				}
+
+				if (output.message) {
+					return res.status(statusCode).json({ message: output.message })
+				}
+
+				return res.status(statusCode).json({ data: output.body })
 			}),
 		)
 	}
@@ -67,8 +81,11 @@ class ExpressAdapter implements HttpServerPort {
 		this.app.use((err: any, req: any, res: any, next: any) => {
 			if (err instanceof ZodError) {
 				return res.status(400).json({
-					error: 'Validation error',
-					details: err.issues.map((issue) => ({ message: issue.message })),
+					message: 'Invalid input',
+					errors: err.issues.map((issue) => ({
+						message: issue.message,
+						path: issue.path,
+					})),
 				})
 			}
 			if (err instanceof DomainError) {

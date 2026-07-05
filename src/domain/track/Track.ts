@@ -1,137 +1,147 @@
+import type Album from '#domain/album/Album.js'
+import type Artist from '#domain/artist/Artist.js'
+import DurationMs from '#domain/track/DurationMs.js'
+import DiscNumber from './DiscNumber.js'
+import TrackNumber from './TrackNumber.js'
 import crypto from 'crypto'
-// manage drm
-export type ExternalIds = {
-  ean?:  string
-  isrc?: string
-  upc?:  string
-}
 
 class Track {
-  public readonly albumId:      string
-  public readonly artistIds:    string[]
-  public readonly createdAt:    Date
-  public readonly discNumber:   number
-  public readonly durationMs:   number
-  public readonly explicit:     boolean
-  public readonly externalIds:  ExternalIds
-  public readonly id:           string
-  public          isDeleted:    boolean
-  public          isLocal:      boolean
-  public          isPublic:     boolean
-  public readonly name:         string
-  public          popularity:   number
-  public readonly trackNumber:  number
-  public readonly updatedAt:    Date
+  public readonly id: string
+  private _title: string
+  private _durationMs: DurationMs
+  private _discNumber: DiscNumber
+  private _trackNumber: TrackNumber
+  private _explicit: boolean
+  private _lyrics: string | null
+  private _isPublic: boolean
+  private _albumId: string
+  private _album: Album | null
+  private _artists: Artist[]
+  private _createdAt: Date
+  private _updatedAt: Date
+  private _deletedAt: Date | null
 
   private constructor(params: {
-    albumId:      string
-    artistIds:    string[]
-    createdAt:    Date
-    discNumber:   number
-    durationMs:   number
-    explicit:     boolean
-    externalIds:  ExternalIds
-    id:           string
-    isDeleted:    boolean
-    isLocal:      boolean
-    isPublic:     boolean
-    name:         string
-    popularity:   number
-    trackNumber:  number
-    updatedAt:    Date
+    id: string
+    title: string
+    durationMs: DurationMs
+    discNumber: DiscNumber
+    trackNumber: TrackNumber
+    explicit: boolean
+    lyrics: string | null
+    isPublic: boolean
+    albumId: string
+    album: Album | null
+    artists: Artist[]
+    createdAt: Date
+    updatedAt: Date
+    deletedAt: Date | null
   }) {
-    if (!isDurationValid(params.durationMs)) {
-      throw new Error(
-        `durationMs must be a non-negative integer, got "${String(params.durationMs)}"`
-      )
-    }
-    if (!isTrackNumberValid(params.trackNumber)) {
-      throw new Error(
-        `trackNumber must be >= 1, got "${String(params.trackNumber)}"`
-      )
-    }
-    if (!isTrackNumberValid(params.discNumber)) {
-      throw new Error(
-        `discNumber must be >= 1, got "${String(params.discNumber)}"`
-      )
-    }
-    if (params.popularity < 0 || params.popularity > 100) {
-      throw new Error(
-        `popularity must be between 0 and 100, got "${String(params.popularity)}"`
-      )
-    }
-    this.albumId      = params.albumId
-    this.artistIds    = params.artistIds
-    this.createdAt    = params.createdAt
-    this.discNumber   = params.discNumber
-    this.durationMs   = params.durationMs
-    this.explicit     = params.explicit
-    this.externalIds  = params.externalIds
-    this.id           = params.id
-    this.isDeleted    = params.isDeleted
-    this.isLocal      = params.isLocal
-    this.isPublic     = params.isPublic
-    this.name         = params.name
-    this.popularity   = params.popularity
-    this.trackNumber  = params.trackNumber
-    this.updatedAt    = params.updatedAt
+    this.id = params.id
+    this._title = params.title
+    this._durationMs = params.durationMs
+    this._discNumber = params.discNumber
+    this._trackNumber = params.trackNumber
+    this._explicit = params.explicit
+    this._lyrics = params.lyrics
+    this._isPublic = params.isPublic
+    this._albumId = params.albumId
+    this._album = params.album
+    this._artists = params.artists
+    this._createdAt = params.createdAt
+    this._updatedAt = params.updatedAt
+    this._deletedAt = params.deletedAt
   }
+
   public static create(params: {
-    albumId:      string
-    artistIds:    string[]
-    discNumber?:  number
-    durationMs:   number
-    explicit:     boolean
-    externalIds?: ExternalIds
-    isLocal?:     boolean
-    isPublic?:    boolean
-    name:         string
-    popularity?:  number
-    trackNumber:  number
+    title: string
+    durationMs: number
+    discNumber: number
+    trackNumber: number
+    explicit: boolean
+    lyrics?: string | null
+    isPublic: boolean
+    album: Album          // obrigatório na criação
+    artists?: Artist[]
   }): Track {
-    const now = new Date()
     return new Track({
-      albumId:      params.albumId,
-      artistIds:    params.artistIds,
-      createdAt:    now,
-      discNumber:   params.discNumber   ?? 1,
-      durationMs:   params.durationMs,
-      explicit:     params.explicit,
-      externalIds:  params.externalIds  ?? {},
-      id:           crypto.randomUUID(),
-      isDeleted:    false,
-      isLocal:      params.isLocal      ?? false,
-      isPublic:     params.isPublic     ?? true,
-      name:         params.name,
-      popularity:   params.popularity   ?? 0,
-      trackNumber:  params.trackNumber,
-      updatedAt:    now,
+      id: crypto.randomUUID(),
+      title: params.title,
+      durationMs: new DurationMs(params.durationMs),
+      discNumber: new DiscNumber(params.discNumber),
+      trackNumber: new TrackNumber(params.trackNumber),
+      explicit: params.explicit,
+      lyrics: params.lyrics ?? null,
+      isPublic: params.isPublic,
+      albumId: params.album.id,
+      album: params.album,
+      artists: params.artists ?? [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
     })
   }
+
   public static restore(params: {
-    albumId:     string
-    artistIds:   string[]
-    createdAt:   Date
-    discNumber:  number
-    durationMs:  number
-    explicit:    boolean
-    externalIds: ExternalIds
-    id:          string
-    isDeleted:   boolean
-    isLocal:     boolean
-    isPublic:    boolean
-    name:        string
-    popularity:  number
+    id: string
+    title: string
+    durationMs: number
+    discNumber: number
     trackNumber: number
-    updatedAt:   Date
+    explicit: boolean
+    lyrics: string | null
+    isPublic: boolean
+    albumId: string       // sempre presente — vem do banco
+    album?: Album | null  // opcional — depende do include
+    artists?: Artist[]    // opcional — depende do include
+    createdAt: Date
+    updatedAt: Date
+    deletedAt: Date | null
   }): Track {
-    return new Track(params)
+    return new Track({
+      id: params.id,
+      title: params.title,
+      durationMs: new DurationMs(params.durationMs),
+      discNumber: new DiscNumber(params.discNumber),
+      trackNumber: new TrackNumber(params.trackNumber),
+      explicit: params.explicit,
+      lyrics: params.lyrics,
+      isPublic: params.isPublic,
+      albumId: params.albumId,
+      album: params.album ?? null,
+      artists: params.artists ?? [],
+      createdAt: params.createdAt,
+      updatedAt: params.updatedAt,
+      deletedAt: params.deletedAt,
+    })
   }
+
+  public updateData(data: {
+    title?: string
+    explicit?: boolean
+    lyrics?: string | null
+    isPublic?: boolean
+  }): void {
+    if (data.title !== undefined) this._title = data.title
+    if (data.explicit !== undefined) this._explicit = data.explicit
+    if (data.lyrics !== undefined) this._lyrics = data.lyrics
+    if (data.isPublic !== undefined) this._isPublic = data.isPublic
+    this._updatedAt = new Date()
+  }
+
+  public get title() { return this._title }
+  public get durationMs() { return this._durationMs }
+  public get discNumber() { return this._discNumber }
+  public get trackNumber() { return this._trackNumber }
+  public get explicit() { return this._explicit }
+  public get lyrics() { return this._lyrics }
+  public get isPublic() { return this._isPublic }
+  public get albumId() { return this._albumId }
+  public get album() { return this._album }
+  public get artists() { return this._artists }
+  public get createdAt() { return this._createdAt }
+  public get updatedAt() { return this._updatedAt }
+  public get deletedAt() { return this._deletedAt }
 }
-function isDurationValid(durationMs: number): boolean {
-  return Number.isInteger(durationMs) && durationMs >= 0
-}
-function isTrackNumberValid(n: number): boolean {
-  return Number.isInteger(n) && n >= 1
-}
+
 export default Track

@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { AlbumGetSchema } from '#application/DTOs/album/AlbumGetInputDTO.js'
 import { TrackCreateSchema } from '#application/DTOs/track/TrackCreateInputDTO.js'
 import { TrackDeleteSchema } from '#application/DTOs/track/TrackDeleteInputDTO.js'
-import { TrackGetSchema } from '#application/DTOs/track/TrackGetInputDTO.js'
+import { TrackGetSchema } from '#infra/http/schemas/TracksSchemas.js'
 import { TrackListSchema } from '#application/DTOs/track/TrackListInputDTO.js'
 import { TrackUpdateSchema } from '#application/DTOs/track/TrackUpdateInputDTO.js'
 

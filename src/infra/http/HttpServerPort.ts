@@ -28,5 +28,6 @@ export interface CookieOptions {
 export interface HttpResponse {
 	body?: unknown
 	cookies?: { name: string; value: string; options: CookieOptions }[]
-	status?: number
+	statusCode?: number
+	message?: string
 }
