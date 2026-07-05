@@ -82,7 +82,7 @@ class ExpressAdapter implements HttpServerPort {
 			if (err instanceof ZodError) {
 				return res.status(400).json({
 					message: 'Invalid input',
-					errors: err.issues.map((issue) => ({
+					errors: err.issues.map((issue: any) => ({
 						message: issue.message,
 						path: issue.path,
 					})),

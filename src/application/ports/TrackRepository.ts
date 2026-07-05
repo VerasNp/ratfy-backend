@@ -1,12 +1,13 @@
 import type Track from '#domain/track/Track.js'
+import type { TransactionHandle } from './TransactionHandle'
 
 export interface TrackRepository {
-  create(track: Track): Promise<void>
-  delete(id: string): Promise<void>
+  create(trackData: Track): Promise<Track>
+  delete(trackId: string, tx?: TransactionHandle): Promise<void>
   findByAlbumId(albumId: string): Promise<Track[]>
-  findById(id: string): Promise<Track | null>
-  listByIds(ids: string[]): Promise<Track[]>
+  findById(trackId: string): Promise<Track | null>
+  listByIds(trackIds: string[]): Promise<Track[]>
   list(page: number, limit: number): Promise<Track[]>
-  update(id: string, data: Partial<Track>): Promise<void>
+  update(trackId: string, trackData: Partial<Track>): Promise<Track | null>
   search(input: { page: number; limit: number; query?: string }): Promise<Track[]>
 }
