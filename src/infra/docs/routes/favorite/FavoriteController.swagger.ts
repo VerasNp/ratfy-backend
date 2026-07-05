@@ -1,14 +1,7 @@
 import type { OpenAPIRegistry } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 
-import { AddFavoriteAlbumSchema } from '#application/DTOs/favorite/AddFavoriteAlbumInputDTO.js'
-import { AddFavoriteArtistSchema } from '#application/DTOs/favorite/AddFavoriteArtistInputDTO.js'
-import { AddFavoritePlaylistSchema } from '#application/DTOs/favorite/AddFavoritePlaylistInputDTO.js'
-import { AddFavoriteTrackSchema } from '#application/DTOs/favorite/AddFavoriteTrackInputDTO.js'
-import { RemoveFavoriteAlbumSchema } from '#application/DTOs/favorite/RemoveFavoriteAlbumInputDTO.js'
-import { RemoveFavoriteArtistSchema } from '#application/DTOs/favorite/RemoveFavoriteArtistInputDTO.js'
-import { RemoveFavoritePlaylistSchema } from '#application/DTOs/favorite/RemoveFavoritePlaylistInputDTO.js'
-import { RemoveFavoriteTrackSchema } from '#application/DTOs/favorite/RemoveFavoriteTrackInputDTO.js'
+import { FavoriteAddAlbumSchema, FavoriteAddArtistSchema, FavoriteAddPlaylistSchema, FavoriteAddTrackSchema, FavoriteRemoveAlbumSchema, FavoriteRemoveArtistSchema, FavoriteRemovePlaylistSchema, FavoriteRemoveTrackSchema } from '#infra/http/schemas/FavoritesSchemas.js'
 
 class FavoriteControllerSwagger {
 	public constructor(private readonly registry: OpenAPIRegistry) {
@@ -16,7 +9,7 @@ class FavoriteControllerSwagger {
 			method: 'post',
 			path: '/favorites/tracks/{trackId}',
 			request: {
-				params: AddFavoriteTrackSchema,
+				params: FavoriteAddTrackSchema,
 			},
 			responses: {
 				204: { description: 'Track favorited successfully. No response body.' },
@@ -31,7 +24,7 @@ class FavoriteControllerSwagger {
 			method: 'delete',
 			path: '/favorites/tracks/{trackId}',
 			request: {
-				params: RemoveFavoriteTrackSchema,
+				params: FavoriteRemoveTrackSchema,
 			},
 			responses: {
 				204: { description: 'Track unfavorited successfully. No response body.' },
@@ -77,7 +70,7 @@ class FavoriteControllerSwagger {
 			method: 'post',
 			path: '/favorites/artists/{artistId}',
 			request: {
-				params: AddFavoriteArtistSchema,
+				params: FavoriteAddArtistSchema,
 			},
 			responses: {
 				204: { description: 'Artist favorited successfully. No response body.' },
@@ -92,7 +85,7 @@ class FavoriteControllerSwagger {
 			method: 'delete',
 			path: '/favorites/artists/{artistId}',
 			request: {
-				params: RemoveFavoriteArtistSchema,
+				params: FavoriteRemoveArtistSchema,
 			},
 			responses: {
 				204: { description: 'Artist unfavorited successfully. No response body.' },
@@ -131,7 +124,7 @@ class FavoriteControllerSwagger {
 			method: 'post',
 			path: '/favorites/playlists/{playlistId}',
 			request: {
-				params: AddFavoritePlaylistSchema,
+				params: FavoriteAddPlaylistSchema,
 			},
 			responses: {
 				204: { description: 'Playlist favorited successfully. No response body.' },
@@ -146,7 +139,7 @@ class FavoriteControllerSwagger {
 			method: 'delete',
 			path: '/favorites/playlists/{playlistId}',
 			request: {
-				params: RemoveFavoritePlaylistSchema,
+				params: FavoriteRemovePlaylistSchema,
 			},
 			responses: {
 				204: { description: 'Playlist unfavorited successfully. No response body.' },
@@ -186,7 +179,7 @@ class FavoriteControllerSwagger {
 			method: 'post',
 			path: '/favorites/albums/{albumId}',
 			request: {
-				params: AddFavoriteAlbumSchema,
+				params: FavoriteAddAlbumSchema,
 			},
 			responses: {
 				204: { description: 'Album favorited successfully. No response body.' },
@@ -201,7 +194,7 @@ class FavoriteControllerSwagger {
 			method: 'delete',
 			path: '/favorites/albums/{albumId}',
 			request: {
-				params: RemoveFavoriteAlbumSchema,
+				params: FavoriteRemoveAlbumSchema,
 			},
 			responses: {
 				204: { description: 'Album unfavorited successfully. No response body.' },
