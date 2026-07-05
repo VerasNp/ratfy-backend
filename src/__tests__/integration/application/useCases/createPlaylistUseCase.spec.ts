@@ -28,7 +28,7 @@ describe('CreatePlaylistUseCase', () => {
 		expect(result.ownerId).toBe(dummyUser.id)
 	})
 
-	it('should create a private playlist by default', async () => {
+	it('should default isPublic to true', async () => {
 		const input = {
 			name: 'Private',
 			ownerId: dummyUser.id,

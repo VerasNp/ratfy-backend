@@ -9,7 +9,7 @@ export class CreatePlaylistUseCase {
     const playlist = Playlist.create({
       name:     dto.name,
       ownerId:  dto.ownerId,
-      isPublic: dto.isPublic,
+      ...(dto.isPublic !== undefined ? { isPublic: dto.isPublic } : {}),
     })
     
     const savedPlaylist = await this.playlistRepo.create(playlist)
@@ -27,7 +27,7 @@ export class CreatePlaylistUseCase {
 
 type Input = {
   name: string
-  isPublic: boolean
+  isPublic?: boolean
   ownerId: string
 }
 

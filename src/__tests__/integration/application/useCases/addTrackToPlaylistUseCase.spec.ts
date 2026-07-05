@@ -22,9 +22,8 @@ describe('AddTrackToPlaylistUseCase', () => {
 
 	it('should add a track to the playlist', async () => {
 		const trackId = crypto.randomUUID()
-		await expect(
-			addTrackUseCase.execute({ playlistId: dummyPlaylist.id, trackId }),
-		).resolves.toBeUndefined()
+		await addTrackUseCase.execute({ playlistId: dummyPlaylist.id, trackId })
+		expect(playlistRepository.tracks.get(dummyPlaylist.id)?.has(trackId)).toBe(true)
 	})
 
 	it('should throw PlaylistNotFoundError if playlist does not exist', async () => {

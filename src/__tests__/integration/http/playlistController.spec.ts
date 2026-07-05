@@ -271,6 +271,13 @@ describe('PlaylistController', () => {
 				.send({ trackId: crypto.randomUUID() })
 			expect(res.status).toBe(404)
 		})
+		it('should return 400 on invalid input', async () => {
+			const res = await request(server.app)
+				.post(`/playlists/${dummyPlaylists[0]!.id}/tracks`)
+				.send({})
+			expect(res.status).toBe(400)
+			expect(res.body.message).toBe('Invalid input')
+		})
 	})
 	describe('DELETE /playlists/:playlistId/tracks/:trackId', () => {
 		let playlistRepository: PlaylistRepositoryMemory
@@ -301,6 +308,12 @@ describe('PlaylistController', () => {
 			const res = await request(server.app)
 				.delete(`/playlists/${NON_EXISTENT_UUID}/tracks/${crypto.randomUUID()}`)
 			expect(res.status).toBe(404)
+		})
+		it('should return 400 on invalid input', async () => {
+			const res = await request(server.app)
+				.delete(`/playlists/${dummyPlaylists[0]!.id}/tracks/not-a-uuid`)
+			expect(res.status).toBe(400)
+			expect(res.body.message).toBe('Invalid input')
 		})
 	})
 })

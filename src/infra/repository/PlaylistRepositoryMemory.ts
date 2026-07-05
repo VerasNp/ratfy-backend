@@ -3,6 +3,7 @@ import type Playlist from '#domain/playlist/Playlist.js'
 
 class PlaylistRepositoryMemory implements PlaylistRepository {
 	public playlists: Playlist[]
+	public tracks = new Map<string, Set<string>>()
 
 	public constructor(initialPlaylists: Playlist[] = []) {
 		this.playlists = initialPlaylists
@@ -49,11 +50,16 @@ class PlaylistRepositoryMemory implements PlaylistRepository {
 		return Promise.resolve()
 	}
 
-	public addTrack(_playlistId: string, _trackId: string): Promise<void> {
+	public addTrack(playlistId: string, trackId: string): Promise<void> {
+		if (!this.tracks.has(playlistId)) {
+			this.tracks.set(playlistId, new Set())
+		}
+		this.tracks.get(playlistId)!.add(trackId)
 		return Promise.resolve()
 	}
 
-	public removeTrack(_playlistId: string, _trackId: string): Promise<void> {
+	public removeTrack(playlistId: string, trackId: string): Promise<void> {
+		this.tracks.get(playlistId)?.delete(trackId)
 		return Promise.resolve()
 	}
 }

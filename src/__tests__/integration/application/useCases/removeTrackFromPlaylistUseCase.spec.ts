@@ -22,9 +22,9 @@ describe('RemoveTrackFromPlaylistUseCase', () => {
 
 	it('should remove a track from the playlist', async () => {
 		const trackId = crypto.randomUUID()
-		await expect(
-			removeTrackUseCase.execute({ playlistId: dummyPlaylist.id, trackId }),
-		).resolves.toBeUndefined()
+		await playlistRepository.addTrack(dummyPlaylist.id, trackId)
+		await removeTrackUseCase.execute({ playlistId: dummyPlaylist.id, trackId })
+		expect(playlistRepository.tracks.get(dummyPlaylist.id)?.has(trackId)).toBe(false)
 	})
 
 	it('should throw PlaylistNotFoundError if playlist does not exist', async () => {
