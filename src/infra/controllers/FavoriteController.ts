@@ -13,7 +13,7 @@ import type { RemoveFavoriteTrackUseCase } from '#application/useCases/favorite/
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 import type AuthMiddleware from '#infra/http/middlewares/AuthMiddleware.js'
 
-import { AddFavoriteAlbumSchema, AddFavoriteArtistSchema, AddFavoritePlaylistSchema, AddFavoriteTrackSchema, RemoveFavoriteAlbumSchema, RemoveFavoriteArtistSchema, RemoveFavoritePlaylistSchema, RemoveFavoriteTrackSchema } from '#infra/http/schemas/FavoritesSchemas.js'
+import { FavoriteAddAlbumSchema, FavoriteAddArtistSchema, FavoriteAddPlaylistSchema, FavoriteAddTrackSchema, FavoriteRemoveAlbumSchema, FavoriteRemoveArtistSchema, FavoriteRemovePlaylistSchema, FavoriteRemoveTrackSchema } from '#infra/http/schemas/FavoritesSchemas.js'
 
 class FavoriteController {
   public constructor(
@@ -36,7 +36,7 @@ class FavoriteController {
       'post',
       '/favorites/tracks/:trackId',
       async (params: any, _body: any, _query: any, req: any) => {
-        const { trackId } = AddFavoriteTrackSchema.parse(params)
+        const { trackId } = FavoriteAddTrackSchema.parse(params)
         await this.addFavoriteTrackUseCase.execute({ userId: req.user.userId, trackId })
       },
       [this.authMiddleware.handle()],
@@ -46,7 +46,7 @@ class FavoriteController {
       'delete',
       '/favorites/tracks/:trackId',
       async (params: any, _body: any, _query: any, req: any) => {
-        const { trackId } = RemoveFavoriteTrackSchema.parse(params)
+        const { trackId } = FavoriteRemoveTrackSchema.parse(params)
         await this.removeFavoriteTrackUseCase.execute({ userId: req.user.userId, trackId })
       },
       [this.authMiddleware.handle()],
@@ -66,7 +66,7 @@ class FavoriteController {
       'post',
       '/favorites/artists/:artistId',
       async (params: any, _body: any, _query: any, req: any) => {
-        const { artistId } = AddFavoriteArtistSchema.parse(params)
+        const { artistId } = FavoriteAddArtistSchema.parse(params)
         await this.addFavoriteArtistUseCase.execute({ userId: req.user.userId, artistId })
       },
       [this.authMiddleware.handle()],
@@ -76,7 +76,7 @@ class FavoriteController {
       'delete',
       '/favorites/artists/:artistId',
       async (params: any, _body: any, _query: any, req: any) => {
-        const { artistId } = RemoveFavoriteArtistSchema.parse(params)
+        const { artistId } = FavoriteRemoveArtistSchema.parse(params)
         await this.removeFavoriteArtistUseCase.execute({ userId: req.user.userId, artistId })
       },
       [this.authMiddleware.handle()],
@@ -96,7 +96,7 @@ class FavoriteController {
       'post',
       '/favorites/playlists/:playlistId',
       async (params: any, _body: any, _query: any, req: any) => {
-        const { playlistId } = AddFavoritePlaylistSchema.parse(params)
+        const { playlistId } = FavoriteAddPlaylistSchema.parse(params)
         await this.addFavoritePlaylistUseCase.execute({ userId: req.user.userId, playlistId })
       },
       [this.authMiddleware.handle()],
@@ -106,7 +106,7 @@ class FavoriteController {
       'delete',
       '/favorites/playlists/:playlistId',
       async (params: any, _body: any, _query: any, req: any) => {
-        const { playlistId } = RemoveFavoritePlaylistSchema.parse(params)
+        const { playlistId } = FavoriteRemovePlaylistSchema.parse(params)
         await this.removeFavoritePlaylistUseCase.execute({ userId: req.user.userId, playlistId })
       },
       [this.authMiddleware.handle()],
@@ -126,7 +126,7 @@ class FavoriteController {
       'post',
       '/favorites/albums/:albumId',
       async (params: any, _body: any, _query: any, req: any) => {
-        const { albumId } = AddFavoriteAlbumSchema.parse(params)
+        const { albumId } = FavoriteAddAlbumSchema.parse(params)
         await this.addFavoriteAlbumUseCase.execute({ userId: req.user.userId, albumId })
       },
       [this.authMiddleware.handle()],
@@ -136,7 +136,7 @@ class FavoriteController {
       'delete',
       '/favorites/albums/:albumId',
       async (params: any, _body: any, _query: any, req: any) => {
-        const { albumId } = RemoveFavoriteAlbumSchema.parse(params)
+        const { albumId } = FavoriteRemoveAlbumSchema.parse(params)
         await this.removeFavoriteAlbumUseCase.execute({ userId: req.user.userId, albumId })
       },
       [this.authMiddleware.handle()],
