@@ -1,14 +1,7 @@
 import type { OpenAPIRegistry } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 
-import { AddFavoriteAlbumSchema } from '#application/DTOs/favorite/AddFavoriteAlbumInputDTO.js'
-import { AddFavoriteArtistSchema } from '#application/DTOs/favorite/AddFavoriteArtistInputDTO.js'
-import { AddFavoritePlaylistSchema } from '#application/DTOs/favorite/AddFavoritePlaylistInputDTO.js'
-import { AddFavoriteTrackSchema } from '#application/DTOs/favorite/AddFavoriteTrackInputDTO.js'
-import { RemoveFavoriteAlbumSchema } from '#application/DTOs/favorite/RemoveFavoriteAlbumInputDTO.js'
-import { RemoveFavoriteArtistSchema } from '#application/DTOs/favorite/RemoveFavoriteArtistInputDTO.js'
-import { RemoveFavoritePlaylistSchema } from '#application/DTOs/favorite/RemoveFavoritePlaylistInputDTO.js'
-import { RemoveFavoriteTrackSchema } from '#application/DTOs/favorite/RemoveFavoriteTrackInputDTO.js'
+import { AddFavoriteAlbumSchema, AddFavoriteArtistSchema, AddFavoritePlaylistSchema, AddFavoriteTrackSchema, RemoveFavoriteAlbumSchema, RemoveFavoriteArtistSchema, RemoveFavoritePlaylistSchema, RemoveFavoriteTrackSchema } from '#infra/http/schemas/FavoritesSchemas.js'
 
 class FavoriteControllerSwagger {
 	public constructor(private readonly registry: OpenAPIRegistry) {

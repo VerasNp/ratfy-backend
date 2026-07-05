@@ -1,6 +1,16 @@
 import type { FavoriteRepository } from '#application/ports/FavoriteRepository.js'
 import type { TrackRepository } from '#application/ports/TrackRepository.js'
-import type { TrackListItemOutputDTO } from '#application/DTOs/track/TrackListOutputDTO.js'
+
+type TrackListItemOutputDTO = {
+  albumId: string
+  artistIds: string[]
+  discNumber: number
+  durationMs: number
+  explicit: boolean
+  id: string
+  title: string
+  trackNumber: number
+}
 
 export class ListFavoriteTracksUseCase {
   constructor(
@@ -16,14 +26,12 @@ export class ListFavoriteTracksUseCase {
 
     return tracks.map((t) => ({
       albumId:     t.albumId,
-      artistIds:   t.artistIds,
+      artistIds:   t.artists.map((a) => a.id),
       discNumber:  t.discNumber,
       durationMs:  t.durationMs,
       explicit:    t.explicit,
       id:          t.id,
-      isLocal:     t.isLocal,
-      name:        t.name,
-      popularity:  t.popularity,
+      title:       t.title,
       trackNumber: t.trackNumber,
     }))
   }

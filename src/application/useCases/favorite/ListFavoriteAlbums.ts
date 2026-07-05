@@ -1,6 +1,16 @@
 import type { AlbumRepository } from '#application/ports/AlbumRepository.js'
 import type { FavoriteRepository } from '#application/ports/FavoriteRepository.js'
-import type { AlbumListItemOutputDTO } from '#application/DTOs/album/AlbumListOutputDTO.js'
+
+type AlbumListItemOutputDTO = {
+  albumType: string
+  artistIds: string[]
+  id: string
+  label: string
+  name: string
+  releaseDate: string
+  releasePrecision: string
+  totalTracks: number
+}
 
 export class ListFavoriteAlbumsUseCase {
   constructor(
@@ -16,11 +26,11 @@ export class ListFavoriteAlbumsUseCase {
 
     return albums.map((a) => ({
       albumType:        a.albumType,
-      artistIds:        a.artistIds,
+      artistIds:        a.artistCredits.map((ac) => ac.artistId),
       id:               a.id,
       label:            a.label,
       name:             a.name,
-      releaseDate:      a.releaseDate.toString(),
+      releaseDate:      a.releaseDate,
       releasePrecision: a.releasePrecision,
       totalTracks:      a.totalTracks,
     }))
