@@ -8,6 +8,11 @@ class TrackRepositoryMemory implements TrackRepository {
 		this.tracks = initialTracks
 	}
 
+	public listByIds(ids: string[]): Promise<Track[]> {
+		const foundTracks = this.tracks.filter((track) => ids.includes(track.id))
+		return Promise.resolve(foundTracks)
+	}
+
 	public create(track: Track): Promise<void> {
 		this.tracks.push(track)
 		return Promise.resolve()

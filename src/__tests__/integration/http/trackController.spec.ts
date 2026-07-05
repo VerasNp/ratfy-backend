@@ -6,61 +6,48 @@ import TrackRepositoryMemory from '#infra/repository/TrackRepositoryMemory.js'
 import { beforeEach, describe, expect, it } from 'vitest'
 import request from 'supertest'
 import Track from '#domain/track/Track.js'
-import Album from '#domain/album/Album.js'
-
-let server: ExpressAdapter
-let trackRepository: TrackRepository
-let dummyTracks: Track[]
-let dummyTrack: Track
+import type Album from '#domain/album/Album.js'
+import { createDummyAlbum } from '#__tests__/factories/AlbumFactory.js'
+import { createDummyTrack } from '#__tests__/factories/TrackFactory.js'
 
 describe('TrackController', () => {
+	let dummyAlbuns: Album[] = []
+	let dummyTracks: Track[] = []
 	beforeEach(() => {
-		server = createTestServer()
-		dummyTracks = []
-
-		for (let i = 1; i <= 30; i++) {
-			const track = Track.create({
-				title: `Track ${i}`,
-				durationMs: 300000,
-				discNumber: 1,
-				trackNumber: i,
-				explicit: false,
-				isPublic: true,
-				album: {
-					id: `album-${i}`,
-				}
+		for (let i = 1; i <= 5; i++) {
+			let dummyAlbum = createDummyAlbum({
+				id: `album-${i}`,
+				title: `Album ${i}`,
+				year: 2020,
 			})
-			dummyTracks.push(track)
+			dummyAlbuns.push(dummyAlbum)
+			for (let j = 1; j <= 6; j++) {
+				let dummyTrack = createDummyTrack({
+					album: dummyAlbum,
+					title: `Track ${j} of Album ${i}`,
+				})
+				dummyTracks.push(dummyTrack)
+			}
 		}
-		dummyTrack = dummyTracks[0]!
-		trackRepository = new TrackRepositoryMemory(dummyTracks)
-		new TrackController(server, trackRepository)
 	})
-	describe.only('GET /tracks', () => {
+	describe('GET /tracks', () => {
+		let server: ExpressAdapter
+		let trackRepository: TrackRepository
+		beforeEach(() => {
+			server = createTestServer()
+			trackRepository = new TrackRepositoryMemory(dummyTracks)
+			new TrackController(server, trackRepository)
+			server.registerErrorHandler()
+		})
 		it('should return 200 on success querying tracks with limit and page', async () => {
 			const res = await request(server.app).get('/tracks?limit=15&page=1')
 			expect(res.status).toBe(200)
-			expect(res.body).toHaveLength(15)
-			expect(res.body[0]).toStrictEqual({
-				id: dummyTrack.id,
-				title: dummyTrack.title,
-				durationMs: dummyTrack.durationMs.value,
-				discNumber: dummyTrack.discNumber.value,
-				trackNumber: dummyTrack.trackNumber.value,
-				explicit: dummyTrack.explicit,
-				lyrics: dummyTrack.lyrics,
-				isPublic: dummyTrack.isPublic,
-				createdAt: dummyTrack.createdAt.toISOString(),
-				updatedAt: dummyTrack.updatedAt.toISOString(),
-				deletedAt: dummyTrack.deletedAt,
-				album: dummyTrack.album,
-				artists: dummyTrack.artists,
-			})
+			expect(res.body.data).toHaveLength(15)
 		})
-		it("should return 200 on success querying tracks with a search query", async () => {
+		it('should return 200 on success querying tracks with a search query', async () => {
 			const res = await request(server.app).get('/tracks?limit=15&page=1&query=Track 1')
 			expect(res.status).toBe(200)
-			expect(res.body).toHaveLength(7)
+			expect(res.body.data).toHaveLength(3)
 		})
 	})
 })

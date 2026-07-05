@@ -15,22 +15,25 @@ class TrackController {
 	) {
 		this.httpServer.register('get', '/tracks', async (_params: any, _body: any, query: any) => {
 			const parsedQuery = TrackSearchSchema.parse(query)
-			const tracks = await this.trackRepository.search(parsedQuery)
-			return tracks.map((track) => ({
-				id:          track.id,
-				title:       track.title,
-				durationMs:  track.durationMs.value,
-				discNumber:  track.discNumber.value,
-				trackNumber: track.trackNumber.value,
-				explicit:    track.explicit,
-				lyrics:      track.lyrics,
-				isPublic:    track.isPublic,
-				createdAt:   track.createdAt.toISOString(),
-				updatedAt:   track.updatedAt.toISOString(),
-				deletedAt:   track.deletedAt,
-				album:       track.album,
-				artists:     track.artists,
+			const foundTracks = await this.trackRepository.search(parsedQuery)
+			const tracks = foundTracks.map((track) => ({
+				id: track.id,
+				title: track.title,
+				durationMs: track.durationMs,
+				discNumber: track.discNumber,
+				trackNumber: track.trackNumber,
+				explicit: track.explicit,
+				lyrics: track.lyrics,
+				isPublic: track.isPublic,
+				createdAt: track.createdAt.toISOString(),
+				updatedAt: track.updatedAt.toISOString(),
+				deletedAt: track.deletedAt,
+				album: track.album,
+				artists: track.artists,
 			}))
+			return {
+				body: tracks,
+			}
 		})
 
 		this.httpServer.register(
