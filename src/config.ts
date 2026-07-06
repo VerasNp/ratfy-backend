@@ -42,6 +42,7 @@ const envSchema = z.object({
 	RESEND_VERIFICATION_RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
 	RESET_PASSWORD_RATE_LIMIT_MAX: z.coerce.number().default(5),
 	RESET_PASSWORD_RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
+	CORS_ORIGIN: z.string().min(1),
 })
 
 const env = envSchema.safeParse(process.env)
@@ -62,6 +63,9 @@ export const config = {
 		url: env.data.APP_URL,
 		port: env.data.PORT,
 		nodeEnv: env.data.NODE_ENV,
+	},
+	cors: {
+		origin: env.data.CORS_ORIGIN,
 	},
 	mail: {
 		host: env.data.SMTP_HOST,

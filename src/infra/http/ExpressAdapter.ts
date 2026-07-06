@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import swaggerUi from 'swagger-ui-express'
 
 import type { HttpResponse, HttpServerPort } from './HttpServerPort'
+import { config } from '#config.js'
 import { ZodError } from 'zod'
 import ApplicationError from '#application/errors/ApplicationError.js'
 import toHttpErrors from './errors/toHttpErrors'
@@ -24,7 +25,10 @@ class ExpressAdapter implements HttpServerPort {
 	) {
 		this.app = express()
 		this.app.use(express.json())
-		this.app.use(cors())
+		this.app.use(cors({
+			origin: config.cors.origin,
+			credentials: true,
+		}))
 		this.app.use(cookieParser())
 	}
 
