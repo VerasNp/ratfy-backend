@@ -163,7 +163,7 @@ describe('RBACController', () => {
 			})
 
 			it("should return 404 if the operation doesn't exist", async () => {
-				const res = await request(server.app).get(`/rbac/operations/${NON_EXISTENT_UUID}`)
+				const res = await request(server.app).get('/rbac/operations/non-existent-operation')
 				expect(res.status).toBe(404)
 				expect(res.body).toEqual({
 					message: 'Operation not found',
@@ -191,7 +191,7 @@ describe('RBACController', () => {
 
 			it("should return 404 if the operation doesn't exist", async () => {
 				const res = await request(server.app)
-					.put(`/rbac/operations/${NON_EXISTENT_UUID}`)
+					.put('/rbac/operations/non-existent-operation')
 					.send({
 						name: 'UPDATED_TEST',
 						description: 'Updated description',
@@ -218,7 +218,7 @@ describe('RBACController', () => {
 			})
 			it("should return 404 if the operation doesn't exist", async () => {
 				const res = await request(server.app).delete(
-					`/rbac/operations/${NON_EXISTENT_UUID}`,
+					'/rbac/operations/non-existent-operation',
 				)
 				expect(res.status).toBe(404)
 				expect(res.body).toEqual({
@@ -332,7 +332,7 @@ describe('RBACController', () => {
 			})
 
 			it("should return 404 if the resource doesn't exist", async () => {
-				const res = await request(server.app).get(`/rbac/resources/${NON_EXISTENT_UUID}`)
+				const res = await request(server.app).get('/rbac/resources/non-existent-resource')
 				expect(res.status).toBe(404)
 				expect(res.body).toEqual({
 					message: 'Resource not found',
@@ -360,7 +360,7 @@ describe('RBACController', () => {
 			})
 			it("should return 404 if the resource doesn't exist", async () => {
 				const res = await request(server.app)
-					.put(`/rbac/resources/${NON_EXISTENT_UUID}`)
+					.put('/rbac/resources/non-existent-resource')
 					.send({
 						name: 'UPDATED_TEST',
 					})
@@ -424,7 +424,7 @@ describe('RBACController', () => {
 				permissionRepository,
 				loggerPortMock,
 			)
-			getPermissionsUseCase = new GetPermissionsUseCase(permissionRepository)
+			getPermissionsUseCase = new GetPermissionsUseCase(permissionRepository, loggerPortMock)
 			new RBACController(
 				server,
 				null as any,

@@ -3,7 +3,10 @@ import {
 	createDummyPermission,
 	createDummyResource,
 } from '#__tests__/factories/RbacFactory.js'
+import { loggerPortMock } from '#application/ports/__mocks__/LoggerPort.js'
+import type { OperationRepository } from '#application/ports/OperationRepository.js'
 import type { PermissionRepository } from '#application/ports/PermissionRepository.js'
+import type { ResourceRepository } from '#application/ports/ResourceRepository.js'
 import GetPermissionsUseCase from '#application/useCases/rbac/GetPermissionsUseCase.js'
 import type Operation from '#domain/rbac/operation/Operation.js'
 import type Resource from '#domain/rbac/resource/Resource.js'
@@ -14,8 +17,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 let getPermissionsUseCase: GetPermissionsUseCase
 let permissionRepository: PermissionRepository
-let operationRepository: OperationRepositoryMemory
-let resourceRepository: ResourceRepositoryMemory
+let operationRepository: OperationRepository
+let resourceRepository: ResourceRepository
 let dummyOperation: Operation
 let dummyResource: Resource
 
@@ -28,7 +31,7 @@ describe('GetPermissionsUseCase', () => {
 		dummyResource = createDummyResource({ name: 'ALBUM' })
 		operationRepository.create(dummyOperation)
 		resourceRepository.create(dummyResource)
-		getPermissionsUseCase = new GetPermissionsUseCase(permissionRepository)
+		getPermissionsUseCase = new GetPermissionsUseCase(permissionRepository, loggerPortMock)
 	})
 
 	it('should return an empty array when there are no permissions', async () => {
