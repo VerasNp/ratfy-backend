@@ -1,9 +1,9 @@
-import InfraError from './InfraError'
+import InfraError from './InfraError.js'
 
-class NotFoundError extends InfraError {
+class NotFoundInfraError extends InfraError {
 	public constructor(message?: string) {
 		super(message || 'Resource not found')
 	}
 }
 
-export default NotFoundError
+export default NotFoundInfraError

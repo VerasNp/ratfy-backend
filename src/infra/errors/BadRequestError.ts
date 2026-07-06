@@ -1,4 +1,4 @@
-import InfraError from './InfraError'
+import InfraError from './InfraError.js'
 
 class BadRequestError extends InfraError {
 	public constructor(message: string) {

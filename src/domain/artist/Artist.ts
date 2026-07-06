@@ -7,17 +7,23 @@ class Artist {
 	private _bio: string | null
 	private _userId: string
 	private _user: User | null
+	private _profileImageKey: string | null
+	private _profileImageSize: number | null
 
 	private constructor(params: {
 		id: string
 		bio: string | null
 		userId: string
 		user: User | null
+		profileImageKey: string | null
+		profileImageSize: number | null
 	}) {
 		this.id = params.id
 		this._bio = params.bio
 		this._userId = params.userId
 		this._user = params.user
+		this._profileImageKey = params.profileImageKey
+		this._profileImageSize = params.profileImageSize
 	}
 
 	public static create(params: {
@@ -31,6 +37,8 @@ class Artist {
 			bio: params.bio,
 			userId: params.user.id,
 			user: params.user,
+			profileImageKey: null,
+			profileImageSize: null,
 		})
 	}
 
@@ -39,6 +47,8 @@ class Artist {
 		bio: string | null
 		userId: string
 		user?: User | null
+		profileImageKey: string | null
+		profileImageSize: number | null
 	}): Artist {
 		return new Artist({
 			...params,
@@ -47,9 +57,18 @@ class Artist {
 		})
 	}
 
-	public updateData(data: { bio?: string | null }): void {
+	public updateData(data: { bio?: string | null
+		profileImageKey?: string | null | undefined
+		profileImageSize?: number | null | undefined
+	}): void {
 		if (data.bio !== undefined) {
 			this._bio = data.bio
+		}
+		if (data.profileImageKey !== undefined) {
+			this._profileImageKey = data.profileImageKey
+		}
+		if (data.profileImageSize !== undefined) {
+			this._profileImageSize = data.profileImageSize
 		}
 	}
 
@@ -61,6 +80,12 @@ class Artist {
 	}
 	public get user() {
 		return this._user
+	}
+	public get profileImageKey() {
+		return this._profileImageKey
+	}
+	public get profileImageSize() {
+		return this._profileImageSize
 	}
 }
 

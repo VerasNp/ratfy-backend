@@ -39,7 +39,11 @@ class TrackRepositoryMemory implements TrackRepository {
 		return Promise.resolve(this.tracks.slice(startIndex, endIndex))
 	}
 
-	public update(id: string, data: any): Promise<Track | null> {
+	public update(
+		id: string,
+		data: any,
+		_expectedAudioFileKey?: string | null,
+	): Promise<Track | null> {
 		const index = this.tracks.findIndex((track) => track.id === id)
 		if (index === -1) {
 			return Promise.resolve(null)

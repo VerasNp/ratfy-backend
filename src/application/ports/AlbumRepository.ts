@@ -7,5 +7,9 @@ export interface AlbumRepository {
 	findById(albumId: string): Promise<Album | null>
 	list(page: number, limit: number): Promise<Album[]>
 	listByIds(albumIds: string[]): Promise<Album[]>
-	update(albumId: string, data: Partial<Album>): Promise<Album | null>
+	update(
+		id: string,
+		data: Partial<Album>,
+		expectedCoverImageKey?: string | null,
+	): Promise<Album | null>
 }

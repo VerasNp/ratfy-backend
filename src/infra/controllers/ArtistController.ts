@@ -9,7 +9,7 @@ import {
 	ArtistUpdateSchema,
 	BecomeArtistSchema,
 } from '#infra/http/schemas/ArtistsSchemas.js'
-import NotFoundError from '#infra/errors/NotFoundError.js'
+import NotFoundInfraError from '#infra/errors/NotFoundError.js'
 import type CreateArtistUseCase from '#application/useCases/artist/CreateArtistUseCase.js'
 import type UpdateArtistUseCase from '#application/useCases/artist/UpdateArtistUseCase.js'
 import type DeleteArtistUseCase from '#application/useCases/artist/DeleteArtistUseCase.js'
@@ -53,7 +53,7 @@ class ArtistController {
 				const { artistId } = params
 				const artist = await this.artistRepository.findById(artistId)
 				if (!artist) {
-					throw new NotFoundError('Artist not found')
+					throw new NotFoundInfraError('Artist not found')
 				}
 				return {
 					body: {

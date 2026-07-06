@@ -4,6 +4,10 @@ export interface HttpServerPort {
 	 */
 	listen(): void
 	/**
+	 * Gracefully closes the HTTP server, stopping new connections.
+	 */
+	close(): Promise<void>
+	/**
 	 * Registers a route with the given HTTP method, URL, and callback function.
 	 * @param method Method of the HTTP request (e.g., 'get', 'post', 'put', 'delete').
 	 * @param url URL pattern for the route

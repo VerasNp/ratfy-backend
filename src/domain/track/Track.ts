@@ -20,6 +20,10 @@ class Track {
 	private _createdAt: Date
 	private _updatedAt: Date
 	private _deletedAt: Date | null
+	private _audioFileKey: string | null
+	private _audioFileSize: number | null
+	private _audioContentType: string | null
+	private _drmEnabled: boolean
 
 	private constructor(params: {
 		id: string
@@ -36,6 +40,10 @@ class Track {
 		createdAt: Date
 		updatedAt: Date
 		deletedAt: Date | null
+		audioFileKey: string | null
+		audioFileSize: number | null
+		audioContentType: string | null
+		drmEnabled: boolean
 	}) {
 		this.id = params.id
 		this._title = params.title
@@ -51,6 +59,10 @@ class Track {
 		this._createdAt = params.createdAt
 		this._updatedAt = params.updatedAt
 		this._deletedAt = params.deletedAt
+		this._audioFileKey = params.audioFileKey
+		this._audioFileSize = params.audioFileSize
+		this._audioContentType = params.audioContentType
+		this._drmEnabled = params.drmEnabled
 	}
 
 	public static create(params: {
@@ -79,6 +91,10 @@ class Track {
 			createdAt: new Date(),
 			updatedAt: new Date(),
 			deletedAt: null,
+			audioFileKey: null,
+			audioFileSize: null,
+			audioContentType: null,
+			drmEnabled: false,
 		})
 	}
 
@@ -97,6 +113,10 @@ class Track {
 		createdAt: Date
 		updatedAt: Date
 		deletedAt: Date | null
+		audioFileKey: string | null
+		audioFileSize: number | null
+		audioContentType: string | null
+		drmEnabled: boolean
 	}): Track {
 		return new Track({
 			id: params.id,
@@ -113,6 +133,10 @@ class Track {
 			createdAt: params.createdAt,
 			updatedAt: params.updatedAt,
 			deletedAt: params.deletedAt,
+			audioFileKey: params.audioFileKey,
+			audioFileSize: params.audioFileSize,
+			audioContentType: params.audioContentType,
+			drmEnabled: params.drmEnabled,
 		})
 	}
 
@@ -126,6 +150,10 @@ class Track {
 		isPublic?: boolean
 		album?: Album
 		artists?: Artist[]
+		audioFileKey: string | null
+		audioFileSize: number | null
+		audioContentType: string | null
+		drmEnabled: boolean
 	}): void {
 		if (data.title !== undefined) this._title = data.title
 		if (data.durationMs !== undefined) this._durationMs = new DurationMs(data.durationMs)
@@ -136,6 +164,10 @@ class Track {
 		if (data.isPublic !== undefined) this._isPublic = data.isPublic
 		if (data.album !== undefined) this._album = data.album
 		if (data.artists !== undefined) this._artists = data.artists
+		if (data.audioFileKey !== undefined) this._audioFileKey = data.audioFileKey
+		if (data.audioFileSize !== undefined) this._audioFileSize = data.audioFileSize
+		if (data.audioContentType !== undefined) this._audioContentType = data.audioContentType
+		if (data.drmEnabled !== undefined) this._drmEnabled = data.drmEnabled
 		this._updatedAt = new Date()
 	}
 
@@ -177,6 +209,18 @@ class Track {
 	}
 	public get deletedAt() {
 		return this._deletedAt
+	}
+	public get audioFileKey(): string | null {
+		return this._audioFileKey
+	}
+	public get audioFileSize(): number | null {
+		return this._audioFileSize
+	}
+	public get audioContentType(): string | null {
+		return this._audioContentType
+	}
+	public get drmEnabled(): boolean {
+		return this._drmEnabled
 	}
 }
 

@@ -54,7 +54,11 @@ class ArtistRepositoryMemory implements ArtistRepository {
 		return Promise.resolve(this.artists.slice(start, end))
 	}
 
-	public update(artistId: string, data: Partial<Artist>): Promise<Artist | null> {
+	public update(
+		artistId: string,
+		data: Partial<Artist>,
+		_expectedProfileImageKey?: string | null,
+	): Promise<Artist | null> {
 		const artistIndex = this.artists.findIndex((a) => a.id === artistId)
 		if (artistIndex === -1) {
 			return Promise.resolve(null)

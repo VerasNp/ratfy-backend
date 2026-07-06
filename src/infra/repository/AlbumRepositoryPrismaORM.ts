@@ -122,6 +122,8 @@ class AlbumRepositoryPrismaORM implements AlbumRepository {
 			totalTracks: row.totalTracks,
 			updatedAt: row.updatedAt,
 			deletedAt: row.deletedAt,
+			coverImageKey: row.coverImageKey,
+			coverImageSize: row.coverImageSize
 		})
 	}
 }

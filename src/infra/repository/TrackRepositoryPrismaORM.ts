@@ -1,3 +1,4 @@
+import ConcurrentUpdateError from '#application/errors/ConcurrentUpdateError.js'
 import type { TrackRepository } from '#application/ports/TrackRepository.js'
 import Track from '#domain/track/Track.js'
 import { Prisma, type PrismaClient } from '#prisma/client'
@@ -35,6 +36,10 @@ class TrackRepositoryPrismaORM implements TrackRepository {
 				createdAt: new Date(),
 				updatedAt: new Date(),
 				deletedAt: null,
+				audioFileKey: trackData.audioFileKey,
+				audioFileSize: trackData.audioFileSize,
+				audioContentType: trackData.audioContentType,
+				drmEnabled: trackData.drmEnabled,
 				album: {
 					connect: { id: trackData.albumId },
 				},
@@ -89,28 +94,73 @@ class TrackRepositoryPrismaORM implements TrackRepository {
 		return rows.map((row) => this._toDomain(row))
 	}
 
-	public async update(id: string, data: Partial<Track>): Promise<Track | null> {
+	public async update(
+		id: string,
+		data: Partial<Track>,
+		expectedAudioFileKey?: string | null,
+	): Promise<Track | null> {
+		const where: any = { id }
+		let row: any
 		try {
-			const row = await this.orm.track.update({
-				data: {
-					...(data.title != null && { title: data.title }),
-					...(data.durationMs != null && { durationMs: data.durationMs }),
-					...(data.discNumber != null && { discNumber: data.discNumber }),
-					...(data.trackNumber != null && { trackNumber: data.trackNumber }),
-					...(data.explicit != null && { explicit: data.explicit }),
-					...(data.lyrics != null && { lyrics: data.lyrics }),
-					...(data.isPublic != null && { isPublic: data.isPublic }),
-					...(data.albumId != null && { albumId: data.albumId }),
-					...(data.artists != null && {
-						artists: {
-							set: data.artists.map((artist) => ({ id: artist.id })),
-						},
-					}),
-					updatedAt: new Date(),
-				},
-				where: { id },
-				include: { album: true, artists: true },
-			})
+			if (expectedAudioFileKey !== undefined) {
+				where.audioFileKey = expectedAudioFileKey
+				row = await this.orm.track.update({
+					data: {
+						...(data.title != null && { title: data.title }),
+						...(data.durationMs != null && { durationMs: data.durationMs }),
+						...(data.discNumber != null && { discNumber: data.discNumber }),
+						...(data.trackNumber != null && { trackNumber: data.trackNumber }),
+						...(data.explicit != null && { explicit: data.explicit }),
+						...(data.lyrics != null && { lyrics: data.lyrics }),
+						...(data.isPublic != null && { isPublic: data.isPublic }),
+						...(data.albumId != null && { albumId: data.albumId }),
+						...(data.audioFileKey != null && { audioFileKey: data.audioFileKey }),
+						...(data.audioFileSize != null && { audioFileSize: data.audioFileSize }),
+						...(data.audioContentType != null && {
+							audioContentType: data.audioContentType,
+						}),
+						...(data.drmEnabled != null && { drmEnabled: data.drmEnabled }),
+						...(data.artists != null && {
+							artists: {
+								set: data.artists.map((artist) => ({ id: artist.id })),
+							},
+						}),
+						updatedAt: new Date(),
+					},
+					where,
+					include: { album: true, artists: true },
+				})
+				if (row.count === 0) {
+					throw new ConcurrentUpdateError('Track')
+				}
+			} else {
+				row = await this.orm.track.update({
+					data: {
+						...(data.title != null && { title: data.title }),
+						...(data.durationMs != null && { durationMs: data.durationMs }),
+						...(data.discNumber != null && { discNumber: data.discNumber }),
+						...(data.trackNumber != null && { trackNumber: data.trackNumber }),
+						...(data.explicit != null && { explicit: data.explicit }),
+						...(data.lyrics != null && { lyrics: data.lyrics }),
+						...(data.isPublic != null && { isPublic: data.isPublic }),
+						...(data.albumId != null && { albumId: data.albumId }),
+						...(data.audioFileKey != null && { audioFileKey: data.audioFileKey }),
+						...(data.audioFileSize != null && { audioFileSize: data.audioFileSize }),
+						...(data.audioContentType != null && {
+							audioContentType: data.audioContentType,
+						}),
+						...(data.drmEnabled != null && { drmEnabled: data.drmEnabled }),
+						...(data.artists != null && {
+							artists: {
+								set: data.artists.map((artist) => ({ id: artist.id })),
+							},
+						}),
+						updatedAt: new Date(),
+					},
+					where,
+					include: { album: true, artists: true },
+				})
+			}
 			return this._toDomain(row)
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
@@ -135,6 +185,10 @@ class TrackRepositoryPrismaORM implements TrackRepository {
 			lyrics: row.lyrics,
 			album: row.album,
 			artists: row.artists ?? [],
+			audioFileKey: row.audioFileKey,
+			audioFileSize: row.audioFileSize,
+			audioContentType: row.audioContentType,
+			drmEnabled: row.drmEnabled,
 		})
 	}
 }

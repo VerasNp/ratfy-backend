@@ -38,7 +38,11 @@ class AlbumRepositoryMemory implements AlbumRepository {
 		return Promise.resolve(paginatedAlbuns)
 	}
 
-	public update(albumId: string, data: Partial<Album>): Promise<Album | null> {
+	public update(
+		albumId: string,
+		data: Partial<Album>,
+		_expectedCoverImageKey?: string | null,
+	): Promise<Album | null> {
 		const foundAlbum = this.albuns.find((album) => album.id === albumId)
 		if (!foundAlbum) {
 			return Promise.resolve(null)

@@ -6,7 +6,7 @@ import type { UpdatePlaylistUseCase } from '#application/useCases/playlist/Updat
 import type { DeletePlaylistUseCase } from '#application/useCases/playlist/DeletePlaylist.js'
 import type { AddTrackToPlaylistUseCase } from '#application/useCases/playlist/AddTrackToPlaylist.js'
 import type { RemoveTrackFromPlaylistUseCase } from '#application/useCases/playlist/RemoveTrackFromPlaylist.js'
-import NotFoundError from '#infra/errors/NotFoundError.js'
+import NotFoundInfraError from '#infra/errors/NotFoundError.js'
 import {
 	PlaylistListSchema,
 	PlaylistCreateSchema,
@@ -61,7 +61,7 @@ class PlaylistController {
 				const { id } = PlaylistGetSchema.parse(params)
 				const playlist = await this.playlistRepository.findById(id)
 				if (!playlist) {
-					throw new NotFoundError('Playlist not found')
+					throw new NotFoundInfraError('Playlist not found')
 				}
 				return {
 					body: {

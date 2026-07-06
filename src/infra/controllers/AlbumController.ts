@@ -2,7 +2,7 @@ import type { AlbumRepository } from '#application/ports/AlbumRepository.js'
 import type CreateAlbumUseCase from '#application/useCases/album/CreateAlbumUseCase.js'
 import type DeleteAlbumUseCase from '#application/useCases/album/DeleteAlbumUseCase.js'
 import type UpdateAlbumUseCase from '#application/useCases/album/UpdateAlbumUseCase.js'
-import NotFoundError from '#infra/errors/NotFoundError.js'
+import NotFoundInfraError from '#infra/errors/NotFoundError.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 
 import type AuthMiddleware from '#infra/http/middlewares/AuthMiddleware.js'
@@ -54,7 +54,7 @@ class AlbumController {
 				const { albumId } = params
 				const foundAlbum = await this.albumRepository.findById(albumId)
 				if (!foundAlbum) {
-					throw new NotFoundError(`Album not found`)
+					throw new NotFoundInfraError(`Album not found`)
 				}
 				return {
 					body: {

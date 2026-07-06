@@ -46,7 +46,7 @@ describe('AlbumRepositoryPrismaORM', () => {
 				totalTracks: 1,
 				label: 'Original Label',
 				isPublic: false,
-				artistIds: dummyArtists.slice(0, 2).map((artist) => artist.id),
+				artistIds: [dummyArtists[0]!.id, dummyArtists[1]!.id],
 			})
 			dummyAlbum.updateData({
 				name: 'Updated Album Name',
@@ -56,7 +56,7 @@ describe('AlbumRepositoryPrismaORM', () => {
 				totalTracks: 4,
 				label: 'Updated Label',
 				isPublic: true,
-				artists: dummyArtists.slice(3, 5),
+				artists: [dummyArtists[3]!, dummyArtists[4]!]
 			})
 			const updatedAlbum = await albumRepository.update(dummyAlbum.id, dummyAlbum)
 			expect(updatedAlbum!.name).toBe('Updated Album Name')
@@ -113,7 +113,7 @@ describe('AlbumRepositoryPrismaORM', () => {
 				totalTracks: 10,
 				label: 'Test Label',
 				isPublic: true,
-				artists: dummyArtists.slice(0, 2),
+				artists: [dummyArtists[0]!, dummyArtists[1]!],
 			}
 			const albumToCreate = Album.create(input)
 			const createdAlbum = await albumRepository.create(albumToCreate)

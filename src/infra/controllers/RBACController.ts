@@ -10,7 +10,7 @@ import type DeleteResourceUseCase from '#application/useCases/rbac/DeleteResourc
 import type UpdateOperationUseCase from '#application/useCases/rbac/UpdateOperationUseCase.js'
 import type UpdateResourceUseCase from '#application/useCases/rbac/UpdateResourceUseCase.js'
 import type UpdateRoleUseCase from '#application/useCases/rbac/UpdateRoleUseCase.js'
-import NotFoundError from '#infra/errors/NotFoundError.js'
+import NotFoundInfraError from '#infra/errors/NotFoundError.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 import {
 	CreateOperationSchema,
@@ -88,7 +88,7 @@ class RBACController {
 				const foundOperation =
 					await this.operationRepository.findOperationByName(operationName)
 				if (!foundOperation) {
-					throw new NotFoundError('Operation not found')
+					throw new NotFoundInfraError('Operation not found')
 				}
 				return {
 					body: {
@@ -168,7 +168,7 @@ class RBACController {
 				const { resourceName } = params
 				const foundResource = await this.resourceRepository.findResourceByName(resourceName)
 				if (!foundResource) {
-					throw new NotFoundError('Resource not found')
+					throw new NotFoundInfraError('Resource not found')
 				}
 				return {
 					body: {
@@ -261,7 +261,7 @@ class RBACController {
 				const foundPermission =
 					await this.permissionRepository.findPermissionById(permissionId)
 				if (!foundPermission) {
-					throw new NotFoundError('Permission not found')
+					throw new NotFoundInfraError('Permission not found')
 				}
 				return {
 					body: {
@@ -342,7 +342,7 @@ class RBACController {
 				const { roleId } = params
 				const foundRole = await this.roleRepository.findRoleById(roleId)
 				if (!foundRole) {
-					throw new NotFoundError('Role not found')
+					throw new NotFoundInfraError('Role not found')
 				}
 				return {
 					body: {
@@ -394,7 +394,7 @@ class RBACController {
 				const { roleId } = params
 				const foundRole = await this.roleRepository.findRoleById(roleId)
 				if (!foundRole) {
-					throw new NotFoundError('Role not found')
+					throw new NotFoundInfraError('Role not found')
 				}
 				const permissions = foundRole.permissions.map((permission) => ({
 					id: permission.id,

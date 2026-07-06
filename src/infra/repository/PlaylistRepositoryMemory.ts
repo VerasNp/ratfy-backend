@@ -42,11 +42,18 @@ class PlaylistRepositoryMemory implements PlaylistRepository {
 		return Promise.resolve(this.playlists.slice(start, end))
 	}
 
-	public update(id: string, data: Partial<Playlist>): Promise<void> {
+	public update(
+		id: string,
+		data: Partial<Playlist>,
+		_expectedCoverImageKey?: string | null,
+	): Promise<void> {
 		const playlist = this.playlists.find((p) => p.id === id)
 		if (!playlist) return Promise.resolve()
 		if (data.name !== undefined) playlist.name = data.name
 		if (data.isPublic !== undefined) playlist.isPublic = data.isPublic
+		if (data.coverImageKey !== undefined) playlist.coverImageKey = data.coverImageKey
+		if (data.coverImageSize !== undefined) playlist.coverImageSize = data.coverImageSize
+		playlist.updatedAt = new Date()
 		return Promise.resolve()
 	}
 

@@ -1,3 +1,14 @@
+import DeleteAlbumUseCase from '#application/useCases/album/DeleteAlbumUseCase.js'
+import { BecomeArtistUseCase } from '#application/useCases/artist/BecomeArtistUseCase.js'
+import CreateArtistUseCase from '#application/useCases/artist/CreateArtistUseCase.js'
+import DeleteArtistUseCase from '#application/useCases/artist/DeleteArtistUseCase.js'
+import UpdateArtistUseCase from '#application/useCases/artist/UpdateArtistUseCase.js'
+import ForgotPasswordUseCase from '#application/useCases/auth/ForgotPasswordUseCase.js'
+import LoginUseCase from '#application/useCases/auth/LoginUseCase.js'
+import LogoutUseCase from '#application/useCases/auth/LogoutUseCase.js'
+import RefreshTokenUseCase from '#application/useCases/auth/RefreshTokenUseCase.js'
+import ResendVerificationEmailUseCase from '#application/useCases/auth/ResendVerificationEmailUseCase.js'
+import ResetPasswordUseCase from '#application/useCases/auth/ResetPasswordUseCase.js'
 import { AddFavoriteAlbumUseCase } from '#application/useCases/favorite/AddFavoriteAlbum.js'
 import { AddFavoriteArtistUseCase } from '#application/useCases/favorite/AddFavoriteArtist.js'
 import { AddFavoritePlaylistUseCase } from '#application/useCases/favorite/AddFavoritePlaylist.js'
@@ -10,76 +21,75 @@ import { RemoveFavoriteAlbumUseCase } from '#application/useCases/favorite/Remov
 import { RemoveFavoriteArtistUseCase } from '#application/useCases/favorite/RemoveFavoriteArtist.js'
 import { RemoveFavoritePlaylistUseCase } from '#application/useCases/favorite/RemoveFavoritePlaylist.js'
 import { RemoveFavoriteTrackUseCase } from '#application/useCases/favorite/RemoveFavoriteTrack.js'
-import FavoriteController from '#infra/controllers/FavoriteController.js'
-import AlbumRepositoryPrismaORM from '#infra/repository/AlbumRepositoryPrismaORM.js'
-import FavoriteRepositoryPrisma from '#infra/repository/FavoriteRepositoryPrisma.js'
-import ForgotPasswordUseCase from '#application/useCases/auth/ForgotPasswordUseCase.js'
-import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
-import LoginUseCase from '#application/useCases/auth/LoginUseCase.js'
-import LogoutUseCase from '#application/useCases/auth/LogoutUseCase.js'
-import RefreshTokenUseCase from '#application/useCases/auth/RefreshTokenUseCase.js'
-import ResendVerificationEmailUseCase from '#application/useCases/auth/ResendVerificationEmailUseCase.js'
-import ResetPasswordUseCase from '#application/useCases/auth/ResetPasswordUseCase.js'
-import SignupUseCase from '#application/useCases/user/SignupUseCase.js'
 import VerifyUserMailUseCase from '#application/useCases/mail/VerifyUserMailUseCase.js'
+import { AddTrackToPlaylistUseCase } from '#application/useCases/playlist/AddTrackToPlaylist.js'
+import { CreatePlaylistUseCase } from '#application/useCases/playlist/CreatePlaylist.js'
+import { DeletePlaylistUseCase } from '#application/useCases/playlist/DeletePlaylist.js'
+import { RemoveTrackFromPlaylistUseCase } from '#application/useCases/playlist/RemoveTrackFromPlaylist.js'
+import { UpdatePlaylistUseCase } from '#application/useCases/playlist/UpdatePlaylist.js'
+import AssignRoleToUserUseCase from '#application/useCases/rbac/AssignRoleToUserUseCase.js'
+import CreateOperationUseCase from '#application/useCases/rbac/CreateOperationUseCase.js'
+import CreatePermissionUseCase from '#application/useCases/rbac/CreatePermissionUseCase.js'
+import CreateResourceUseCase from '#application/useCases/rbac/CreateResourceUseCase.js'
+import CreateRoleUseCase from '#application/useCases/rbac/CreateRoleUseCase.js'
+import DeleteOperationUseCase from '#application/useCases/rbac/DeleteOperationUseCase.js'
+import DeletePermissionUseCase from '#application/useCases/rbac/DeletePermissionUseCase.js'
+import DeleteResourceUseCase from '#application/useCases/rbac/DeleteResourceUseCase.js'
+import DeleteRoleUseCase from '#application/useCases/rbac/DeleteRoleUseCase.js'
+import GetPermissionsUseCase from '#application/useCases/rbac/GetPermissionsUseCase.js'
+import GrantPermissionToRoleUseCase from '#application/useCases/rbac/GrantPermissionToRoleUseCase.js'
+import RemoveRoleFromUserUseCase from '#application/useCases/rbac/RemoveRoleFromUserUseCase.js'
+import RevokePermissionFromRoleUseCase from '#application/useCases/rbac/RevokePermissionFromRoleUseCase.js'
+import UpdateOperationUseCase from '#application/useCases/rbac/UpdateOperationUseCase.js'
+import UpdateResourceUseCase from '#application/useCases/rbac/UpdateResourceUseCase.js'
+import UpdateRoleUseCase from '#application/useCases/rbac/UpdateRoleUseCase.js'
+import DeleteTrackUseCase from '#application/useCases/track/DeleteTrackUseCase.js'
+import { UploadAlbumCoverUseCase } from '#application/useCases/upload/UploadAlbumCoverUseCase.js'
+import { UploadArtistProfileImageUseCase } from '#application/useCases/upload/UploadArtistProfileImageUseCase.js'
+import { UploadPlaylistCoverUseCase } from '#application/useCases/upload/UploadPlaylistCoverUseCase.js'
+import { UploadTrackAudioUseCase } from '#application/useCases/upload/UploadTrackAudioUseCase.js'
+import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
+import GetUserUseCase from '#application/useCases/user/GetUserUseCase.js'
+import ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
+import SignupUseCase from '#application/useCases/user/SignupUseCase.js'
+import UpdateUserUseCase from '#application/useCases/user/UpdateUserUseCase.js'
 import { config } from '#config.js'
+import RedisCacheAdapter from '#infra/cache/RedisCacheAdapter.js'
+import ArtistController from '#infra/controllers/ArtistController.js'
 import AuthController from '#infra/controllers/AuthController.js'
+import FavoriteController from '#infra/controllers/FavoriteController.js'
 import PasswordResetController from '#infra/controllers/PasswordResetController.js'
-import RateLimitMiddleware from '#infra/http/middlewares/RateLimitMiddleware.js'
+import PlaybackController from '#infra/controllers/PlaybackController.js'
+import PlaylistController from '#infra/controllers/PlaylistController.js'
+import RBACController from '#infra/controllers/RBACController.js'
+import UploadController from '#infra/controllers/UploadController.js'
 import UserController from '#infra/controllers/UserController.js'
 import VerifyEmailController from '#infra/controllers/VerifyEmailController.js'
 import { prisma } from '#infra/database/prisma.js'
-// import SwaggerDocs from '#infra/docs/SwaggerDocs.js'
 import ExpressAdapter from '#infra/http/ExpressAdapter.js'
 import AuthMiddleware from '#infra/http/middlewares/AuthMiddleware.js'
+import RateLimitMiddleware from '#infra/http/middlewares/RateLimitMiddleware.js'
 import PinoAdapter from '#infra/logger/PinoAdapter.js'
 import NodemailerAdapter from '#infra/mail/NodemailerAdapter.js'
-import RefreshTokenRepositoryPrismaORM from '#infra/repository/RefreshTokenRepositoryPrismaORM.js'
-import UserRepositoryPrismaORM from '#infra/repository/UserRepositoryPrismaORM.js'
-import Argon2Adapter from '#infra/security/Argon2Adapter.js'
-import JwtAdapter from '#infra/security/JwtAdapter.js'
-import HandlebarsRendererAdapter from '#infra/templateRenderer/HandlebarsRendererAdapter.js'
+import AlbumRepositoryPrisma from '#infra/repository/AlbumRepositoryPrisma.js'
+import AlbumRepositoryPrismaORM from '#infra/repository/AlbumRepositoryPrismaORM.js'
 import ArtistRepositoryPrismaORM from '#infra/repository/ArtistRepositoryPrismaORM.js'
-import ArtistController from '#infra/controllers/ArtistController.js'
+import FavoriteRepositoryPrisma from '#infra/repository/FavoriteRepositoryPrisma.js'
 import PlaylistRepositoryPrisma from '#infra/repository/PlaylistRepositoryPrisma.js'
-import TrackRepositoryPrismaORM from '#infra/repository/TrackRepositoryPrismaORM.js'
-import { CreatePlaylistUseCase } from '#application/useCases/playlist/CreatePlaylist.js'
-import { DeletePlaylistUseCase } from '#application/useCases/playlist/DeletePlaylist.js'
-import { UpdatePlaylistUseCase } from '#application/useCases/playlist/UpdatePlaylist.js'
-import { AddTrackToPlaylistUseCase } from '#application/useCases/playlist/AddTrackToPlaylist.js'
-import { RemoveTrackFromPlaylistUseCase } from '#application/useCases/playlist/RemoveTrackFromPlaylist.js'
-import PlaylistController from '#infra/controllers/PlaylistController.js'
-import { asClass, asFunction, asValue, createContainer, InjectionMode } from 'awilix'
-import GetUserUseCase from '#application/useCases/user/GetUserUseCase.js'
-import ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
-import UpdateUserUseCase from '#application/useCases/user/UpdateUserUseCase.js'
-import UnitOfWorkPrismaORM from '#infra/repository/UnitOfWorkPrismaORM.js'
-import PermissionRepositoryPrismaORM from '#infra/repository/rbac/OperationRepositoryPrismaORM.js'
+import OperationRepositoryPrismaORM from '#infra/repository/rbac/OperationRepositoryPrismaORM.js'
+import PermissionRepositoryPrismaORM from '#infra/repository/rbac/PermissionRepositoryPrismaORM.js'
 import ResourceRepositoryPrismaORM from '#infra/repository/rbac/ResourceRepositoryPrismaORM.js'
 import RoleRepositoryPrismaORM from '#infra/repository/rbac/RoleRepositoryPrismaORM.js'
 import UserRoleRepositoryPrismaORM from '#infra/repository/rbac/UserRoleRepositoryPrismaORM.js'
-import RBACController from '#infra/controllers/RBACController.js'
-import CreateRoleUseCase from '#application/useCases/rbac/CreateRoleUseCase.js'
-import UpdateRoleUseCase from '#application/useCases/rbac/UpdateRoleUseCase.js'
-import CreateOperationUseCase from '#application/useCases/rbac/CreateOperationUseCase.js'
-import OperationRepositoryPrismaORM from '#infra/repository/rbac/OperationRepositoryPrismaORM.js'
-import UpdateOperationUseCase from '#application/useCases/rbac/UpdateOperationUseCase.js'
-import DeleteOperationUseCase from '#application/useCases/rbac/DeleteOperationUseCase.js'
-import CreateResourceUseCase from '#application/useCases/rbac/CreateResourceUseCase.js'
-import UpdateResourceUseCase from '#application/useCases/rbac/UpdateResourceUseCase.js'
-import DeleteResourceUseCase from '#application/useCases/rbac/DeleteResourceUseCase.js'
-import CreatePermissionUseCase from '#application/useCases/rbac/CreatePermissionUseCase.js'
-import DeletePermissionUseCase from '#application/useCases/rbac/DeletePermissionUseCase.js'
-import DeleteRoleUseCase from '#application/useCases/rbac/DeleteRoleUseCase.js'
-import GrantPermissionToRoleUseCase from '#application/useCases/rbac/GrantPermissionToRoleUseCase.js'
-import RevokePermissionFromRoleUseCase from '#application/useCases/rbac/RevokePermissionFromRoleUseCase.js'
-import AssignRoleToUserUseCase from '#application/useCases/rbac/AssignRoleToUserUseCase.js'
-import RemoveRoleFromUserUseCase from '#application/useCases/rbac/RemoveRoleFromUserUseCase.js'
-import GetPermissionsUseCase from '#application/useCases/rbac/GetPermissionsUseCase.js'
-import CreateArtistUseCase from '#application/useCases/artist/CreateArtistUseCase.js'
-import DeleteArtistUseCase from '#application/useCases/artist/DeleteArtistUseCase.js'
-import UpdateArtistUseCase from '#application/useCases/artist/UpdateArtistUseCase.js'
-import { BecomeArtistUseCase } from '#application/useCases/artist/BecomeArtistUseCase.js'
+import RefreshTokenRepositoryPrismaORM from '#infra/repository/RefreshTokenRepositoryPrismaORM.js'
+import TrackRepositoryPrismaORM from '#infra/repository/TrackRepositoryPrismaORM.js'
+import UnitOfWorkPrismaORM from '#infra/repository/UnitOfWorkPrismaORM.js'
+import UserRepositoryPrismaORM from '#infra/repository/UserRepositoryPrismaORM.js'
+import Argon2Adapter from '#infra/security/Argon2Adapter.js'
+import JwtAdapter from '#infra/security/JwtAdapter.js'
+import MinioStorageAdapter from '#infra/storage/MinioStorageAdapter.js'
+import HandlebarsRendererAdapter from '#infra/templateRenderer/HandlebarsRendererAdapter.js'
+import { createContainer, InjectionMode, asClass, asValue, asFunction } from 'awilix'
 
 const container = createContainer({ injectionMode: InjectionMode.CLASSIC })
 
@@ -92,6 +102,21 @@ container.register({
 	jwtSecret: asValue(config.jwt.secret),
 	smtpConfig: asValue(config.mail),
 	templatesDir: asValue(config.templates.dir),
+	minioConfig: asValue({
+		accessKey: config.minio.accessKey,
+		endpoint: config.minio.endpoint,
+		port: config.minio.port,
+		secretKey: config.minio.secretKey,
+		useSSL: config.minio.useSSL,
+		publicUrl: config.minio.publicUrl,
+		region: config.minio.region,
+	}),
+	bucketAudio: asValue(config.minio.bucketAudio),
+	bucketDrm: asValue(config.minio.bucketDrm),
+	bucketImages: asValue(config.minio.bucketImages),
+	connectTimeout: asValue(config.redis.connectTimeout),
+	redisUrl: asValue(config.redis.url),
+	maxFileSize: asValue(config.upload.maxFileSize),
 
 	// infra
 	orm: asValue(prisma),
@@ -102,6 +127,8 @@ container.register({
 	loggerService: asClass(PinoAdapter).singleton(),
 	hashService: asClass(Argon2Adapter).singleton(),
 	// docsService: asClass(SwaggerDocs).singleton(),
+	cacheService: asClass(RedisCacheAdapter).singleton(),
+	storageService: asClass(MinioStorageAdapter).singleton(),
 
 	// repositories
 	userRepository: asClass(UserRepositoryPrismaORM).singleton(),
@@ -168,6 +195,12 @@ container.register({
 	addFavoriteAlbumUseCase: asClass(AddFavoriteAlbumUseCase).scoped(),
 	removeFavoriteAlbumUseCase: asClass(RemoveFavoriteAlbumUseCase).scoped(),
 	listFavoriteAlbumsUseCase: asClass(ListFavoriteAlbumsUseCase).scoped(),
+	deleteAlbumUseCase: asClass(DeleteAlbumUseCase).scoped(),
+	deleteTrackUseCase: asClass(DeleteTrackUseCase).scoped(),
+	uploadAlbumCoverUseCase: asClass(UploadAlbumCoverUseCase).scoped(),
+	uploadArtistProfileImageUseCase: asClass(UploadArtistProfileImageUseCase).scoped(),
+	uploadPlaylistCoverUseCase: asClass(UploadPlaylistCoverUseCase).scoped(),
+	uploadTrackAudioUseCase: asClass(UploadTrackAudioUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),
@@ -178,6 +211,8 @@ container.register({
 	favoriteController: asClass(FavoriteController).singleton(),
 	playlistController: asClass(PlaylistController).singleton(),
 	rbacController: asClass(RBACController).singleton(),
+	playbackController: asClass(PlaybackController).singleton(),
+	uploadController: asClass(UploadController).singleton(),
 
 	// middlewares
 	authMiddleware: asClass(AuthMiddleware).singleton(),

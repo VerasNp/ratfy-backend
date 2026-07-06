@@ -17,6 +17,8 @@ class Album {
 	private _updatedAt: Date
 	private _createdAt: Date
 	private _deletedAt: Date | null
+	private _coverImageKey: string | null
+	private _coverImageSize: number | null
 
 	private constructor(params: {
 		id: string
@@ -30,6 +32,8 @@ class Album {
 		updatedAt: Date
 		createdAt: Date
 		deletedAt: Date | null
+		coverImageKey: string | null
+		coverImageSize: number | null
 	}) {
 		this.id = params.id
 		this._name = params.name
@@ -42,6 +46,8 @@ class Album {
 		this._updatedAt = params.updatedAt
 		this._createdAt = params.createdAt
 		this._deletedAt = params.deletedAt
+		this._coverImageKey = params.coverImageKey
+		this._coverImageSize = params.coverImageSize
 	}
 
 	public static create(params: {
@@ -73,6 +79,8 @@ class Album {
 			updatedAt: new Date(),
 			createdAt: new Date(),
 			deletedAt: null,
+			coverImageKey: null,
+			coverImageSize: null,
 		})
 	}
 
@@ -89,6 +97,8 @@ class Album {
 		updatedAt: Date
 		createdAt: Date
 		deletedAt: Date | null
+		coverImageKey: string | null
+		coverImageSize: number | null
 	}): Album {
 		const releaseDate = new ReleaseDate(params.releaseDate, params.releasePrecision)
 		const albumType = new AlbumType(params.albumType)
@@ -105,6 +115,8 @@ class Album {
 			updatedAt: params.updatedAt,
 			createdAt: params.createdAt,
 			deletedAt: params.deletedAt,
+			coverImageKey: params.coverImageKey,
+			coverImageSize: params.coverImageSize,
 		})
 	}
 
@@ -117,6 +129,8 @@ class Album {
 		label?: string
 		isPublic?: boolean
 		artists?: Artist[]
+		coverImageKey?: string | null | undefined
+		coverImageSize?: number | null | undefined
 	}): void {
 		if (data.name !== undefined) this._name = data.name
 		if (data.albumType !== undefined) this._albumType = new AlbumType(data.albumType)
@@ -132,7 +146,10 @@ class Album {
 			this._artistCredits = data.artists.map((artist) => {
 				return ArtistCredit.create(artist.id, artist)
 			})
+			console.log(this._artistCredits)
 		}
+		if (data.coverImageKey !== undefined) this._coverImageKey = data.coverImageKey
+		if (data.coverImageSize !== undefined) this._coverImageSize = data.coverImageSize
 		this._updatedAt = new Date()
 	}
 
@@ -182,6 +199,14 @@ class Album {
 
 	public get deletedAt(): Date | null {
 		return this._deletedAt
+	}
+
+	public get coverImageKey(): string | null {
+		return this._coverImageKey
+	}
+
+	public get coverImageSize(): number | null {
+		return this._coverImageSize
 	}
 }
 

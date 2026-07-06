@@ -1,19 +1,23 @@
 model Track {
-    id          String     @id @default(uuid())
-    title       String
-    durationMs  Int
-    discNumber  Int        @default(1)
-    trackNumber Int
-    explicit    Boolean    @default(false)
-    lyrics      String?
-    albumId     String
-    album       Album      @relation(fields: [albumId], references: [id])
-    artists     Artist[]
-    deletedAt   DateTime?
-    isPublic    Boolean    @default(true)
-    createdAt   DateTime   @default(now())
-    updatedAt   DateTime   @updatedAt
-    playlists   Playlist[]
+    id               String     @id @default(uuid())
+    title            String
+    durationMs       Int
+    discNumber       Int        @default(1)
+    trackNumber      Int
+    explicit         Boolean    @default(false)
+    lyrics           String?
+    albumId          String
+    album            Album      @relation(fields: [albumId], references: [id])
+    artists          Artist[]
+    deletedAt        DateTime?
+    isPublic         Boolean    @default(true)
+    createdAt        DateTime   @default(now())
+    updatedAt        DateTime   @updatedAt
+    playlists        Playlist[]
+    audioFileKey     String?
+    audioFileSize    Int?
+    audioContentType String?
+    drmEnabled       Boolean    @default(false)
 
     @@index([albumId])
 }

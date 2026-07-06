@@ -1,4 +1,5 @@
 import express, { type Application } from 'express'
+import { type Server } from 'http'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import swaggerUi from 'swagger-ui-express'
@@ -15,6 +16,7 @@ import DomainError from '#domain/errors/DomainError.js'
 
 class ExpressAdapter implements HttpServerPort {
 	public app: Application
+	private server: Server | undefined
 	public constructor(
 		private port: number,
 		private readonly loggerService: LoggerPort,
@@ -27,8 +29,18 @@ class ExpressAdapter implements HttpServerPort {
 	}
 
 	public listen(): void {
-		this.app.listen(this.port, () => {
+		this.server = this.app.listen(this.port, () => {
 			console.log(`Server running on port ${this.port}`)
+		})
+	}
+
+	public async close(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			if (!this.server) {
+				resolve()
+				return
+			}
+			this.server.close((err) => (err ? reject(err) : resolve()))
 		})
 	}
 
@@ -102,8 +114,8 @@ class ExpressAdapter implements HttpServerPort {
 			this.loggerService.error('Unhandled error', {
 				origin: 'ExpressAdapter',
 				error: err,
+				cause: err instanceof Error ? err.cause : undefined,
 			})
-			console.error('Unhandled error:', err)
 			return res.status(500).json({
 				message: 'Internal server error',
 			})

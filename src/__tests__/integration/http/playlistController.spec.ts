@@ -15,6 +15,7 @@ import { authMiddlewareMock } from '#infra/http/middlewares/__mocks__/authMiddle
 import PlaylistRepositoryMemory from '#infra/repository/PlaylistRepositoryMemory.js'
 import request from 'supertest'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { storagePortMock } from '#application/ports/__mocks__/StoragePortMock.js'
 
 const NON_EXISTENT_UUID = '00000000-0000-0000-0000-000000000000'
 
@@ -217,7 +218,7 @@ describe('PlaylistController', () => {
 		beforeEach(() => {
 			server = createTestServer()
 			playlistRepository = new PlaylistRepositoryMemory(dummyPlaylists)
-			deletePlaylistUseCase = new DeletePlaylistUseCase(playlistRepository, favoriteRepositoryMock)
+			deletePlaylistUseCase = new DeletePlaylistUseCase(playlistRepository, favoriteRepositoryMock, storagePortMock, 'images')
 			new PlaylistController(
 				server,
 				playlistRepository,
