@@ -75,6 +75,7 @@ import GrantPermissionToRoleUseCase from '#application/useCases/rbac/GrantPermis
 import RevokePermissionFromRoleUseCase from '#application/useCases/rbac/RevokePermissionFromRoleUseCase.js'
 import AssignRoleToUserUseCase from '#application/useCases/rbac/AssignRoleToUserUseCase.js'
 import RemoveRoleFromUserUseCase from '#application/useCases/rbac/RemoveRoleFromUserUseCase.js'
+import GetPermissionsUseCase from '#application/useCases/rbac/GetPermissionsUseCase.js'
 import CreateArtistUseCase from '#application/useCases/artist/CreateArtistUseCase.js'
 import DeleteArtistUseCase from '#application/useCases/artist/DeleteArtistUseCase.js'
 import UpdateArtistUseCase from '#application/useCases/artist/UpdateArtistUseCase.js'
@@ -154,6 +155,7 @@ container.register({
 	revokePermissionFromRoleUseCase: asClass(RevokePermissionFromRoleUseCase).scoped(),
 	assignRoleToUserUseCase: asClass(AssignRoleToUserUseCase).scoped(),
 	removeRoleFromUserUseCase: asClass(RemoveRoleFromUserUseCase).scoped(),
+	getPermissionsUseCase: asClass(GetPermissionsUseCase).scoped(),
 	addFavoriteTrackUseCase: asClass(AddFavoriteTrackUseCase).scoped(),
 	removeFavoriteTrackUseCase: asClass(RemoveFavoriteTrackUseCase).scoped(),
 	listFavoriteTracksUseCase: asClass(ListFavoriteTracksUseCase).scoped(),

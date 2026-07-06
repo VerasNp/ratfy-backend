@@ -25,6 +25,7 @@ import type { RoleRepository } from '#application/ports/RoleRepository.js'
 import { GrantPermissionToRoleSchema } from '#infra/http/schemas/ManagePermissionsToRolesSchemas.js'
 import type GrantPermissionToRoleUseCase from '#application/useCases/rbac/GrantPermissionToRoleUseCase.js'
 import type RevokePermissionFromRoleUseCase from '#application/useCases/rbac/RevokePermissionFromRoleUseCase.js'
+import type GetPermissionsUseCase from '#application/useCases/rbac/GetPermissionsUseCase.js'
 
 class RBACController {
 	public constructor(
@@ -46,6 +47,7 @@ class RBACController {
 		private readonly roleRepository: RoleRepository,
 		private readonly grantPermissionToRoleUseCase: GrantPermissionToRoleUseCase,
 		private readonly revokePermissionFromRoleUseCase: RevokePermissionFromRoleUseCase,
+		private readonly getPermissionsUseCase: GetPermissionsUseCase,
 	) {
 		this.httpServer.register(
 			'post',
@@ -57,9 +59,7 @@ class RBACController {
 					description: operationBody.description ?? null,
 				})
 				return {
-					body: {
-						message: 'Operation created successfully',
-					},
+					message: 'Operation created successfully',
 				}
 			},
 		)
@@ -112,9 +112,7 @@ class RBACController {
 					description: operationBody.description ?? null,
 				})
 				return {
-					body: {
-						message: 'Operation updated successfully',
-					},
+					message: 'Operation updated successfully',
 				}
 			},
 		)
@@ -128,9 +126,7 @@ class RBACController {
 					operationName,
 				})
 				return {
-					body: {
-						message: 'Operation deleted successfully',
-					},
+					message: 'Operation deleted successfully',
 				}
 			},
 		)
@@ -144,10 +140,8 @@ class RBACController {
 					name: resourceBody.name,
 				})
 				return {
-					body: {
-						message: 'Resource created successfully',
-						data: createdResource,
-					},
+					message: 'Resource created successfully',
+					body: createdResource,
 				}
 			},
 		)
@@ -196,10 +190,8 @@ class RBACController {
 					name: resourceBody.name,
 				})
 				return {
-					body: {
-						message: 'Resource updated successfully',
-						data: updatedResource,
-					},
+					message: 'Resource updated successfully',
+					body: updatedResource,
 				}
 			},
 		)
@@ -213,10 +205,8 @@ class RBACController {
 					nameResourceToDelete: resourceName,
 				})
 				return {
-					body: {
-						message: 'Resource deleted successfully',
-						data: deletedResource,
-					},
+					message: 'Resource deleted successfully',
+					body: deletedResource,
 				}
 			},
 		)
@@ -232,7 +222,7 @@ class RBACController {
 				})
 				return {
 					message: 'Permission created successfully',
-					data: createdPermission,
+					body: createdPermission,
 				}
 			},
 		)
@@ -247,7 +237,7 @@ class RBACController {
 				})
 				return {
 					message: 'Permission deleted successfully',
-					data: deletedPermission,
+					body: deletedPermission,
 				}
 			},
 		)
@@ -256,12 +246,7 @@ class RBACController {
 			'get',
 			'/rbac/permissions',
 			async (_params: any, _body: any, _query: any) => {
-				const foundPermissions = await this.permissionRepository.listPermissions()
-				const permissions = foundPermissions.map((foundPermission) => ({
-					id: foundPermission.id,
-					operationId: foundPermission.operation.id,
-					resourceId: foundPermission.resource.id,
-				}))
+				const permissions = await this.getPermissionsUseCase.execute()
 				return {
 					body: permissions,
 				}
@@ -299,7 +284,7 @@ class RBACController {
 				})
 				return {
 					message: 'Role created successfully',
-					data: createdRole,
+					body: createdRole,
 				}
 			},
 		)
@@ -316,7 +301,7 @@ class RBACController {
 				})
 				return {
 					message: 'Role updated successfully',
-					data: updatedRole,
+					body: updatedRole,
 				}
 			},
 		)
@@ -329,7 +314,7 @@ class RBACController {
 				const deletedRole = await this.deleteRoleUseCase.execute(roleId)
 				return {
 					message: 'Role deleted successfully',
-					data: deletedRole,
+					body: deletedRole,
 				}
 			},
 		)
@@ -381,7 +366,7 @@ class RBACController {
 				)
 				return {
 					message: 'Permission granted to role successfully',
-					data: grantedPermission,
+					body: grantedPermission,
 				}
 			},
 		)
@@ -397,7 +382,7 @@ class RBACController {
 				)
 				return {
 					message: 'Permission revoked from role successfully',
-					data: revokedPermission,
+					body: revokedPermission,
 				}
 			},
 		)

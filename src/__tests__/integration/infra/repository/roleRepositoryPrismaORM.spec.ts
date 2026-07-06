@@ -1,6 +1,6 @@
+import { createDummyRole, createDummyRolePrismaORM } from '#__tests__/factories/RbacFactory.js'
 import { afterAll, beforeEach, describe, expect, inject, it } from 'vitest'
 import { PrismaPg } from '@prisma/adapter-pg'
-import Role from '#domain/rbac/role/Role.js'
 import { PrismaClient } from '#prisma/client.js'
 import RoleRepositoryPrismaORM from '#infra/repository/rbac/RoleRepositoryPrismaORM.js'
 
@@ -19,7 +19,7 @@ describe('RoleRepositoryPrismaORM', () => {
 	})
 
 	it('should create a role', async () => {
-		const roleToBeCreated = Role.create('TEST', null)
+		const roleToBeCreated = createDummyRole({ name: 'TEST', description: null })
 		const createdRole = await roleRepository.createRole(roleToBeCreated)
 		const foundRole = await roleRepository.findRoleById(createdRole.id)
 		expect(foundRole!.id).toBe(createdRole.id)
@@ -28,8 +28,8 @@ describe('RoleRepositoryPrismaORM', () => {
 	})
 
 	it('should list all roles', async () => {
-		const role1 = await roleRepository.createRole(Role.create('TEST1', null))
-		const role2 = await roleRepository.createRole(Role.create('TEST2', null))
+		const role1 = await createDummyRolePrismaORM(prisma, { name: 'TEST1', description: null })
+		const role2 = await createDummyRolePrismaORM(prisma, { name: 'TEST2', description: null })
 		const foundRoles = await roleRepository.listRoles()
 		expect(foundRoles.length).toBe(2)
 		expect(foundRoles).toEqual(
@@ -46,29 +46,23 @@ describe('RoleRepositoryPrismaORM', () => {
 	})
 
 	it('should update an existing role', async () => {
-		const roleToBeCreated = Role.create('TEST', null)
-		const createdRole = await roleRepository.createRole(roleToBeCreated)
-		const roleToBeUpdated = Role.restore(createdRole.id, 'TEST_UPDATED', 'DESCRIPTION_UPDATED')
-		const updatedRole = await roleRepository.updateRole(roleToBeUpdated)
+		const createdRole = await createDummyRolePrismaORM(prisma, { name: 'TEST', description: null })
+		createdRole.updateData({ name: 'TEST_UPDATED', description: 'DESCRIPTION_UPDATED' })
+		const updatedRole = await roleRepository.updateRole(createdRole)
 		expect(updatedRole).not.toBeNull()
-		expect(updatedRole!.id).toBe(roleToBeUpdated.id)
+		expect(updatedRole!.id).toBe(createdRole.id)
 		expect(updatedRole!.name.value).toBe('TEST_UPDATED')
 		expect(updatedRole!.description).toBe('DESCRIPTION_UPDATED')
 	})
 
 	it('should return null when trying to update a role that does not exist', async () => {
-		const roleToBeUpdated = Role.restore(
-			crypto.randomUUID(),
-			'TEST_UPDATED',
-			'DESCRIPTION_UPDATED',
-		)
+		const roleToBeUpdated = createDummyRole({ name: 'TEST_UPDATED', description: 'DESCRIPTION_UPDATED' })
 		const updatedRole = await roleRepository.updateRole(roleToBeUpdated)
 		expect(updatedRole).toBeNull()
 	})
 
 	it('should delete an existing role', async () => {
-		const roleToBeCreated = Role.create('TEST', null)
-		const createdRole = await roleRepository.createRole(roleToBeCreated)
+		const createdRole = await createDummyRolePrismaORM(prisma, { name: 'TEST', description: null })
 		const deletedRole = await roleRepository.deleteRole(createdRole.id)
 		expect(deletedRole).not.toBeNull()
 		expect(deletedRole!.id).toBe(createdRole.id)
