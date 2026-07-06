@@ -29,7 +29,7 @@ class LoginUseCase {
 		}
 		const isPasswordValid = await this.hashService.compare(
 			loginInput.password,
-			user.password.value,
+			user.password,
 		)
 		if (!isPasswordValid) {
 			this.loggerService.warn('LoginUseCase: Login attempt with invalid password', {
@@ -49,7 +49,7 @@ class LoginUseCase {
 		}
 		const fifteenMinutesToExpire = this._ACCESS_TOKEN_EXPIRE_TIME
 		const accessToken = this.tokenService.generateToken(
-			{ userId: user.id, email: user.email.value },
+			{ userId: user.id, email: user.email },
 			fifteenMinutesToExpire,
 		)
 		const sevenDaysToExpire = this._REFRESH_TOKEN_EXPIRE_TIME
