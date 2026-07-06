@@ -1,4 +1,3 @@
-import './infra/docs/openapiSetup.js'
 import { config } from '#config.js'
 import container from '#infra/di/container.js'
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
@@ -9,9 +8,11 @@ import type { StoragePort } from '#application/ports/StoragePort.js'
 container.resolve('userController')
 container.resolve('verifyEmailController')
 container.resolve('authController')
+container.resolve('passwordResetController')
 container.resolve('rbacController')
 container.resolve('uploadController')
 container.resolve('playbackController')
+container.resolve('favoriteController')
 
 const httpServer = container.resolve<ExpressAdapter>('httpServer')
 httpServer.registerErrorHandler()

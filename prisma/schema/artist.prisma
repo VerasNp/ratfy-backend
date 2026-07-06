@@ -1,11 +1,12 @@
 model Artist {
-  id               String   @id
-  userId           String   @unique
-  user             User     @relation(fields: [userId], references: [id])
-  bio              String?
-  profileImageKey  String?
-  profileImageSize Int?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  tracks           Track[]
+    id               String        @id @default(uuid())
+    userId           String        @unique
+    user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    bio              String?
+    createdAt        DateTime      @default(now())
+    updatedAt        DateTime      @updatedAt
+    tracks           Track[]
+    albumArtists     AlbumArtist[]
+    profileImageKey  String?
+    profileImageSize Int?
 }

@@ -4,18 +4,20 @@ import { UploadArtistProfileImageUseCase } from '#application/useCases/upload/Up
 import Artist from '#domain/artist/Artist.js'
 import ArtistRepositoryMemory from '#infra/repository/ArtistRepositoryMemory.js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type User from '#domain/user/User.js'
+import { createDummyUser } from '#__tests__/factories/UserFactory.js'
+import { createDummyArtist } from '#__tests__/factories/ArtistFactory.js'
 
 let useCase: UploadArtistProfileImageUseCase
 let artistRepo: ArtistRepositoryMemory
 let dummyArtist: Artist
+let dummyUser: User
 
 beforeEach(() => {
   artistRepo = new ArtistRepositoryMemory()
   vi.clearAllMocks()
-  dummyArtist = Artist.create({
-    userId: '550e8400-e29b-41d4-a716-446655440000',
-    bio: 'Test artist bio',
-  })
+  dummyUser = createDummyUser({ name: 'Test User', email: 'foo@bar.com'})
+  dummyArtist = createDummyArtist(dummyUser, { bio: 'Test bio' })
   artistRepo.create(dummyArtist)
   useCase = new UploadArtistProfileImageUseCase(artistRepo, storagePortMock, loggerPortMock, 'images')
 })

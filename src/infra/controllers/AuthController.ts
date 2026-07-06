@@ -6,6 +6,7 @@ import type LogoutUseCase from '#application/useCases/auth/LogoutUseCase.js'
 import type RefreshTokenUseCase from '#application/useCases/auth/RefreshTokenUseCase.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 import AuthMiddleware from '#infra/http/middlewares/AuthMiddleware.js'
+import type RateLimitMiddleware from '#infra/http/middlewares/RateLimitMiddleware.js'
 
 class AuthController {
 	public constructor(
@@ -16,28 +17,34 @@ class AuthController {
 		private readonly logoutUseCase: LogoutUseCase,
 		private readonly refreshTokenUseCase: RefreshTokenUseCase,
 		private readonly loggerService: LoggerPort,
+		private readonly loginRateLimiter: RateLimitMiddleware,
 	) {
-		this.httpServer.register('post', '/login', async (_params: any, body: any, _query: any) => {
-			const input = LoginSchema.parse(body)
-			const output = await this.loginUseCase.execute(input)
-			const sevenDaysToExpireInMs = 7 * 24 * 60 * 60 * 1000
-			return {
-				body: { accessToken: output.accessToken },
-				cookies: [
-					{
-						name: 'refreshToken',
-						value: output.refreshToken,
-						options: {
-							httpOnly: true,
-							secure: this.nodeEnv === 'production',
-							sameSite: 'strict' as const,
-							maxAge: sevenDaysToExpireInMs,
-							path: '/',
+		this.httpServer.register(
+			'post',
+			'/login',
+			async (_params: any, body: any, _query: any) => {
+				const input = LoginSchema.parse(body)
+				const output = await this.loginUseCase.execute(input)
+				const sevenDaysToExpireInMs = 7 * 24 * 60 * 60 * 1000
+				return {
+					body: { accessToken: output.accessToken },
+					cookies: [
+						{
+							name: 'refreshToken',
+							value: output.refreshToken,
+							options: {
+								httpOnly: true,
+								secure: this.nodeEnv === 'production',
+								sameSite: 'strict' as const,
+								maxAge: sevenDaysToExpireInMs,
+								path: '/',
+							},
 						},
-					},
-				],
-			}
-		})
+					],
+				}
+			},
+			[this.loginRateLimiter.handle()],
+		)
 
 		this.httpServer.register(
 			'post',

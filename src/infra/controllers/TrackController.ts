@@ -1,58 +1,93 @@
-import type { CreateTrackUseCase } from '#application/useCases/track/CreateTrack.js'
-import type { DeleteTrackUseCase } from '#application/useCases/track/DeleteTrack.js'
-import type { GetTrackUseCase }    from '#application/useCases/track/GetTrack.js'
-import type { ListTracksUseCase }  from '#application/useCases/track/ListTrack.js'
-import type { UpdateTrackUseCase } from '#application/useCases/track/UpdateTrack.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
-
-import { TrackCreateSchema } from '#application/DTOs/track/TrackCreateInputDTO.js'
-import { TrackDeleteSchema } from '#application/DTOs/track/TrackDeleteInputDTO.js'
-import { TrackGetSchema }    from '#application/DTOs/track/TrackGetInputDTO.js'
-import { TrackListSchema }   from '#application/DTOs/track/TrackListInputDTO.js'
-import { TrackUpdateSchema } from '#application/DTOs/track/TrackUpdateInputDTO.js'
-
-
+import { TrackCreateSchema, TrackSearchSchema, TrackUpdateSchema } from '#infra/http/schemas/TracksSchemas.js'
+import type { TrackRepository } from '#application/ports/TrackRepository.js'
+import type CreateTrackUseCase from '#application/useCases/track/CreateTrackUseCase.js'
+import type GetTrackUseCase from '#application/useCases/track/GetTrackUseCase.js'
+import UpdateTrackUseCase from '#application/useCases/track/UpdateTrackUseCase.js'
+import DeleteTrackUseCase from '#application/useCases/track/DeleteTrackUseCase.js'
 
 class TrackController {
-  public constructor(
-    private readonly httpServer:          HttpServerPort,
-    private readonly createTrackUseCase:  CreateTrackUseCase,
-    private readonly getTrackUseCase:     GetTrackUseCase,
-    private readonly updateTrackUseCase:  UpdateTrackUseCase,
-    private readonly deleteTrackUseCase:  DeleteTrackUseCase,
-    private readonly listTracksUseCase:   ListTracksUseCase,
-  ) {
-    this.httpServer.register('get', '/tracks', async (_params, _body, query) => {
-      const input = TrackListSchema.parse(query)
-      return this.listTracksUseCase.execute(input)
-    })
+	public constructor(
+		private readonly httpServer: HttpServerPort,
+		private readonly trackRepository: TrackRepository,
+		private readonly createTrackUseCase: CreateTrackUseCase,
+		private readonly getTrackUseCase: GetTrackUseCase,
+		private readonly updateTrackUseCase: UpdateTrackUseCase,
+		private readonly deleteTrackUseCase: DeleteTrackUseCase,
+	) {
+		this.httpServer.register('get', '/tracks', async (_params: any, _body: any, query: any) => {
+			const parsedQuery = TrackSearchSchema.parse(query)
+			const foundTracks = await this.trackRepository.search(parsedQuery)
+			const tracks = foundTracks.map((track) => ({
+				id: track.id,
+				title: track.title,
+				durationMs: track.durationMs,
+				discNumber: track.discNumber,
+				trackNumber: track.trackNumber,
+				explicit: track.explicit,
+				lyrics: track.lyrics,
+				isPublic: track.isPublic,
+				createdAt: track.createdAt.toISOString(),
+				updatedAt: track.updatedAt.toISOString(),
+				deletedAt: track.deletedAt,
+				album: track.album,
+				artists: track.artists,
+			}))
+			return {
+				body: tracks,
+			}
+		})
 
-    this.httpServer.register('post', '/tracks', async (_params, body, _query) => {
-      const input = TrackCreateSchema.parse(body)
-      return this.createTrackUseCase.execute(input)
-    })
+		this.httpServer.register(
+			'post',
+			'/tracks',
+			async (_params: any, body: any, _query: any) => {
+				const input = TrackCreateSchema.parse(body)
+				const result = await this.createTrackUseCase.execute(input)
+				return {
+					statusCode: 201,
+					body: result,
+				}
+			},
+		)
 
-    this.httpServer.register('get', '/tracks/:id', async (params, _body, _query) => {
-      const input = TrackGetSchema.parse(params)
-      return this.getTrackUseCase.execute(input)
-    })
+		this.httpServer.register(
+			'get',
+			'/tracks/:trackId',
+			async (params: any, _body: any, _query: any) => {
+				const { trackId } = params
+				const result = await this.getTrackUseCase.execute(trackId)
+				return {
+					body: result,
+				}
+			},
+		)
 
-    this.httpServer.register('patch', '/tracks/:id', async (params, body, _query) => {
-      const { id } = TrackGetSchema.parse(params)
-      const input  = TrackUpdateSchema.parse(body)
-      return this.updateTrackUseCase.execute(id, input)
-    })
+		this.httpServer.register(
+			'patch',
+			'/tracks/:trackId',
+			async (params: any, body: any, _query: any) => {
+				const { trackId } = params
+				const input = TrackUpdateSchema.parse(body)
+				const result = await this.updateTrackUseCase.execute(trackId, input)
+				return {
+					body: result,
+				}
+			},
+		)
 
-    this.httpServer.register('delete', '/tracks/:id', async (params, _body, _query) => {
-      const input = TrackDeleteSchema.parse(params)
-      return this.deleteTrackUseCase.execute(input)
-    })
-    this.httpServer.register('get', '/albums/:id/tracks', async (params, _body, query) => {
-      const { id: albumId } = TrackGetSchema.parse(params)
-      const input           = TrackListSchema.parse({ ...query, albumId })
-      return this.listTracksUseCase.execute(input)
-    })
-  }
+		this.httpServer.register(
+			'delete',
+			'/tracks/:trackId',
+			async (params: any, _body: any, _query: any) => {
+				const { trackId } = params
+				const result = await this.deleteTrackUseCase.execute(trackId)
+				return {
+					body: result,
+				}
+			},
+		)
+	}
 }
 
 export default TrackController

@@ -3,12 +3,14 @@ import { VerifyEmailSchema } from '#application/DTOs/VerifyEmailInputDTO.js'
 import type ResendVerificationEmailUseCase from '#application/useCases/auth/ResendVerificationEmailUseCase.js'
 import type VerifyUserMailUseCase from '#application/useCases/mail/VerifyUserMailUseCase.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
+import type RateLimitMiddleware from '#infra/http/middlewares/RateLimitMiddleware.js'
 
 class VerifyEmailController {
 	public constructor(
 		private httpServer: HttpServerPort,
 		private verifyUserMailUserCase: VerifyUserMailUseCase,
 		private resendVerificationEmailUserCase: ResendVerificationEmailUseCase,
+		private resendVerificationRateLimiter: RateLimitMiddleware,
 	) {
 		this.httpServer.register(
 			'get',
@@ -28,6 +30,7 @@ class VerifyEmailController {
 				await this.resendVerificationEmailUserCase.execute(input)
 				return { message: 'If an account exists, a verification email will be sent.' }
 			},
+			[this.resendVerificationRateLimiter.handle()],
 		)
 	}
 }

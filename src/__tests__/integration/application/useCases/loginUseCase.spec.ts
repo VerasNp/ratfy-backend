@@ -53,7 +53,7 @@ describe('Login use case', () => {
 	})
 	it('should not login a user with invalid password', async () => {
 		const input = {
-			email: dummyUserWithVerifiedEmail.email.value,
+			email: dummyUserWithVerifiedEmail.email,
 			password: 'InvalidPassword',
 		}
 		hashPortMock.compare.mockResolvedValueOnce(false)
@@ -61,7 +61,7 @@ describe('Login use case', () => {
 	})
 	it('should not login a user with unverified email', async () => {
 		const input = {
-			email: dummyUserWithUnverifiedEmail.email.value,
+			email: dummyUserWithUnverifiedEmail.email,
 			password: 'Valid@123',
 		}
 		hashPortMock.compare.mockResolvedValueOnce(true)
@@ -69,8 +69,8 @@ describe('Login use case', () => {
 	})
 	it('should login successfully', async () => {
 		const input = {
-			email: dummyUserWithVerifiedEmail.email.value,
-			password: dummyUserWithVerifiedEmail.password.value,
+			email: dummyUserWithVerifiedEmail.email,
+			password: dummyUserWithVerifiedEmail.password,
 		}
 		hashPortMock.compare.mockResolvedValueOnce(true)
 		const output = await loginUserCase.execute(input)

@@ -22,7 +22,7 @@ export default defineConfig({
 			{
 				test: {
 					name: 'use cases integration tests',
-					include: ['src/__tests__/integration/application/useCases/*.spec.ts'],
+					include: ['src/__tests__/integration/application/useCases/**/*.spec.ts'],
 				},
 			},
 			{

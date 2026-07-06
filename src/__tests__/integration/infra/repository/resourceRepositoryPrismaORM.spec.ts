@@ -1,8 +1,8 @@
+import { createDummyResource, createDummyResourcePrismaORM } from '#__tests__/factories/RbacFactory.js'
 import { afterAll, beforeEach, describe, expect, inject, it } from 'vitest'
 import { PrismaPg } from '@prisma/adapter-pg'
-import Resource from '#domain/rbac/resource/Resource.js'
-import ResourceRepositoryPrismaORM from '#infra/repository/rbac/ResourceRepositoryPrismaORM.js'
 import { PrismaClient } from '#prisma/client'
+import ResourceRepositoryPrismaORM from '#infra/repository/rbac/ResourceRepositoryPrismaORM.js'
 
 const adapter = new PrismaPg({ connectionString: inject('testPostgresURL') })
 const prisma = new PrismaClient({ adapter })
@@ -19,16 +19,16 @@ describe('ResourceRepositoryPrismaORM', () => {
 	})
 
 	it('should create a new resource', async () => {
-		const resourceToBeCreated = Resource.create('TEST')
+		const resourceToBeCreated = createDummyResource({ name: 'TEST' })
 		const createdResource = await resourceRepository.create(resourceToBeCreated)
-		const permission = await resourceRepository.findResourceById(createdResource.id)
-		expect(permission!.id).toBe(createdResource.id)
-		expect(permission!.name.value).toBe(createdResource.name.value)
+		const foundResource = await resourceRepository.findResourceById(createdResource.id)
+		expect(foundResource!.id).toBe(createdResource.id)
+		expect(foundResource!.name.value).toBe(createdResource.name.value)
 	})
 
 	it('should list all resources', async () => {
-		const resource1 = await resourceRepository.create(Resource.create('TEST1'))
-		const resource2 = await resourceRepository.create(Resource.create('TEST2'))
+		const resource1 = await createDummyResourcePrismaORM(prisma, { name: 'TEST1' })
+		const resource2 = await createDummyResourcePrismaORM(prisma, { name: 'TEST2' })
 		const resources = await resourceRepository.listResources()
 		expect(resources.length).toBe(2)
 		expect(resources).toEqual(
@@ -40,39 +40,37 @@ describe('ResourceRepositoryPrismaORM', () => {
 	})
 
 	it("should return null when trying to get a resource that doesn't exist", async () => {
-		const permission = await resourceRepository.findResourceById(crypto.randomUUID())
-		expect(permission).toBeNull()
+		const foundResource = await resourceRepository.findResourceById(crypto.randomUUID())
+		expect(foundResource).toBeNull()
 	})
 
 	it('should update an existing resource', async () => {
-		const resourceToBeCreated = Resource.create('TEST')
-		const createdResource = await resourceRepository.create(resourceToBeCreated)
-		const resourceToBeUpdated = Resource.restore(createdResource.id, 'UPDATED_TEST')
-		const updatedPermission = await resourceRepository.updateResource(resourceToBeUpdated)
-		expect(updatedPermission).not.toBeNull()
-		expect(updatedPermission!.id).toBe(resourceToBeUpdated.id)
-		expect(updatedPermission!.name.value).toBe('UPDATED_TEST')
+		const createdResource = await createDummyResourcePrismaORM(prisma, { name: 'TEST' })
+		createdResource.updateData({ name: 'UPDATED_TEST' })
+		const updatedResource = await resourceRepository.updateResource(createdResource)
+		expect(updatedResource).not.toBeNull()
+		expect(updatedResource!.id).toBe(createdResource.id)
+		expect(updatedResource!.name.value).toBe('UPDATED_TEST')
 	})
 
 	it("should return null when trying to update a resource that doesn't exist", async () => {
-		const resourceToBeUpdated = Resource.restore(crypto.randomUUID(), 'NON_EXISTENT')
+		const resourceToBeUpdated = createDummyResource({ name: 'NON_EXISTENT' })
 		const updatedResource = await resourceRepository.updateResource(resourceToBeUpdated)
 		expect(updatedResource).toBeNull()
 	})
 
 	it('should delete an existing resource', async () => {
-		const resourceToBeCreated = Resource.create('TEST')
-		const createdResource = await resourceRepository.create(resourceToBeCreated)
+		const createdResource = await createDummyResourcePrismaORM(prisma, { name: 'TEST' })
 		const deletedResource = await resourceRepository.deleteResource(createdResource.id)
 		expect(deletedResource).not.toBeNull()
 		expect(deletedResource!.id).toBe(createdResource.id)
 		expect(deletedResource!.name.value).toBe('TEST')
-		const permission = await resourceRepository.findResourceById(deletedResource!.id)
-		expect(permission).toBeNull()
+		const foundResource = await resourceRepository.findResourceById(deletedResource!.id)
+		expect(foundResource).toBeNull()
 	})
 
 	it("should return null when trying to delete a resource that doesn't exist", async () => {
-		const deletedPermission = await resourceRepository.deleteResource(crypto.randomUUID())
-		expect(deletedPermission).toBeNull()
+		const deletedResource = await resourceRepository.deleteResource(crypto.randomUUID())
+		expect(deletedResource).toBeNull()
 	})
 })

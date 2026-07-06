@@ -32,6 +32,16 @@ const envSchema = z.object({
 	REDIS_URL: z.string().default('redis://localhost:6379'),
 	REDIS_CONNECT_TIMEOUT: z.coerce.number().default(10000),
 	UPLOAD_MAX_FILE_SIZE: z.coerce.number().default(100 * 1024 * 1024),
+	FORGOT_PASSWORD_RATE_LIMIT_MAX: z.coerce.number().default(3),
+	FORGOT_PASSWORD_RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
+	LOGIN_RATE_LIMIT_MAX: z.coerce.number().default(10),
+	LOGIN_RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
+	SIGNUP_RATE_LIMIT_MAX: z.coerce.number().default(5),
+	SIGNUP_RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
+	RESEND_VERIFICATION_RATE_LIMIT_MAX: z.coerce.number().default(3),
+	RESEND_VERIFICATION_RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
+	RESET_PASSWORD_RATE_LIMIT_MAX: z.coerce.number().default(5),
+	RESET_PASSWORD_RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
 })
 
 const env = envSchema.safeParse(process.env)
@@ -60,6 +70,28 @@ export const config = {
 		auth: {
 			user: env.data.SMTP_USER,
 			pass: env.data.SMTP_PASSWORD,
+		},
+	},
+	rateLimit: {
+		forgotPassword: {
+			max: env.data.FORGOT_PASSWORD_RATE_LIMIT_MAX,
+			windowMs: env.data.FORGOT_PASSWORD_RATE_LIMIT_WINDOW_MS,
+		},
+		login: {
+			max: env.data.LOGIN_RATE_LIMIT_MAX,
+			windowMs: env.data.LOGIN_RATE_LIMIT_WINDOW_MS,
+		},
+		signup: {
+			max: env.data.SIGNUP_RATE_LIMIT_MAX,
+			windowMs: env.data.SIGNUP_RATE_LIMIT_WINDOW_MS,
+		},
+		resendVerification: {
+			max: env.data.RESEND_VERIFICATION_RATE_LIMIT_MAX,
+			windowMs: env.data.RESEND_VERIFICATION_RATE_LIMIT_WINDOW_MS,
+		},
+		resetPassword: {
+			max: env.data.RESET_PASSWORD_RATE_LIMIT_MAX,
+			windowMs: env.data.RESET_PASSWORD_RATE_LIMIT_WINDOW_MS,
 		},
 	},
 	database: {

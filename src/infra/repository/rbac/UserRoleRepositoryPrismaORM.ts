@@ -1,6 +1,7 @@
+import type { TransactionHandle } from '#application/ports/TransactionHandle.js'
 import type { UserRoleRepository } from '#application/ports/UserRoleRepository.js'
 import Role from '#domain/rbac/role/Role.js'
-import type { PrismaClient } from '#prisma/client.js'
+import { Prisma, type PrismaClient } from '#prisma/client.js'
 
 class UserRoleRepositoryPrismaORM implements UserRoleRepository {
 	public constructor(private readonly orm: PrismaClient) {}
@@ -15,8 +16,9 @@ class UserRoleRepositoryPrismaORM implements UserRoleRepository {
 		)
 	}
 
-	public async assignRoleToUser(userId: string, roleId: string): Promise<void> {
-		await this.orm.userRole.create({
+	public async assignRoleToUser(userId: string, roleId: string, tx?: TransactionHandle): Promise<void> {
+		const client = tx ? (tx as unknown as Prisma.TransactionClient) : this.orm
+		await client.userRole.create({
 			data: {
 				userId,
 				roleId,

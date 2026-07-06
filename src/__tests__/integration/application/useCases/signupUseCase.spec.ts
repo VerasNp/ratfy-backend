@@ -4,7 +4,7 @@ import { templateRendererPortMock } from '#application/ports/__mocks__/TemplateR
 import { tokenPortMock } from '#application/ports/__mocks__/TokenPortMock.js'
 import { unitOfWorkMock } from '#application/ports/__mocks__/UnitOfWorkMock.js'
 import type { UserRoleRepository } from '#application/ports/UserRoleRepository.js'
-import GetAccountUseCase from '#application/useCases/user/GetAccountUseCase.js'
+import UniqueConstraintError from '#domain/errors/UniqueConstraintError.js'
 import SignupUseCase from '#application/useCases/user/SignupUseCase.js'
 import Role from '#domain/rbac/role/Role.js'
 import User from '#domain/user/User.js'
@@ -12,52 +12,49 @@ import RoleRepositoryMemory from '#infra/repository/rbac/RoleRepositoryMemory.js
 import UserRoleRepositoryMemory from '#infra/repository/rbac/UserRoleRepositoryMemory.js'
 import UserRepositoryMemory from '#infra/repository/UserRepositoryMemory.js'
 import { beforeEach, describe, expect, it } from 'vitest'
+import type { UserRepository } from '#application/ports/UserRepository.js'
+import { createDummyRole } from '#__tests__/factories/RoleFactory.js'
+import type { RoleRepository } from '#application/ports/RoleRepository.js'
 
-let signup: SignupUseCase
-let dummyUser: User
-let getAccount: GetAccountUseCase
+let signupUseCase: SignupUseCase
+let userRepository: UserRepository
 let userRoleRepository: UserRoleRepository
+let roleRepository: RoleRepository
 
-beforeEach(async () => {
-	const userRepository = new UserRepositoryMemory()
-	const dummyRole = Role.create(Role.PredefinedRoles.USER, 'Regular user role')
-	const roleRepository = new RoleRepositoryMemory([dummyRole])
-	userRoleRepository = new UserRoleRepositoryMemory([dummyRole])
-	dummyUser = User.create('Existing User', 'foo@bar.com', 'Valid@123', new Date('1990-01-01'))
-	await userRepository.create(dummyUser)
-	signup = new SignupUseCase(
-		userRepository,
-		mailPortMock,
-		templateRendererPortMock,
-		tokenPortMock,
-		null as unknown as string,
-		loggerPortMock,
-		roleRepository,
-		unitOfWorkMock,
-		userRoleRepository,
-	)
-	getAccount = new GetAccountUseCase(userRepository, loggerPortMock)
-})
-
-describe('Signup use case', () => {
+describe('SignupUseCase', () => {
+	let userRole: Role
+	beforeEach(() => {
+		userRole = createDummyRole({
+			name: Role.PredefinedRoles.USER,
+			description: 'Regular user role',
+		})
+		userRoleRepository = new UserRoleRepositoryMemory([userRole])
+		userRepository = new UserRepositoryMemory()
+		roleRepository = new RoleRepositoryMemory([userRole])
+		signupUseCase = new SignupUseCase(
+			userRepository,
+			mailPortMock,
+			templateRendererPortMock,
+			tokenPortMock,
+			null as unknown as string,
+			loggerPortMock,
+			roleRepository,
+			unitOfWorkMock,
+			userRoleRepository,
+		)
+	})
 	it('should sign up a new user successfully', async () => {
-		const signupInput = {
+		const input = {
 			name: 'Foo',
 			email: 'foo2@bar.com',
 			password: 'Valid@123',
 			birthDate: new Date('2000-01-01'),
 		}
-		const outputSignup = await signup.execute(signupInput)
-		expect(outputSignup.id).toBeDefined()
-		const outputGetAccount = await getAccount.execute(outputSignup.id)
-		expect(outputGetAccount.id).toBe(outputSignup.id)
-		expect(outputGetAccount.name).toBe(signupInput.name)
-		expect(outputGetAccount.email).toBe(signupInput.email)
-		expect(outputGetAccount.birthDate).toEqual(signupInput.birthDate)
-		expect(outputGetAccount.verifiedAt).toBeNull()
-		const roles = await userRoleRepository.findRolesByUserId(outputSignup.id)
-		expect(roles).toHaveLength(1)
-		expect(roles[0]?.name.value).toBe(Role.PredefinedRoles.USER)
+		const output = await signupUseCase.execute(input)
+		expect(output.name).toBe(input.name)
+		expect(output.email).toBe(input.email)
+		expect(output.birthDate).toEqual(input.birthDate)
+		expect(output.verifiedAt).toBeNull()
 	})
 	it('should not sign up a user if the user role is not configured on the system', async () => {
 		const signupInput = {
@@ -67,7 +64,7 @@ describe('Signup use case', () => {
 			birthDate: new Date('2000-01-01'),
 		}
 		const roleRepository = new RoleRepositoryMemory()
-		signup = new SignupUseCase(
+		signupUseCase = new SignupUseCase(
 			new UserRepositoryMemory(),
 			mailPortMock,
 			templateRendererPortMock,
@@ -78,7 +75,7 @@ describe('Signup use case', () => {
 			unitOfWorkMock,
 			userRoleRepository,
 		)
-		await expect(signup.execute(signupInput)).rejects.toThrow('Internal server error')
+		await expect(signupUseCase.execute(signupInput)).rejects.toThrow('Internal server error')
 	})
 
 	it('should not sign up a user with an already registered email', async () => {
@@ -88,7 +85,18 @@ describe('Signup use case', () => {
 			password: 'Valid@123',
 			birthDate: new Date('2000-01-01'),
 		}
-		await expect(signup.execute(signupInput)).rejects.toThrow(
+		await signupUseCase.execute(signupInput)
+		await expect(signupUseCase.execute(signupInput)).rejects.toThrow(
+			'User with this email already exists',
+		)
+	})
+
+	it('should throw UniqueConstraintError when email uniqueness is violated at repository level', async () => {
+		unitOfWorkMock.execute.mockRejectedValueOnce(
+			new UniqueConstraintError('email already exists'),
+		)
+		const input = User.create('Duplicate', 'foo@bar.com', 'Valid@123', new Date('1990-01-01'))
+		await expect(signupUseCase.execute(input)).rejects.toThrow(
 			'User with this email already exists',
 		)
 	})

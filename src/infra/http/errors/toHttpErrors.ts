@@ -1,6 +1,8 @@
-import type ApplicationError from '#application/errors/ApplicationError.js'
 import { AlbumNotFoundError } from '#application/errors/AlbumNotFoundError.js'
+import type ApplicationError from '#application/errors/ApplicationError.js'
 import { ArtistNotFoundError } from '#application/errors/ArtistNotFoundError.js'
+import CacheError from '#application/errors/CacheError.js'
+import ConcurrentUpdateError from '#application/errors/ConcurrentUpdateError.js'
 import InvalidTokenError from '#application/errors/InvalidTokenError.js'
 import MissingApplicationSetupError from '#application/errors/MissingApplicationSetupError.js'
 import { PlaylistNotFoundError } from '#application/errors/PlaylistNotFoundError.js'
@@ -10,11 +12,12 @@ import StorageError from '#application/errors/StorageError.js'
 import { TrackNotFoundError } from '#application/errors/TrackNotFoundError.js'
 import UnauthorizedError from '#application/errors/UnauthorizedError.js'
 import UserNotFoundError from '#application/errors/UserNotFoundError.js'
+import ConflictError from '#domain/errors/ConflictError.js'
+import NotFoundError from '#domain/errors/NotFoundError.js'
 import ValidationError from '#domain/errors/ValidationError.js'
-import CacheError from '#application/errors/CacheError.js'
-import ConcurrentUpdateError from '#application/errors/ConcurrentUpdateError.js'
 import BadRequestError from '#infra/errors/BadRequestError.js'
-import NotFoundError from '#infra/errors/NotFoundError.js'
+import ForbiddenError from '#infra/errors/ForbiddenError.js'
+import NotFoundInfraError from '#infra/errors/NotFoundError.js'
 import ExpiredJWTError from '#infra/security/errors/ExpiredJWTError.js'
 import HttpError from './HttpError.js'
 
@@ -22,20 +25,27 @@ export default function toHttpErrors(error: ApplicationError) {
 	if (error instanceof BadRequestError) {
 		return new HttpError(400, error.message)
 	}
+	if (error instanceof ForbiddenError) {
+		return new HttpError(403, error.message)
+	}
 	if (error instanceof InvalidTokenError) {
 		return new HttpError(401, error.message)
+	}
+	if (error instanceof ConflictError) {
+		return new HttpError(409, error.message)
 	}
 	if (error instanceof ValidationError) {
 		return new HttpError(422, error.message)
 	}
 	if (
-		error instanceof AlbumNotFoundError ||
-		error instanceof ArtistNotFoundError ||
 		error instanceof NotFoundError ||
-		error instanceof PlaylistNotFoundError ||
+		error instanceof NotFoundInfraError ||
+		error instanceof UserNotFoundError ||
 		error instanceof ResourceNotFoundError ||
 		error instanceof TrackNotFoundError ||
-		error instanceof UserNotFoundError
+		error instanceof AlbumNotFoundError ||
+		error instanceof ArtistNotFoundError ||
+		error instanceof PlaylistNotFoundError
 	) {
 		return new HttpError(404, error.message)
 	}

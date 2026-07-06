@@ -2,41 +2,54 @@ import type { AlbumRepository } from '#application/ports/AlbumRepository.js'
 import type Album from '#domain/album/Album.js'
 
 class AlbumRepositoryMemory implements AlbumRepository {
-  public albums: Album[] = []
+	public albuns: Album[]
 
-  public constructor(initialAlbums: Album[] = []) {
-    this.albums = initialAlbums
-  }
+	public constructor(initialAlbuns: Album[] = []) {
+		this.albuns = initialAlbuns
+	}
 
-  public async create(album: Album): Promise<Album> {
-    this.albums.push(album)
-    return album
-  }
+	public listByIds(ids: string[]): Promise<Album[]> {
+		const albuns = this.albuns.filter((album) => ids.includes(album.id))
+		return Promise.resolve(albuns)
+	}
 
-  public async delete(id: string): Promise<void> {
-    const index = this.albums.findIndex((a) => a.id === id)
-    if (index !== -1) {
-      this.albums[index]!.isDeleted = true
-    }
-  }
+	public create(album: Album): Promise<Album> {
+		this.albuns.push(album)
+		return Promise.resolve(album)
+	}
 
-  public async findById(id: string): Promise<Album | null> {
-    const album = this.albums.find((a) => a.id === id && !a.isDeleted)
-    return album ?? null
-  }
+	public delete(id: string): Promise<void> {
+		this.albuns = this.albuns.filter((album) => album.id !== id)
+		return Promise.resolve()
+	}
 
-  public async list(page: number, limit: number): Promise<Album[]> {
-    const start = (page - 1) * limit
-    return this.albums
-      .filter((a) => !a.isDeleted)
-      .slice(start, start + limit)
-  }
+	public findById(albumId: string): Promise<Album | null> {
+		const foundAlbum = this.albuns.find((album) => album.id === albumId)
+		if (!foundAlbum) {
+			return Promise.resolve(null)
+		}
+		return Promise.resolve(foundAlbum)
+	}
 
-  public async update(id: string, data: Partial<Album>, _expectedCoverImageKey?: string | null): Promise<void> {
-    const index = this.albums.findIndex((a) => a.id === id)
-    if (index === -1) return
-    Object.assign(this.albums[index]!, data)
-  }
+	public list(page: number, limit: number): Promise<Album[]> {
+		const startIndex = (page - 1) * limit
+		const endIndex = startIndex + limit
+		const paginatedAlbuns = this.albuns.slice(startIndex, endIndex)
+		return Promise.resolve(paginatedAlbuns)
+	}
+
+	public update(
+		albumId: string,
+		data: Partial<Album>,
+		_expectedCoverImageKey?: string | null,
+	): Promise<Album | null> {
+		const foundAlbum = this.albuns.find((album) => album.id === albumId)
+		if (!foundAlbum) {
+			return Promise.resolve(null)
+		}
+		foundAlbum.updateData(data)
+		return Promise.resolve(foundAlbum)
+	}
 }
 
 export default AlbumRepositoryMemory

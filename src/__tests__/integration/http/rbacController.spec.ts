@@ -1,3 +1,4 @@
+import { createDummyOperation, createDummyResource } from '#__tests__/factories/RbacFactory.js'
 import { createTestServer } from '#__tests__/testServer.js'
 import { loggerPortMock } from '#application/ports/__mocks__/LoggerPort.js'
 import CreateOperationUseCase from '#application/useCases/rbac/CreateOperationUseCase.js'
@@ -6,7 +7,6 @@ import OperationRepositoryMemory from '#infra/repository/rbac/OperationRepositor
 import { beforeEach, describe, expect, it } from 'vitest'
 import request from 'supertest'
 import type ExpressAdapter from '#infra/http/ExpressAdapter.js'
-import Operation from '#domain/rbac/operation/Operation.js'
 import type { OperationRepository } from '#application/ports/OperationRepository.js'
 import UpdateOperationUseCase from '#application/useCases/rbac/UpdateOperationUseCase.js'
 import DeleteOperationUseCase from '#application/useCases/rbac/DeleteOperationUseCase.js'
@@ -18,7 +18,6 @@ import DeleteResourceUseCase from '#application/useCases/rbac/DeleteResourceUseC
 import CreatePermissionUseCase from '#application/useCases/rbac/CreatePermissionUseCase.js'
 import type { PermissionRepository } from '#application/ports/PermissionRepository.js'
 import PermissionRepositoryMemory from '#infra/repository/rbac/PermissionRepositoryMemory.js'
-import Resource from '#domain/rbac/resource/Resource.js'
 import DeletePermissionUseCase from '#application/useCases/rbac/DeletePermissionUseCase.js'
 import CreateRoleUseCase from '#application/useCases/rbac/CreateRoleUseCase.js'
 import type { RoleRepository } from '#application/ports/RoleRepository.js'
@@ -27,6 +26,9 @@ import UpdateRoleUseCase from '#application/useCases/rbac/UpdateRoleUseCase.js'
 import DeleteRoleUseCase from '#application/useCases/rbac/DeleteRoleUseCase.js'
 import GrantPermissionToRoleUseCase from '#application/useCases/rbac/GrantPermissionToRoleUseCase.js'
 import RevokePermissionFromRoleUseCase from '#application/useCases/rbac/RevokePermissionFromRoleUseCase.js'
+import GetPermissionsUseCase from '#application/useCases/rbac/GetPermissionsUseCase.js'
+
+const NON_EXISTENT_UUID = '00000000-0000-0000-0000-000000000000'
 
 let createOperationUseCase: CreateOperationUseCase
 let updateOperationUseCase: UpdateOperationUseCase
@@ -41,6 +43,7 @@ let updateRoleUseCase: UpdateRoleUseCase
 let deleteRoleUseCase: DeleteRoleUseCase
 let grantPermissionToRoleUseCase: GrantPermissionToRoleUseCase
 let revokePermissionFromRoleUseCase: RevokePermissionFromRoleUseCase
+let getPermissionsUseCase: GetPermissionsUseCase
 let server: ExpressAdapter
 let operationRepository: OperationRepository
 let resourceRepository: ResourceRepository
@@ -55,6 +58,7 @@ describe('RBACController', () => {
 			createOperationUseCase = new CreateOperationUseCase(operationRepository, loggerPortMock)
 			updateOperationUseCase = new UpdateOperationUseCase(operationRepository, loggerPortMock)
 			deleteOperationUseCase = new DeleteOperationUseCase(operationRepository, loggerPortMock)
+			getPermissionsUseCase = null as any
 			new RBACController(
 				server,
 				createOperationUseCase,
@@ -74,20 +78,19 @@ describe('RBACController', () => {
 				null as any,
 				null as any,
 				null as any,
+				getPermissionsUseCase,
 			)
 			server.registerErrorHandler()
 		})
 		describe('POST /rbac/operations', () => {
-			it('should return 204 on success', async () => {
+			it('should return 200 on success', async () => {
 				const res = await request(server.app).post('/rbac/operations').send({
 					name: 'TEST',
 					description: 'Foo bar',
 				})
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
-						message: 'Operation created successfully',
-					},
+					message: 'Operation created successfully',
 				})
 			})
 
@@ -97,10 +100,11 @@ describe('RBACController', () => {
 				})
 				expect(res.status).toBe(400)
 				expect(res.body).toEqual({
-					error: 'Validation error',
-					details: [
+					message: 'Invalid input',
+					errors: [
 						{
 							message: 'Name is required',
+							path: ['name'],
 						},
 					],
 				})
@@ -130,7 +134,7 @@ describe('RBACController', () => {
 				const res = await request(server.app).get('/rbac/operations')
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: [
+					data: [
 						{
 							id: expect.any(String),
 							name: 'TEST',
@@ -149,7 +153,7 @@ describe('RBACController', () => {
 				const res = await request(server.app).get(`/rbac/operations/TEST`)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
+					data: {
 						id: expect.any(String),
 						name: 'TEST',
 						description: 'Foo bar',
@@ -158,7 +162,7 @@ describe('RBACController', () => {
 			})
 
 			it("should return 404 if the operation doesn't exist", async () => {
-				const res = await request(server.app).get(`/rbac/operations/${crypto.randomUUID()}`)
+				const res = await request(server.app).get('/rbac/operations/non-existent-operation')
 				expect(res.status).toBe(404)
 				expect(res.body).toEqual({
 					message: 'Operation not found',
@@ -178,15 +182,13 @@ describe('RBACController', () => {
 				})
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
-						message: 'Operation updated successfully',
-					},
+					message: 'Operation updated successfully',
 				})
 			})
 
 			it("should return 404 if the operation doesn't exist", async () => {
 				const res = await request(server.app)
-					.put(`/rbac/operations/${crypto.randomUUID()}`)
+					.put('/rbac/operations/non-existent-operation')
 					.send({
 						name: 'UPDATED_TEST',
 						description: 'Updated description',
@@ -206,14 +208,12 @@ describe('RBACController', () => {
 				const res = await request(server.app).delete(`/rbac/operations/TEST`)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
-						message: 'Operation deleted successfully',
-					},
+					message: 'Operation deleted successfully',
 				})
 			})
 			it("should return 404 if the operation doesn't exist", async () => {
 				const res = await request(server.app).delete(
-					`/rbac/operations/${crypto.randomUUID()}`,
+					'/rbac/operations/non-existent-operation',
 				)
 				expect(res.status).toBe(404)
 				expect(res.body).toEqual({
@@ -229,6 +229,7 @@ describe('RBACController', () => {
 			createResourceUseCase = new CreateResourceUseCase(resourceRepository, loggerPortMock)
 			updateResourceUseCase = new UpdateResourceUseCase(resourceRepository, loggerPortMock)
 			deleteResourceUseCase = new DeleteResourceUseCase(resourceRepository, loggerPortMock)
+			getPermissionsUseCase = null as any
 			new RBACController(
 				server,
 				null as any,
@@ -248,6 +249,7 @@ describe('RBACController', () => {
 				null as any,
 				null as any,
 				null as any,
+				getPermissionsUseCase,
 			)
 			server.registerErrorHandler()
 		})
@@ -258,12 +260,10 @@ describe('RBACController', () => {
 				})
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
-						message: 'Resource created successfully',
-						data: {
-							id: expect.any(String),
-							name: 'TEST',
-						},
+					message: 'Resource created successfully',
+					data: {
+						id: expect.any(String),
+						name: 'TEST',
 					},
 				})
 			})
@@ -283,10 +283,11 @@ describe('RBACController', () => {
 				const res = await request(server.app).post('/rbac/resources').send({})
 				expect(res.status).toBe(400)
 				expect(res.body).toEqual({
-					error: 'Validation error',
-					details: [
+					message: 'Invalid input',
+					errors: [
 						{
 							message: 'Name is required',
+							path: ['name'],
 						},
 					],
 				})
@@ -300,7 +301,7 @@ describe('RBACController', () => {
 				const res = await request(server.app).get('/rbac/resources')
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: [
+					data: [
 						{
 							id: expect.any(String),
 							name: 'TEST',
@@ -317,7 +318,7 @@ describe('RBACController', () => {
 				const res = await request(server.app).get(`/rbac/resources/TEST`)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
+					data: {
 						id: expect.any(String),
 						name: 'TEST',
 					},
@@ -325,7 +326,7 @@ describe('RBACController', () => {
 			})
 
 			it("should return 404 if the resource doesn't exist", async () => {
-				const res = await request(server.app).get(`/rbac/resources/${crypto.randomUUID()}`)
+				const res = await request(server.app).get('/rbac/resources/non-existent-resource')
 				expect(res.status).toBe(404)
 				expect(res.body).toEqual({
 					message: 'Resource not found',
@@ -342,18 +343,16 @@ describe('RBACController', () => {
 				})
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
-						message: 'Resource updated successfully',
-						data: {
-							id: expect.any(String),
-							name: 'UPDATED_TEST',
-						},
+					message: 'Resource updated successfully',
+					data: {
+						id: expect.any(String),
+						name: 'UPDATED_TEST',
 					},
 				})
 			})
 			it("should return 404 if the resource doesn't exist", async () => {
 				const res = await request(server.app)
-					.put(`/rbac/resources/${crypto.randomUUID()}`)
+					.put('/rbac/resources/non-existent-resource')
 					.send({
 						name: 'UPDATED_TEST',
 					})
@@ -386,25 +385,23 @@ describe('RBACController', () => {
 				const res = await request(server.app).delete(`/rbac/resources/TEST`)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
-						message: 'Resource deleted successfully',
-						data: {
-							id: expect.any(String),
-							name: 'TEST',
-						},
+					message: 'Resource deleted successfully',
+					data: {
+						id: expect.any(String),
+						name: 'TEST',
 					},
 				})
 			})
 		})
 	})
 	describe('permissions', () => {
-		let dummyOperation: Operation
-		let dummyResource: Resource
+		let dummyOperation: import('#domain/rbac/operation/Operation.js').default
+		let dummyResource: import('#domain/rbac/resource/Resource.js').default
 		beforeEach(() => {
 			server = createTestServer()
 			permissionRepository = new PermissionRepositoryMemory()
-			dummyOperation = Operation.create('TEST_OPERATION', 'Test operation description')
-			dummyResource = Resource.create('TEST_RESOURCE')
+			dummyOperation = createDummyOperation({ name: 'TEST_OPERATION', description: 'Test operation description' })
+			dummyResource = createDummyResource({ name: 'TEST_RESOURCE' })
 			operationRepository = new OperationRepositoryMemory([dummyOperation])
 			resourceRepository = new ResourceRepositoryMemory([dummyResource])
 			createPermissionUseCase = new CreatePermissionUseCase(
@@ -417,6 +414,7 @@ describe('RBACController', () => {
 				permissionRepository,
 				loggerPortMock,
 			)
+			getPermissionsUseCase = new GetPermissionsUseCase(permissionRepository, loggerPortMock)
 			new RBACController(
 				server,
 				null as any,
@@ -436,6 +434,7 @@ describe('RBACController', () => {
 				null as any,
 				null as any,
 				null as any,
+				getPermissionsUseCase,
 			)
 			server.registerErrorHandler()
 		})
@@ -501,11 +500,18 @@ describe('RBACController', () => {
 				const res = await request(server.app).get('/rbac/permissions')
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: [
+					data: [
 						{
 							id: expect.any(String),
-							operationId: dummyOperation.id,
-							resourceId: dummyResource.id,
+							label: 'TEST_OPERATION:TEST_RESOURCE',
+							operation: {
+								id: dummyOperation.id,
+								name: 'TEST_OPERATION',
+							},
+							resource: {
+								id: dummyResource.id,
+								name: 'TEST_RESOURCE',
+							},
 						},
 					],
 				})
@@ -524,7 +530,7 @@ describe('RBACController', () => {
 				)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
+					data: {
 						id: expect.any(String),
 						operationId: dummyOperation.id,
 						resourceId: dummyResource.id,
@@ -533,7 +539,7 @@ describe('RBACController', () => {
 			})
 			it("should return 404 if the permission doesn't exist", async () => {
 				const res = await request(server.app).get(
-					`/rbac/permissions/${crypto.randomUUID()}`,
+					`/rbac/permissions/${NON_EXISTENT_UUID}`,
 				)
 				expect(res.status).toBe(404)
 				expect(res.body).toEqual({
@@ -543,12 +549,12 @@ describe('RBACController', () => {
 		})
 	})
 	describe('roles', () => {
-		let dummyOperation: Operation
-		let dummyResource: Resource
+		let dummyOperation: import('#domain/rbac/operation/Operation.js').default
+		let dummyResource: import('#domain/rbac/resource/Resource.js').default
 		beforeEach(() => {
 			server = createTestServer()
-			dummyOperation = Operation.create('TEST_OPERATION', 'Test operation description')
-			dummyResource = Resource.create('TEST_RESOURCE')
+			dummyOperation = createDummyOperation({ name: 'TEST_OPERATION', description: 'Test operation description' })
+			dummyResource = createDummyResource({ name: 'TEST_RESOURCE' })
 			operationRepository = new OperationRepositoryMemory([dummyOperation])
 			resourceRepository = new ResourceRepositoryMemory([dummyResource])
 			roleRepository = new RoleRepositoryMemory()
@@ -572,6 +578,7 @@ describe('RBACController', () => {
 				permissionRepository,
 				loggerPortMock,
 			)
+			getPermissionsUseCase = null as any
 			new RBACController(
 				server,
 				null as any,
@@ -591,6 +598,7 @@ describe('RBACController', () => {
 				roleRepository,
 				grantPermissionToRoleUseCase,
 				revokePermissionFromRoleUseCase,
+				getPermissionsUseCase,
 			)
 			server.registerErrorHandler()
 		})
@@ -635,7 +643,7 @@ describe('RBACController', () => {
 			})
 			it("should return 404 if the role doesn't exist", async () => {
 				const res = await request(server.app)
-					.put(`/rbac/roles/${crypto.randomUUID()}`)
+					.put(`/rbac/roles/${NON_EXISTENT_UUID}`)
 					.send({
 						name: 'UPDATED_TEST_ROLE',
 						description: 'Updated test role description',
@@ -686,7 +694,7 @@ describe('RBACController', () => {
 				})
 			})
 			it("should return 404 if the role doesn't exist", async () => {
-				const res = await request(server.app).delete(`/rbac/roles/${crypto.randomUUID()}`)
+				const res = await request(server.app).delete(`/rbac/roles/${NON_EXISTENT_UUID}`)
 				expect(res.status).toBe(404)
 				expect(res.body).toEqual({
 					message: 'Role not found',
@@ -702,7 +710,7 @@ describe('RBACController', () => {
 				const res = await request(server.app).get('/rbac/roles')
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: [
+					data: [
 						{
 							id: expect.any(String),
 							name: 'TEST_ROLE',
@@ -723,7 +731,7 @@ describe('RBACController', () => {
 				)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
+					data: {
 						id: expect.any(String),
 						name: 'TEST_ROLE',
 						description: 'Test role description',
@@ -731,7 +739,7 @@ describe('RBACController', () => {
 				})
 			})
 			it("should return 404 if the role doesn't exist", async () => {
-				const res = await request(server.app).get(`/rbac/roles/${crypto.randomUUID()}`)
+				const res = await request(server.app).get(`/rbac/roles/${NON_EXISTENT_UUID}`)
 				expect(res.status).toBe(404)
 				expect(res.body).toEqual({
 					message: 'Role not found',
@@ -825,7 +833,7 @@ describe('RBACController', () => {
 				)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: [
+					data: [
 						{
 							id: createdPermissionResponse.body.data.id,
 							operationId: createdPermissionResponse.body.data.permission.id,

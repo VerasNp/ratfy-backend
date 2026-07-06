@@ -1,145 +1,196 @@
-import type { TrackRepository } from '#application/ports/TrackRepository.js'
-
 import ConcurrentUpdateError from '#application/errors/ConcurrentUpdateError.js'
-import { TrackNotFoundError } from '#application/errors/TrackNotFoundError.js'
-import Track, { type ExternalIds } from '#domain/track/Track.js'
+import type { TrackRepository } from '#application/ports/TrackRepository.js'
+import Track from '#domain/track/Track.js'
+import { Prisma, type PrismaClient } from '#prisma/client'
 
-import type { PrismaClient, Track as PrismaTrack } from '../../../prisma/generated/prisma/client'
+class TrackRepositoryPrismaORM implements TrackRepository {
+	public constructor(private readonly orm: PrismaClient) {}
 
+	public async search(input: { page: number; limit: number; query?: string }): Promise<Track[]> {
+		const { page, limit, query } = input
+		const rows = await this.orm.track.findMany({
+			where: {
+				deletedAt: null,
+				...(query && {
+					title: { contains: query, mode: 'insensitive' },
+				}),
+			},
+			orderBy: { createdAt: 'desc' },
+			skip: (page - 1) * limit,
+			take: limit,
+		})
+		return rows.map((row) => this._toDomain(row))
+	}
 
+	public async create(trackData: Track): Promise<Track> {
+		const row = await this.orm.track.create({
+			data: {
+				id: trackData.id,
+				title: trackData.title,
+				durationMs: trackData.durationMs,
+				discNumber: trackData.discNumber,
+				trackNumber: trackData.trackNumber,
+				explicit: trackData.explicit,
+				lyrics: trackData.lyrics,
+				isPublic: trackData.isPublic,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+				deletedAt: null,
+				audioFileKey: trackData.audioFileKey,
+				audioFileSize: trackData.audioFileSize,
+				audioContentType: trackData.audioContentType,
+				drmEnabled: trackData.drmEnabled,
+				album: {
+					connect: { id: trackData.albumId },
+				},
+				...(trackData.artists.length > 0 && {
+					artists: {
+						connect: trackData.artists.map((artist) => ({ id: artist.id })),
+					},
+				}),
+			},
+			include: { album: true, artists: true },
+		})
+		return this._toDomain(row)
+	}
 
-class TrackRepositoryPrisma implements TrackRepository {
-  constructor(private readonly orm: PrismaClient) { }
-  async create(track: Track): Promise<Track> {
-    const row = await this.orm.track.create({
-      data: {
-        albumId:           track.albumId,
-        artistIds:         track.artistIds,
-        audioFileKey:      track.audioFileKey,
-        audioFileSize:     track.audioFileSize,
-        audioContentType:  track.audioContentType,
-        createdAt:         track.createdAt,
-        discNumber:        track.discNumber,
-        drmEnabled:        track.drmEnabled,
-        durationMs:        track.durationMs,
-        explicit:          track.explicit,
-        externalIds:       track.externalIds,
-        id:                track.id,
-        isDeleted:         track.isDeleted,
-        isLocal:           track.isLocal,
-        isPublic:          track.isPublic,
-        name:              track.name,
-        popularity:        track.popularity,
-        trackNumber:       track.trackNumber,
-      },
-    })
-    return this.toDomain(row)
-  }
-  async delete(id: string): Promise<void> {
-    await this.orm.track.update({
-      data:  { isDeleted: true, isPublic: false },
-      where: { id },
-    })
-  }
-  async findByAlbumId(albumId: string): Promise<Track[]> {
-    const rows = await this.orm.track.findMany({
-      orderBy: [{ discNumber: 'asc' }, { trackNumber: 'asc' }],
-      where:   { albumId, isDeleted: false },
-    })
-    return rows.map((row) => this.toDomain(row))
-  }
-  async findById(id: string): Promise<Track | null> {
-    const row = await this.orm.track.findUnique({ where: { id } })
-    return row ? this.toDomain(row) : null
-  }
+	public async delete(trackId: string): Promise<void> {
+		await this.orm.track.update({
+			data: { deletedAt: new Date(), isPublic: false },
+			where: { id: trackId },
+		})
+	}
 
+	public async findByAlbumId(albumId: string): Promise<Track[]> {
+		const rows = await this.orm.track.findMany({
+			orderBy: [{ discNumber: 'asc' }, { trackNumber: 'asc' }],
+			where: { albumId, deletedAt: null },
+		})
+		return rows.map((row) => this._toDomain(row))
+	}
 
+	public async findById(trackId: string): Promise<Track | null> {
+		const row = await this.orm.track.findUnique({
+			where: { id: trackId, deletedAt: null },
+			include: { album: true, artists: true },
+		})
+		return row ? this._toDomain(row) : null
+	}
 
-  async list(page: number, limit: number): Promise<Track[]> {
-    const rows = await this.orm.track.findMany({
-      orderBy: { createdAt: 'desc' },
-      skip:    (page - 1) * limit,
-      take:    limit,
-      where:   { isDeleted: false },
-    })
-    return rows.map((row) => this.toDomain(row))
-  }
+	public async listByIds(ids: string[]): Promise<Track[]> {
+		const rows = await this.orm.track.findMany({
+			where: { id: { in: ids }, deletedAt: null },
+		})
+		return rows.map((row) => this._toDomain(row))
+	}
 
-  async update(id: string, data: Partial<Track>, expectedAudioFileKey?: string | null): Promise<void> {
-    const where: any = { id }
-    if (expectedAudioFileKey !== undefined) {
-      where.audioFileKey = expectedAudioFileKey
-      const result = await this.orm.track.updateMany({
-        data: {
-          ...(data.albumId           != null && { albumId:           data.albumId }),
-          ...(data.artistIds         != null && { artistIds:         data.artistIds }),
-          ...(data.audioFileKey      != null && { audioFileKey:      data.audioFileKey }),
-          ...(data.audioFileSize     != null && { audioFileSize:     data.audioFileSize }),
-          ...(data.audioContentType  != null && { audioContentType:  data.audioContentType }),
-          ...(data.discNumber        != null && { discNumber:        data.discNumber }),
-          ...(data.drmEnabled        != null && { drmEnabled:        data.drmEnabled }),
-          ...(data.durationMs        != null && { durationMs:        data.durationMs }),
-          ...(data.explicit          != null && { explicit:          data.explicit }),
-          ...(data.externalIds       != null && { externalIds:       data.externalIds }),
-          ...(data.isLocal           != null && { isLocal:           data.isLocal }),
-          ...(data.isPublic          != null && { isPublic:          data.isPublic }),
-          ...(data.name              != null && { name:              data.name }),
-          ...(data.popularity        != null && { popularity:        data.popularity }),
-        },
-        where,
-      })
-      if (result.count === 0) {
-        throw new ConcurrentUpdateError('Track')
-      }
-      return
-    }
+	public async list(page: number, limit: number): Promise<Track[]> {
+		const rows = await this.orm.track.findMany({
+			orderBy: { createdAt: 'desc' },
+			skip: (page - 1) * limit,
+			take: limit,
+			where: { deletedAt: null },
+		})
+		return rows.map((row) => this._toDomain(row))
+	}
 
-    await this.orm.track.update({
-      data: {
-        ...(data.albumId           != null && { albumId:           data.albumId }),
-        ...(data.artistIds         != null && { artistIds:         data.artistIds }),
-        ...(data.audioFileKey      != null && { audioFileKey:      data.audioFileKey }),
-        ...(data.audioFileSize     != null && { audioFileSize:     data.audioFileSize }),
-        ...(data.audioContentType  != null && { audioContentType:  data.audioContentType }),
-        ...(data.discNumber        != null && { discNumber:        data.discNumber }),
-        ...(data.drmEnabled        != null && { drmEnabled:        data.drmEnabled }),
-        ...(data.durationMs        != null && { durationMs:        data.durationMs }),
-        ...(data.explicit          != null && { explicit:          data.explicit }),
-        ...(data.externalIds       != null && { externalIds:       data.externalIds }),
-        ...(data.isLocal           != null && { isLocal:           data.isLocal }),
-        ...(data.isPublic          != null && { isPublic:          data.isPublic }),
-        ...(data.name              != null && { name:              data.name }),
-        ...(data.popularity        != null && { popularity:        data.popularity }),
-      },
-      where: { id },
-    })
-  }
-  private toDomain(row: PrismaTrack): Track {
-    return Track.restore({
-      albumId:           row.albumId,
-      artistIds:         row.artistIds,
-      audioFileKey:      row.audioFileKey,
-      audioFileSize:     row.audioFileSize,
-      audioContentType:  row.audioContentType,
-      createdAt:         row.createdAt,
-      discNumber:        row.discNumber,
-      drmEnabled:        row.drmEnabled,
-      durationMs:        row.durationMs,
-      explicit:          row.explicit,
-      externalIds:       row.externalIds as ExternalIds,
-      id:                row.id,
-      isDeleted:         row.isDeleted,
-      isLocal:           row.isLocal,
-      isPublic:          row.isPublic,
-      name:              row.name,
-      popularity:        row.popularity,
-      trackNumber:       row.trackNumber,
-      updatedAt:         row.updatedAt,
-    })
-  }
-
-
-
+	public async update(
+		id: string,
+		data: Partial<Track>,
+		expectedAudioFileKey?: string | null,
+	): Promise<Track | null> {
+		const where: any = { id }
+		let row: any
+		try {
+			if (expectedAudioFileKey !== undefined) {
+				where.audioFileKey = expectedAudioFileKey
+				row = await this.orm.track.update({
+					data: {
+						...(data.title != null && { title: data.title }),
+						...(data.durationMs != null && { durationMs: data.durationMs }),
+						...(data.discNumber != null && { discNumber: data.discNumber }),
+						...(data.trackNumber != null && { trackNumber: data.trackNumber }),
+						...(data.explicit != null && { explicit: data.explicit }),
+						...(data.lyrics != null && { lyrics: data.lyrics }),
+						...(data.isPublic != null && { isPublic: data.isPublic }),
+						...(data.albumId != null && { albumId: data.albumId }),
+						...(data.audioFileKey != null && { audioFileKey: data.audioFileKey }),
+						...(data.audioFileSize != null && { audioFileSize: data.audioFileSize }),
+						...(data.audioContentType != null && {
+							audioContentType: data.audioContentType,
+						}),
+						...(data.drmEnabled != null && { drmEnabled: data.drmEnabled }),
+						...(data.artists != null && {
+							artists: {
+								set: data.artists.map((artist) => ({ id: artist.id })),
+							},
+						}),
+						updatedAt: new Date(),
+					},
+					where,
+					include: { album: true, artists: true },
+				})
+				if (row.count === 0) {
+					throw new ConcurrentUpdateError('Track')
+				}
+			} else {
+				row = await this.orm.track.update({
+					data: {
+						...(data.title != null && { title: data.title }),
+						...(data.durationMs != null && { durationMs: data.durationMs }),
+						...(data.discNumber != null && { discNumber: data.discNumber }),
+						...(data.trackNumber != null && { trackNumber: data.trackNumber }),
+						...(data.explicit != null && { explicit: data.explicit }),
+						...(data.lyrics != null && { lyrics: data.lyrics }),
+						...(data.isPublic != null && { isPublic: data.isPublic }),
+						...(data.albumId != null && { albumId: data.albumId }),
+						...(data.audioFileKey != null && { audioFileKey: data.audioFileKey }),
+						...(data.audioFileSize != null && { audioFileSize: data.audioFileSize }),
+						...(data.audioContentType != null && {
+							audioContentType: data.audioContentType,
+						}),
+						...(data.drmEnabled != null && { drmEnabled: data.drmEnabled }),
+						...(data.artists != null && {
+							artists: {
+								set: data.artists.map((artist) => ({ id: artist.id })),
+							},
+						}),
+						updatedAt: new Date(),
+					},
+					where,
+					include: { album: true, artists: true },
+				})
+			}
+			return this._toDomain(row)
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+				return null
+			}
+			throw error
+		}
+	}
+	private _toDomain(row: any): Track {
+		return Track.restore({
+			albumId: row.albumId,
+			createdAt: row.createdAt,
+			discNumber: row.discNumber,
+			durationMs: row.durationMs,
+			explicit: row.explicit,
+			id: row.id,
+			deletedAt: row.deletedAt,
+			isPublic: row.isPublic,
+			title: row.title,
+			trackNumber: row.trackNumber,
+			updatedAt: row.updatedAt,
+			lyrics: row.lyrics,
+			album: row.album,
+			artists: row.artists ?? [],
+			audioFileKey: row.audioFileKey,
+			audioFileSize: row.audioFileSize,
+			audioContentType: row.audioContentType,
+			drmEnabled: row.drmEnabled,
+		})
+	}
 }
 
-export default TrackRepositoryPrisma
+export default TrackRepositoryPrismaORM

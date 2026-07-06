@@ -2,54 +2,73 @@ import type { PlaylistRepository } from '#application/ports/PlaylistRepository.j
 import type Playlist from '#domain/playlist/Playlist.js'
 
 class PlaylistRepositoryMemory implements PlaylistRepository {
-  public playlists: Playlist[] = []
+	public playlists: Playlist[]
+	public tracks = new Map<string, Set<string>>()
 
-  public constructor(initialPlaylists: Playlist[] = []) {
-    this.playlists = initialPlaylists
-  }
+	public constructor(initialPlaylists: Playlist[] = []) {
+		this.playlists = initialPlaylists
+	}
 
-  public async create(playlist: Playlist): Promise<Playlist> {
-    this.playlists.push(playlist)
-    return playlist
-  }
+	public create(playlist: Playlist): Promise<Playlist> {
+		this.playlists.push(playlist)
+		return Promise.resolve(playlist)
+	}
 
-  public async delete(id: string): Promise<void> {
-    const index = this.playlists.findIndex((p) => p.id === id)
-    if (index !== -1) {
-      this.playlists.splice(index, 1)
-    }
-  }
+	public delete(id: string): Promise<void> {
+		this.playlists = this.playlists.filter((p) => p.id !== id)
+		return Promise.resolve()
+	}
 
-  public async findById(id: string): Promise<Playlist | null> {
-    const playlist = this.playlists.find((p) => p.id === id)
-    return playlist ?? null
-  }
+	public findById(id: string): Promise<Playlist | null> {
+		const found = this.playlists.find((p) => p.id === id)
+		return Promise.resolve(found ?? null)
+	}
 
-  public async listByOwnerId(ownerId: string, page: number, limit: number): Promise<Playlist[]> {
-    const start = (page - 1) * limit
-    return this.playlists
-      .filter((p) => p.ownerId === ownerId)
-      .slice(start, start + limit)
-  }
+	public listByIds(ids: string[]): Promise<Playlist[]> {
+		const found = this.playlists.filter((p) => ids.includes(p.id))
+		return Promise.resolve(found)
+	}
 
-  public async list(page: number, limit: number): Promise<Playlist[]> {
-    const start = (page - 1) * limit
-    return this.playlists.slice(start, start + limit)
-  }
+	public listByOwnerId(ownerId: string, page: number, limit: number): Promise<Playlist[]> {
+		const owned = this.playlists.filter((p) => p.ownerId === ownerId)
+		const start = (page - 1) * limit
+		const end = start + limit
+		return Promise.resolve(owned.slice(start, end))
+	}
 
-  public async update(id: string, data: Partial<Playlist>, _expectedCoverImageKey?: string | null): Promise<void> {
-    const index = this.playlists.findIndex((p) => p.id === id)
-    if (index === -1) return
-    Object.assign(this.playlists[index]!, data)
-  }
+	public list(page: number, limit: number): Promise<Playlist[]> {
+		const start = (page - 1) * limit
+		const end = start + limit
+		return Promise.resolve(this.playlists.slice(start, end))
+	}
 
-  public async addTrack(playlistId: string, trackId: string): Promise<void> {
-    // no-op for memory implementation
-  }
+	public update(
+		id: string,
+		data: Partial<Playlist>,
+		_expectedCoverImageKey?: string | null,
+	): Promise<void> {
+		const playlist = this.playlists.find((p) => p.id === id)
+		if (!playlist) return Promise.resolve()
+		if (data.name !== undefined) playlist.name = data.name
+		if (data.isPublic !== undefined) playlist.isPublic = data.isPublic
+		if (data.coverImageKey !== undefined) playlist.coverImageKey = data.coverImageKey
+		if (data.coverImageSize !== undefined) playlist.coverImageSize = data.coverImageSize
+		playlist.updatedAt = new Date()
+		return Promise.resolve()
+	}
 
-  public async removeTrack(playlistId: string, trackId: string): Promise<void> {
-    // no-op for memory implementation
-  }
+	public addTrack(playlistId: string, trackId: string): Promise<void> {
+		if (!this.tracks.has(playlistId)) {
+			this.tracks.set(playlistId, new Set())
+		}
+		this.tracks.get(playlistId)!.add(trackId)
+		return Promise.resolve()
+	}
+
+	public removeTrack(playlistId: string, trackId: string): Promise<void> {
+		this.tracks.get(playlistId)?.delete(trackId)
+		return Promise.resolve()
+	}
 }
 
 export default PlaylistRepositoryMemory

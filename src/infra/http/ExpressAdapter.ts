@@ -20,19 +20,12 @@ class ExpressAdapter implements HttpServerPort {
 	public constructor(
 		private port: number,
 		private readonly loggerService: LoggerPort,
-		private readonly docsService: DocsPort,
+		// private readonly docsService: DocsPort,
 	) {
 		this.app = express()
 		this.app.use(express.json())
 		this.app.use(cors())
 		this.app.use(cookieParser())
-		this._setupDocs()
-	}
-
-	private _setupDocs(): void {
-		const spec = this.docsService.generate()
-		this.app.use('/docs', swaggerUi.serve, swaggerUi.setup(spec as any))
-		this.app.get('/docs.json', (_req, res) => res.json(spec))
 	}
 
 	public listen(): void {
@@ -61,27 +54,30 @@ class ExpressAdapter implements HttpServerPort {
 			url,
 			...middlewares.map((m) => asyncHandler(m)),
 			asyncHandler(async (req: any, res: any) => {
-				const output = await callback(req.params, req.body, req.query, req)
+				const output: HttpResponse = await callback(req.params, req.body, req.query, req)
+				if (output?.cookies) {
+					for (const cookie of output.cookies) {
+						res.cookie(cookie.name, cookie.value, cookie.options)
+					}
+				}
 
 				if (output === undefined) {
 					return res.status(204).send()
 				}
 
-				if (typeof output === 'object' && output !== null && ('cookies' in output || 'status' in output)) {
-					const httpRes = output as HttpResponse
-					if (httpRes.cookies) {
-						for (const cookie of httpRes.cookies) {
-							res.cookie(cookie.name, cookie.value, cookie.options)
-						}
-					}
-					const statusCode = httpRes.status ?? (httpRes.body === undefined ? 204 : 200)
-					if (httpRes.body === undefined) {
-						return res.status(statusCode).send()
-					}
-					return res.status(statusCode).json(httpRes.body)
+				const statusCode = output.statusCode ?? 200
+
+				if (output.message && output.body !== undefined) {
+					return res
+						.status(statusCode)
+						.json({ message: output.message, data: output.body })
 				}
 
-				return res.json(output)
+				if (output.message) {
+					return res.status(statusCode).json({ message: output.message })
+				}
+
+				return res.status(statusCode).json({ data: output.body })
 			}),
 		)
 	}
@@ -90,8 +86,11 @@ class ExpressAdapter implements HttpServerPort {
 		this.app.use((err: any, req: any, res: any, next: any) => {
 			if (err instanceof ZodError) {
 				return res.status(400).json({
-					error: 'Validation error',
-					details: err.issues.map((issue) => ({ message: issue.message })),
+					message: 'Invalid input',
+					errors: err.issues.map((issue: any) => ({
+						message: issue.message,
+						path: issue.path,
+					})),
 				})
 			}
 			if (err instanceof DomainError) {
