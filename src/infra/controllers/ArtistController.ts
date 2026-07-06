@@ -7,14 +7,13 @@ import {
 	ArtistCreateSchema,
 	ArtistListSchema,
 	ArtistUpdateSchema,
+	BecomeArtistSchema,
 } from '#infra/http/schemas/ArtistsSchemas.js'
 import NotFoundError from '#infra/errors/NotFoundError.js'
 import type CreateArtistUseCase from '#application/useCases/artist/CreateArtistUseCase.js'
 import type UpdateArtistUseCase from '#application/useCases/artist/UpdateArtistUseCase.js'
 import type DeleteArtistUseCase from '#application/useCases/artist/DeleteArtistUseCase.js'
 import type { BecomeArtistUseCase } from '#application/useCases/artist/BecomeArtistUseCase.js'
-import { BecomeArtistSchema } from '#application/DTOs/artist/BecomeArtistInputDTO.js'
-
 class ArtistController {
 	public constructor(
 		private readonly httpServer: HttpServerPort,

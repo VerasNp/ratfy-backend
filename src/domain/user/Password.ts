@@ -1,3 +1,5 @@
+import ValidationError from '#domain/errors/ValidationError.js'
+
 class Password {
 	public readonly value: string
 
@@ -7,7 +9,7 @@ class Password {
 
 	public static create(value: string): Password {
 		if (!Password.validatePassword(value)) {
-			throw new Error(
+			throw new ValidationError(
 				'Password must be at least 8 characters long, contain at least one lowercase letter, one uppercase letter, one digit, and one special character',
 			)
 		}

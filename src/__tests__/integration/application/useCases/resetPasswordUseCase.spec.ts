@@ -13,7 +13,7 @@ let dummyUser: User
 
 tokenPortMock.verifyToken.mockImplementation((token) => {
 	if (token === 'valid-token') {
-		return { userId: dummyUser.id, email: dummyUser.email.value }
+		return { userId: dummyUser.id, email: dummyUser.email }
 	} else if (token === 'invalid-user') {
 		return { userId: 'non-existing-id', email: 'nonexistent@bar.com' }
 	} else if (token === 'email-mismatch') {
@@ -48,7 +48,7 @@ describe('ResetPassword use case', () => {
 		hashPortMock.hash.mockResolvedValueOnce('new-hashed-value')
 		await resetPasswordUseCase.execute({ token: 'valid-token', newPassword: 'NewValid@456' })
 		const updated = await userRepository.findById(dummyUser.id)
-		expect(updated?.password.value).toBe('new-hashed-value')
+		expect(updated?.password).toBe('new-hashed-value')
 	})
 	it('should throw InvalidTokenError if token is invalid', async () => {
 		await expect(

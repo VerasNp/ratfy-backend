@@ -14,7 +14,14 @@ export async function createDummyAlbumPrismaORM(
 			releasePrecision: data.releasePrecision || 'day',
 			totalTracks: data.totalTracks || 30,
 			label: data.label || 'Dummy Label',
-			artists: data.artists,
+			artists: {
+				createMany: {
+					data: (data.artists || []).map((artist: any) => ({
+						artistId: artist.id,
+					})),
+				},
+			},
+			isPublic: data.isPublic || true,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		},

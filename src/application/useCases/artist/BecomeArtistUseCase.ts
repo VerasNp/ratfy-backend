@@ -1,5 +1,3 @@
-import type { BecomeArtistInputDTO } from '#application/DTOs/artist/BecomeArtistInputDTO.js'
-import type { ArtistCreateOutputDTO } from '#application/DTOs/artist/ArtistCreateOutputDTO.js'
 import type { ArtistRepository } from '#application/ports/ArtistRepository.js'
 import type { LoggerPort } from '#application/ports/LoggerPort.js'
 import type { RoleRepository } from '#application/ports/RoleRepository.js'
@@ -23,7 +21,7 @@ export class BecomeArtistUseCase {
 		private readonly loggerService: LoggerPort,
 	) {}
 
-	public async execute(userId: string, input: BecomeArtistInputDTO): Promise<ArtistCreateOutputDTO> {
+	public async execute(userId: string, input: Input): Promise<Output> {
 		const user = await this.userRepository.findById(userId)
 		if (!user) {
 			this.loggerService.warn(`User with id ${userId} not found`, {
@@ -55,7 +53,7 @@ export class BecomeArtistUseCase {
 			throw new MissingApplicationSetupError('Internal server error')
 		}
 
-		const artist = Artist.create({ userId, bio: input.bio ?? null })
+		const artist = Artist.create({ user, bio: input.bio ?? null })
 
 		await this.unitOfWork.execute(async (tx) => {
 			await this.artistRepository.create(artist, tx)
@@ -72,10 +70,18 @@ export class BecomeArtistUseCase {
 			id: artist.id,
 			userId: artist.userId,
 			bio: artist.bio,
-			createdAt: artist.createdAt,
-			updatedAt: artist.updatedAt,
 		}
 	}
+}
+
+type Input = {
+	bio?: string | null
+}
+
+type Output = {
+	id: string
+	userId: string
+	bio: string | null
 }
 
 

@@ -1,4 +1,4 @@
-import { BecomeArtistSchema } from '#application/DTOs/artist/BecomeArtistInputDTO.js'
+import { BecomeArtistSchema } from '#infra/http/schemas/ArtistsSchemas.js'
 import type { OpenAPIRegistry } from '@asteasolutions/zod-to-openapi'
 import z from 'zod'
 

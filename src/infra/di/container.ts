@@ -45,9 +45,6 @@ import PlaylistRepositoryPrisma from '#infra/repository/PlaylistRepositoryPrisma
 import TrackRepositoryPrismaORM from '#infra/repository/TrackRepositoryPrismaORM.js'
 import { CreatePlaylistUseCase } from '#application/useCases/playlist/CreatePlaylist.js'
 import { DeletePlaylistUseCase } from '#application/useCases/playlist/DeletePlaylist.js'
-import { GetPlaylistUseCase } from '#application/useCases/playlist/GetPlaylist.js'
-import { ListPlaylistsUseCase } from '#application/useCases/playlist/ListPlaylists.js'
-import { ListPlaylistsByOwnerIdUseCase } from '#application/useCases/playlist/ListPlaylistsByOwnerId.js'
 import { UpdatePlaylistUseCase } from '#application/useCases/playlist/UpdatePlaylist.js'
 import { AddTrackToPlaylistUseCase } from '#application/useCases/playlist/AddTrackToPlaylist.js'
 import { RemoveTrackFromPlaylistUseCase } from '#application/useCases/playlist/RemoveTrackFromPlaylist.js'
@@ -78,6 +75,7 @@ import GrantPermissionToRoleUseCase from '#application/useCases/rbac/GrantPermis
 import RevokePermissionFromRoleUseCase from '#application/useCases/rbac/RevokePermissionFromRoleUseCase.js'
 import AssignRoleToUserUseCase from '#application/useCases/rbac/AssignRoleToUserUseCase.js'
 import RemoveRoleFromUserUseCase from '#application/useCases/rbac/RemoveRoleFromUserUseCase.js'
+import GetPermissionsUseCase from '#application/useCases/rbac/GetPermissionsUseCase.js'
 import CreateArtistUseCase from '#application/useCases/artist/CreateArtistUseCase.js'
 import DeleteArtistUseCase from '#application/useCases/artist/DeleteArtistUseCase.js'
 import UpdateArtistUseCase from '#application/useCases/artist/UpdateArtistUseCase.js'
@@ -129,11 +127,8 @@ container.register({
 	deleteArtistUseCase: asClass(DeleteArtistUseCase).scoped(),
 	becomeArtistUseCase: asClass(BecomeArtistUseCase).scoped(),
 	createPlaylistUseCase: asClass(CreatePlaylistUseCase).scoped(),
-	getPlaylistUseCase: asClass(GetPlaylistUseCase).scoped(),
 	updatePlaylistUseCase: asClass(UpdatePlaylistUseCase).scoped(),
 	deletePlaylistUseCase: asClass(DeletePlaylistUseCase).scoped(),
-	listPlaylistsUseCase: asClass(ListPlaylistsUseCase).scoped(),
-	listPlaylistsByOwnerIdUseCase: asClass(ListPlaylistsByOwnerIdUseCase).scoped(),
 	addTrackToPlaylistUseCase: asClass(AddTrackToPlaylistUseCase).scoped(),
 	removeTrackFromPlaylistUseCase: asClass(RemoveTrackFromPlaylistUseCase).scoped(),
 	forgotPasswordUseCase: asClass(ForgotPasswordUseCase).scoped(),
@@ -160,6 +155,7 @@ container.register({
 	revokePermissionFromRoleUseCase: asClass(RevokePermissionFromRoleUseCase).scoped(),
 	assignRoleToUserUseCase: asClass(AssignRoleToUserUseCase).scoped(),
 	removeRoleFromUserUseCase: asClass(RemoveRoleFromUserUseCase).scoped(),
+	getPermissionsUseCase: asClass(GetPermissionsUseCase).scoped(),
 	addFavoriteTrackUseCase: asClass(AddFavoriteTrackUseCase).scoped(),
 	removeFavoriteTrackUseCase: asClass(RemoveFavoriteTrackUseCase).scoped(),
 	listFavoriteTracksUseCase: asClass(ListFavoriteTracksUseCase).scoped(),

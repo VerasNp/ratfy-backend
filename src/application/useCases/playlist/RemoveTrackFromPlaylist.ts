@@ -1,5 +1,3 @@
-import type { PlaylistRemoveTrackInputDTO } from '#application/DTOs/playlist/PlaylistRemoveTrackInputDTO.js'
-import type { PlaylistRemoveTrackOutputDTO } from '#application/DTOs/playlist/PlaylistRemoveTrackOutputDTO.js'
 import type { PlaylistRepository } from '#application/ports/PlaylistRepository.js'
 
 import { PlaylistNotFoundError } from '#application/errors/PlaylistNotFoundError.js'
@@ -7,7 +5,7 @@ import { PlaylistNotFoundError } from '#application/errors/PlaylistNotFoundError
 export class RemoveTrackFromPlaylistUseCase {
   constructor(private readonly playlistRepo: PlaylistRepository) {}
 
-  async execute(dto: PlaylistRemoveTrackInputDTO): Promise<PlaylistRemoveTrackOutputDTO> {
+  async execute(dto: Input): Promise<void> {
     const playlist = await this.playlistRepo.findById(dto.playlistId)
     
     if (!playlist) {
@@ -16,4 +14,9 @@ export class RemoveTrackFromPlaylistUseCase {
 
     await this.playlistRepo.removeTrack(dto.playlistId, dto.trackId)
   }
+}
+
+type Input = {
+  playlistId: string
+  trackId: string
 }

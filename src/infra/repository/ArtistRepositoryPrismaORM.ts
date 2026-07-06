@@ -19,7 +19,7 @@ class ArtistRepositoryPrismaORM implements ArtistRepository {
 		return rows.then((rows) => rows.map((row) => this._toDomain(row)))
 	}
 
-	public async create(artist: Artist): Promise<Artist> {
+	public async create(artist: Artist, _tx?: any): Promise<Artist> {
 		const row = await this.orm.artist.create({
 			data: {
 				id: artist.id,
@@ -31,12 +31,16 @@ class ArtistRepositoryPrismaORM implements ArtistRepository {
 		return this._toDomain(row)
 	}
 
-	public async delete(id: string): Promise<Artist> {
-		const row = await this.orm.artist.delete({
-			where: { id },
-			include: { user: true },
-		})
-		return this._toDomain(row)
+	public async delete(id: string): Promise<Artist | null> {
+		try {
+			const row = await this.orm.artist.delete({
+				where: { id },
+				include: { user: true },
+			})
+			return this._toDomain(row)
+		} catch {
+			return null
+		}
 	}
 
 	public async findById(id: string): Promise<Artist | null> {
@@ -49,8 +53,17 @@ class ArtistRepositoryPrismaORM implements ArtistRepository {
 		return row ? this._toDomain(row) : null
 	}
 
+	public async listByIds(ids: string[]): Promise<Artist[]> {
+		const rows = await this.orm.artist.findMany({
+			where: { id: { in: ids } },
+			include: { user: true },
+		})
+		return rows.map((row) => this._toDomain(row))
+	}
+
 	public async list(page: number, limit: number): Promise<Artist[]> {
 		const rows = await this.orm.artist.findMany({
+			include: { user: true },
 			orderBy: { createdAt: 'desc' },
 			skip: (page - 1) * limit,
 			take: limit,
@@ -58,15 +71,19 @@ class ArtistRepositoryPrismaORM implements ArtistRepository {
 		return rows.map((row) => this._toDomain(row))
 	}
 
-	public async update(id: string, data: Partial<Artist>): Promise<Artist> {
-		const row = await this.orm.artist.update({
-			data: {
-				...(data.bio !== undefined && { bio: data.bio }),
-			},
-			where: { id },
-			include: { user: true },
-		})
-		return Promise.resolve(this._toDomain(row))
+	public async update(id: string, data: Partial<Artist>): Promise<Artist | null> {
+		try {
+			const row = await this.orm.artist.update({
+				data: {
+					...(data.bio !== undefined && { bio: data.bio }),
+				},
+				where: { id },
+				include: { user: true },
+			})
+			return Promise.resolve(this._toDomain(row))
+		} catch {
+			return null
+		}
 	}
 
 	private _toDomain(row: any): Artist {

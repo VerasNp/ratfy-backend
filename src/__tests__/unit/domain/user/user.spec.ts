@@ -10,8 +10,8 @@ describe('User domain', () => {
 			new Date('1990-01-01'),
 		)
 		expect(user.name).toBe('John Doe')
-		expect(user.email.value).toBe('john@example.com')
-		expect(user.password.value).toBe('Valid$123')
-		expect(user.birthDate.value).toBeInstanceOf(Date)
+		expect(user.email).toBe('john@example.com')
+		expect(user.password).toBe('Valid$123')
+		expect(user.birthDate).toBeInstanceOf(Date)
 	})
 })

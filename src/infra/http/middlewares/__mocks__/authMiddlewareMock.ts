@@ -1,11 +1,13 @@
 import { vi } from 'vitest'
 import type AuthMiddleware from '../AuthMiddleware'
 
-export const authMiddlewareMock = {
-	handle: vi.fn().mockImplementation(() => {
-		return (req: any, _res: any, next: any) => {
-			req.user = { userId: 'dummy-user-id' }
-			next()
-		}
-	}),
-} as unknown as AuthMiddleware
+export const createAuthMiddlewareMock = (userId: string = 'dummy-user-id'): AuthMiddleware => {
+    return {
+        handle: vi.fn().mockReturnValue((req: any, _res: any, next: any) => {
+            req.user = { userId }
+            next()
+        }),
+    } as unknown as AuthMiddleware
+}
+
+export const authMiddlewareMock = createAuthMiddlewareMock()

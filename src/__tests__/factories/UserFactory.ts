@@ -11,6 +11,14 @@ export async function createDummyUserPrismaORM(orm: PrismaClient, data: any = {}
 			birthDate: data.birthDate || new Date('2000-01-01'),
 			createdAt: new Date(),
 			updatedAt: new Date(),
+			...(data.roles?.length > 0 && {
+				roles: {
+					create: data.roles.map((role: any) => ({ roleId: role.id })),
+				},
+			}),
+		},
+		include: {
+			roles: true,
 		},
 	})
 	return User.restore(
@@ -24,10 +32,13 @@ export async function createDummyUserPrismaORM(orm: PrismaClient, data: any = {}
 }
 
 export function createDummyUser(data: any = {}): User {
+	const verifiedAt = data.verifiedAt !== undefined ? data.verifiedAt : null
 	return User.create(
 		data.name || 'Dummy User',
 		data.email || 'foo@bar.com',
 		data.password || 'ValidPassword123!',
 		data.birthDate || new Date('2000-01-01'),
+		verifiedAt,
+		data.roles || [],
 	)
 }

@@ -17,3 +17,7 @@ export const ArtistUpdateSchema = ArtistCreateSchema.omit({ userId: true }).refi
 		message: 'At least one field must be provided for update',
 	},
 )
+
+export const BecomeArtistSchema = z.object({
+	bio: z.string().max(2000, 'Bio must be at most 2000 characters.').nullable().optional(),
+})

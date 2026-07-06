@@ -8,9 +8,14 @@ class TrackRepositoryMemory implements TrackRepository {
 		this.tracks = initialTracks
 	}
 
-	public create(track: Track): Promise<void> {
-		this.tracks.push(track)
-		return Promise.resolve()
+	public listByIds(ids: string[]): Promise<Track[]> {
+		const foundTracks = this.tracks.filter((track) => ids.includes(track.id))
+		return Promise.resolve(foundTracks)
+	}
+
+	public create(trackData: Track): Promise<Track> {
+		this.tracks.push(trackData)
+		return Promise.resolve(trackData)
 	}
 
 	public delete(id: string): Promise<void> {
@@ -34,15 +39,16 @@ class TrackRepositoryMemory implements TrackRepository {
 		return Promise.resolve(this.tracks.slice(startIndex, endIndex))
 	}
 
-	public update(id: string, data: Partial<Track>): Promise<void> {
+	public update(id: string, data: any): Promise<Track | null> {
 		const index = this.tracks.findIndex((track) => track.id === id)
-		if (index !== -1) {
-			this.tracks[index]?.updateData(data)
+		if (index === -1) {
+			return Promise.resolve(null)
 		}
-		return Promise.resolve()
+		this.tracks[index]?.updateData(data)
+		return Promise.resolve(this.tracks[index]!)
 	}
 
-	public search(input: { page: number; limit: number, query?: string }): Promise<Track[]> {
+	public search(input: { page: number; limit: number; query?: string }): Promise<Track[]> {
 		const { page, limit, query } = input
 		const startIndex = (page - 1) * limit
 		const endIndex = startIndex + limit
