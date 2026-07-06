@@ -15,7 +15,7 @@ class UserRepositoryMemory implements UserRepository {
 	}
 
 	public async create(user: User, _tx?: TransactionHandle): Promise<User> {
-		const existing = this.users.find((u) => u.email.value === user.email.value)
+		const existing = this.users.find((u) => u.email === user.email)
 		if (existing) {
 			throw new UniqueConstraintError('Email already in use')
 		}
@@ -24,7 +24,7 @@ class UserRepositoryMemory implements UserRepository {
 	}
 
 	findByEmail(email: string): Promise<User | null> {
-		const user = this.users.find((u) => u.email.value === email)
+		const user = this.users.find((u) => u.email === email)
 		return Promise.resolve(user || null)
 	}
 
@@ -34,7 +34,7 @@ class UserRepositoryMemory implements UserRepository {
 			return null
 		}
 		const duplicate = this.users.find(
-			(u) => u.email.value === userData.email.value && u.id !== userData.id,
+			(u) => u.email === userData.email && u.id !== userData.id,
 		)
 		if (duplicate) {
 			throw new UniqueConstraintError('Email already in use')

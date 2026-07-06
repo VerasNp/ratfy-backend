@@ -38,7 +38,7 @@ class ResetPasswordUseCase {
 			throw new UserNotFoundError()
 		}
 
-		if (user.email.value !== payload.email) {
+		if (user.email !== payload.email) {
 			this.loggerService.error('ResetPassword: Email mismatch', {
 				userId: payload.userId,
 				email: payload.email,
