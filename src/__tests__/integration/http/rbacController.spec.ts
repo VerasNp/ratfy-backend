@@ -26,6 +26,7 @@ import UpdateRoleUseCase from '#application/useCases/rbac/UpdateRoleUseCase.js'
 import DeleteRoleUseCase from '#application/useCases/rbac/DeleteRoleUseCase.js'
 import GrantPermissionToRoleUseCase from '#application/useCases/rbac/GrantPermissionToRoleUseCase.js'
 import RevokePermissionFromRoleUseCase from '#application/useCases/rbac/RevokePermissionFromRoleUseCase.js'
+import GetPermissionsUseCase from '#application/useCases/rbac/GetPermissionsUseCase.js'
 
 const NON_EXISTENT_UUID = '00000000-0000-0000-0000-000000000000'
 
@@ -42,6 +43,7 @@ let updateRoleUseCase: UpdateRoleUseCase
 let deleteRoleUseCase: DeleteRoleUseCase
 let grantPermissionToRoleUseCase: GrantPermissionToRoleUseCase
 let revokePermissionFromRoleUseCase: RevokePermissionFromRoleUseCase
+let getPermissionsUseCase: GetPermissionsUseCase
 let server: ExpressAdapter
 let operationRepository: OperationRepository
 let resourceRepository: ResourceRepository
@@ -56,6 +58,7 @@ describe('RBACController', () => {
 			createOperationUseCase = new CreateOperationUseCase(operationRepository, loggerPortMock)
 			updateOperationUseCase = new UpdateOperationUseCase(operationRepository, loggerPortMock)
 			deleteOperationUseCase = new DeleteOperationUseCase(operationRepository, loggerPortMock)
+			getPermissionsUseCase = null as any
 			new RBACController(
 				server,
 				createOperationUseCase,
@@ -75,6 +78,7 @@ describe('RBACController', () => {
 				null as any,
 				null as any,
 				null as any,
+				getPermissionsUseCase,
 			)
 			server.registerErrorHandler()
 		})
@@ -230,6 +234,7 @@ describe('RBACController', () => {
 			createResourceUseCase = new CreateResourceUseCase(resourceRepository, loggerPortMock)
 			updateResourceUseCase = new UpdateResourceUseCase(resourceRepository, loggerPortMock)
 			deleteResourceUseCase = new DeleteResourceUseCase(resourceRepository, loggerPortMock)
+			getPermissionsUseCase = null as any
 			new RBACController(
 				server,
 				null as any,
@@ -249,6 +254,7 @@ describe('RBACController', () => {
 				null as any,
 				null as any,
 				null as any,
+				getPermissionsUseCase,
 			)
 			server.registerErrorHandler()
 		})
@@ -418,6 +424,7 @@ describe('RBACController', () => {
 				permissionRepository,
 				loggerPortMock,
 			)
+			getPermissionsUseCase = new GetPermissionsUseCase(permissionRepository)
 			new RBACController(
 				server,
 				null as any,
@@ -437,6 +444,7 @@ describe('RBACController', () => {
 				null as any,
 				null as any,
 				null as any,
+				getPermissionsUseCase,
 			)
 			server.registerErrorHandler()
 		})
@@ -505,8 +513,15 @@ describe('RBACController', () => {
 					body: [
 						{
 							id: expect.any(String),
-							operationId: dummyOperation.id,
-							resourceId: dummyResource.id,
+							label: 'TEST_OPERATION:TEST_RESOURCE',
+							operation: {
+								id: dummyOperation.id,
+								name: 'TEST_OPERATION',
+							},
+							resource: {
+								id: dummyResource.id,
+								name: 'TEST_RESOURCE',
+							},
 						},
 					],
 				})
@@ -573,6 +588,7 @@ describe('RBACController', () => {
 				permissionRepository,
 				loggerPortMock,
 			)
+			getPermissionsUseCase = null as any
 			new RBACController(
 				server,
 				null as any,
@@ -592,6 +608,7 @@ describe('RBACController', () => {
 				roleRepository,
 				grantPermissionToRoleUseCase,
 				revokePermissionFromRoleUseCase,
+				getPermissionsUseCase,
 			)
 			server.registerErrorHandler()
 		})

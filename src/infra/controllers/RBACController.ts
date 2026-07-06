@@ -25,6 +25,7 @@ import type { RoleRepository } from '#application/ports/RoleRepository.js'
 import { GrantPermissionToRoleSchema } from '#infra/http/schemas/ManagePermissionsToRolesSchemas.js'
 import type GrantPermissionToRoleUseCase from '#application/useCases/rbac/GrantPermissionToRoleUseCase.js'
 import type RevokePermissionFromRoleUseCase from '#application/useCases/rbac/RevokePermissionFromRoleUseCase.js'
+import type GetPermissionsUseCase from '#application/useCases/rbac/GetPermissionsUseCase.js'
 
 class RBACController {
 	public constructor(
@@ -46,6 +47,7 @@ class RBACController {
 		private readonly roleRepository: RoleRepository,
 		private readonly grantPermissionToRoleUseCase: GrantPermissionToRoleUseCase,
 		private readonly revokePermissionFromRoleUseCase: RevokePermissionFromRoleUseCase,
+		private readonly getPermissionsUseCase: GetPermissionsUseCase,
 	) {
 		this.httpServer.register(
 			'post',
@@ -256,12 +258,7 @@ class RBACController {
 			'get',
 			'/rbac/permissions',
 			async (_params: any, _body: any, _query: any) => {
-				const foundPermissions = await this.permissionRepository.listPermissions()
-				const permissions = foundPermissions.map((foundPermission) => ({
-					id: foundPermission.id,
-					operationId: foundPermission.operation.id,
-					resourceId: foundPermission.resource.id,
-				}))
+				const permissions = await this.getPermissionsUseCase.execute()
 				return {
 					body: permissions,
 				}
