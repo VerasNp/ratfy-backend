@@ -29,7 +29,7 @@ import RateLimitMiddleware from '#infra/http/middlewares/RateLimitMiddleware.js'
 import UserController from '#infra/controllers/UserController.js'
 import VerifyEmailController from '#infra/controllers/VerifyEmailController.js'
 import { prisma } from '#infra/database/prisma.js'
-import SwaggerDocs from '#infra/docs/SwaggerDocs.js'
+// import SwaggerDocs from '#infra/docs/SwaggerDocs.js'
 import ExpressAdapter from '#infra/http/ExpressAdapter.js'
 import AuthMiddleware from '#infra/http/middlewares/AuthMiddleware.js'
 import PinoAdapter from '#infra/logger/PinoAdapter.js'
@@ -101,7 +101,7 @@ container.register({
 	mailService: asClass(NodemailerAdapter).singleton(),
 	loggerService: asClass(PinoAdapter).singleton(),
 	hashService: asClass(Argon2Adapter).singleton(),
-	docsService: asClass(SwaggerDocs).singleton(),
+	// docsService: asClass(SwaggerDocs).singleton(),
 
 	// repositories
 	userRepository: asClass(UserRepositoryPrismaORM).singleton(),
