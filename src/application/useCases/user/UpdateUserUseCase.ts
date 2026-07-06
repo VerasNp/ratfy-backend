@@ -33,7 +33,7 @@ class UpdateUserUseCase {
 			throw new UserNotFoundError()
 		}
 		let emailChanged = false
-		if (input.email !== undefined && input.email === user.email) {
+		if (input.email !== undefined && input.email !== user.email) {
 			const existingUser = await this.userRepository.findByEmail(input.email)
 			if (existingUser) {
 				this.loggerService.warn('UpdateUserUseCase: email already in use', {
@@ -78,7 +78,6 @@ class UpdateUserUseCase {
 			await this.sendVerificationEmail(updatedUser)
 		}
 		this.loggerService.info('UpdateUserUseCase: user updated successfully', { userId: userId })
-		console.log(updatedUser)
 		return {
 			id: updatedUser.id,
 			name: updatedUser.name,
@@ -103,10 +102,10 @@ class UpdateUserUseCase {
 export default UpdateUserUseCase
 
 type Input = {
-	name?: string
-	email?: string
-	password?: string
-	birthDate?: Date
+	name?: string | undefined
+	email?: string | undefined
+	password?: string | undefined
+	birthDate?: Date | undefined
 }
 
 type Output = {

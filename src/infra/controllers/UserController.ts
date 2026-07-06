@@ -83,7 +83,7 @@ class UserController {
 		this.httpServer.register(
 			'get',
 			'/users',
-			async (params: any, _body: any, _query: any) => {
+			async (_params: any, _body: any, _query: any) => {
 				const output = await this.listUsersUseCase.execute()
 				return { body: output }
 			},
@@ -120,7 +120,7 @@ class UserController {
 				if (!user) {
 					throw new ResourceNotFoundError('User not found')
 				}
-				return { data: user.roles.map((role) => ({ id: role.id, name: role.name.value })) }
+				return { body: user.roles.map((role) => ({ id: role.id, name: role.name.value })) }
 			},
 			[this.authMiddleware.handle()],
 		)
@@ -136,7 +136,7 @@ class UserController {
 				}
 				const permissions = user.roles.flatMap((role) => role.permissions)
 				return {
-					data: permissions.map((permission) => ({
+					body: permissions.map((permission) => ({
 						id: permission.id,
 						label: permission.label,
 					})),
@@ -161,7 +161,7 @@ class UserController {
 				const hasPermission = user.roles.some((role) =>
 					role.hasPermission(operation, resource),
 				)
-				return { data: { can: hasPermission } }
+				return { body: { can: hasPermission } }
 			},
 			[this.authMiddleware.handle()],
 		)

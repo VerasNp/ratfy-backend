@@ -88,7 +88,7 @@ class User {
 		this._verifiedAt = null
 	}
 
-	public updateData(data: { name?: string; birthDate?: Date }): void {
+	public updateData(data: { name?: string | undefined; birthDate?: Date | undefined }): void {
 		if (data.name !== undefined) {
 			this._name = data.name
 		}

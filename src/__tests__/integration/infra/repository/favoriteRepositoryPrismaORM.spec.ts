@@ -5,7 +5,7 @@ import FavoriteRepositoryPrisma from '#infra/repository/FavoriteRepositoryPrisma
 import { PrismaClient } from '#prisma/client'
 
 const adapter = new PrismaPg({ connectionString: inject('testPostgresURL') })
-const prisma = new PrismaClient({ adapter, log: ['warn', 'error'] })
+const prisma = new PrismaClient({ adapter })
 const favoriteRepository = new FavoriteRepositoryPrisma(prisma)
 
 afterAll(async () => {

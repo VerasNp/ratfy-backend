@@ -6,6 +6,7 @@ import UserRepositoryPrismaORM from '#infra/repository/UserRepositoryPrismaORM.j
 import { PrismaClient } from '#prisma/client'
 import { createDummyRolePrismaORM } from '#__tests__/factories/RoleFactory.js'
 import { createDummyUserPrismaORM } from '#__tests__/factories/UserFactory.js'
+import UserRoleRepositoryPrismaORM from '#infra/repository/rbac/UserRoleRepositoryPrismaORM.js'
 
 const adapter = new PrismaPg({ connectionString: inject('testPostgresURL') })
 const prisma = new PrismaClient({ adapter })
@@ -70,58 +71,102 @@ describe('UserRepositoryPrismaORM', () => {
 			const foundUser = await userRepository.findById('non-existent-id')
 			expect(foundUser).toBeNull()
 		})
+		it('should return empty roles array when user has no roles', async () => {
+			let dummyUserWithoutRoles = await createDummyUserPrismaORM(prisma, {
+				email: 'another@bar.com',
+				roles: [],
+			})
+			const foundUser = await userRepository.findById(dummyUserWithoutRoles.id)
+			expect(foundUser).not.toBeNull()
+			expect(foundUser!.roles).toEqual([])
+		})
+	})
+	describe('findByEmail', () => {
+		let dummyRole: Role
+		let dummyUser: User
+		beforeEach(async () => {
+			await prisma.$executeRawUnsafe('TRUNCATE TABLE "UserRole" RESTART IDENTITY CASCADE')
+			await prisma.$executeRawUnsafe('TRUNCATE TABLE "User" RESTART IDENTITY CASCADE')
+			await prisma.$executeRawUnsafe('TRUNCATE TABLE "Role" RESTART IDENTITY CASCADE')
+			dummyRole = await createDummyRolePrismaORM(prisma, {
+				name: 'ROLE1',
+				description: 'Test Role 1',
+			})
+			dummyUser = await createDummyUserPrismaORM(prisma, {
+				roles: [dummyRole],
+			})
+		})
+		it('should find user by email with roles', async () => {
+			const foundUser = await userRepository.findByEmail(dummyUser.email)
+			expect(foundUser).not.toBeNull()
+			expect(foundUser!.roles.length).toBe(1)
+			expect(foundUser!.roles[0]!.id).toBe(dummyRole.id)
+		})
 	})
 
-	it('should find user by email with roles', async () => {
-		await userRoleRepository.assignRoleToUser(dummyUser.id, dummyRole.id)
-		const foundUser = await userRepository.findByEmail(dummyUser.email.value)
-		expect(foundUser).not.toBeNull()
-		expect(foundUser!.roles.length).toBe(1)
-		expect(foundUser!.roles[0]!.id).toBe(dummyRole.id)
+	describe('updateUser', () => {
+		let dummyRole: Role
+		let dummyUser: User
+		beforeEach(async () => {
+			await prisma.$executeRawUnsafe('TRUNCATE TABLE "UserRole" RESTART IDENTITY CASCADE')
+			await prisma.$executeRawUnsafe('TRUNCATE TABLE "User" RESTART IDENTITY CASCADE')
+			await prisma.$executeRawUnsafe('TRUNCATE TABLE "Role" RESTART IDENTITY CASCADE')
+			dummyRole = await createDummyRolePrismaORM(prisma, {
+				name: 'ROLE1',
+				description: 'Test Role 1',
+			})
+			dummyUser = await createDummyUserPrismaORM(prisma, {
+				roles: [dummyRole],
+			})
+		})
+		it('should update user data and preserve roles', async () => {
+			const user = await userRepository.findById(dummyUser.id)
+			user!.updateData({ name: 'Updated Name' })
+			const updatedUser = await userRepository.updateUser(user!)
+			expect(updatedUser).not.toBeNull()
+			expect(updatedUser!.name).toBe('Updated Name')
+			expect(updatedUser!.roles.length).toBe(1)
+			expect(updatedUser!.roles[0]!.id).toBe(dummyRole.id)
+		})
+		it('should update user data and remove roles when no roles are provided', async () => {
+			let userRoleRepository = new UserRoleRepositoryPrismaORM(prisma)
+			const dummyRole2 = await createDummyRolePrismaORM(prisma, {
+				name: 'ROLE2',
+				description: 'Test Role 2',
+			})
+			await userRoleRepository.assignRoleToUser(dummyUser.id, dummyRole2.id)
+			const user = await userRepository.findById(dummyUser.id)
+			user!.updateData({ name: 'Updated Name' })
+			const updatedUser = await userRepository.updateUser(user!)
+			expect(updatedUser).not.toBeNull()
+			expect(updatedUser!.roles.length).toBe(2)
+			const roleIds = updatedUser!.roles.map((r) => r.id).sort()
+			expect(roleIds).toEqual([dummyRole.id, dummyRole2.id].sort())
+		})
 	})
 
-	it('should preserve roles after updateUser', async () => {
-		await userRoleRepository.assignRoleToUser(dummyUser.id, dummyRole.id)
-		const user = (await userRepository.findById(dummyUser.id))!
-		user.name = 'Updated Name'
-		const updatedUser = await userRepository.updateUser(user)
-		expect(updatedUser).not.toBeNull()
-		expect(updatedUser!.roles.length).toBe(1)
-		expect(updatedUser!.roles[0]!.id).toBe(dummyRole.id)
-
-		const refetched = await userRepository.findById(dummyUser.id)
-		expect(refetched!.roles.length).toBe(1)
-		expect(refetched!.roles[0]!.id).toBe(dummyRole.id)
-	})
-
-	it('should preserve roles after updateUser when multiple roles exist', async () => {
-		const secondRole = Role.create('ROLE2', null)
-		await roleRepository.createRole(secondRole)
-		await userRoleRepository.assignRoleToUser(dummyUser.id, dummyRole.id)
-		await userRoleRepository.assignRoleToUser(dummyUser.id, secondRole.id)
-
-		const user = (await userRepository.findById(dummyUser.id))!
-		user.name = 'Updated Name'
-		const updatedUser = await userRepository.updateUser(user)
-		expect(updatedUser).not.toBeNull()
-		expect(updatedUser!.roles.length).toBe(2)
-		const roleIds = updatedUser!.roles.map((r) => r.id).sort()
-		expect(roleIds).toEqual([dummyRole.id, secondRole.id].sort())
-	})
-
-	it('should return user with roles in findAll', async () => {
-		await userRoleRepository.assignRoleToUser(dummyUser.id, dummyRole.id)
-		const users = await userRepository.findAll()
-		expect(users.length).toBeGreaterThanOrEqual(1)
-		const foundUser = users.find((u) => u.id === dummyUser.id)
-		expect(foundUser).not.toBeUndefined()
-		expect(foundUser!.roles.length).toBe(1)
-		expect(foundUser!.roles[0]!.id).toBe(dummyRole.id)
-	})
-
-	it('should return empty roles array when user has no roles', async () => {
-		const foundUser = await userRepository.findById(dummyUser.id)
-		expect(foundUser).not.toBeNull()
-		expect(foundUser!.roles).toEqual([])
+	describe('findAll', () => {
+		let dummyRole: Role
+		let dummyUser: User
+		beforeEach(async () => {
+			await prisma.$executeRawUnsafe('TRUNCATE TABLE "UserRole" RESTART IDENTITY CASCADE')
+			await prisma.$executeRawUnsafe('TRUNCATE TABLE "User" RESTART IDENTITY CASCADE')
+			await prisma.$executeRawUnsafe('TRUNCATE TABLE "Role" RESTART IDENTITY CASCADE')
+			dummyRole = await createDummyRolePrismaORM(prisma, {
+				name: 'ROLE1',
+				description: 'Test Role 1',
+			})
+			dummyUser = await createDummyUserPrismaORM(prisma, {
+				roles: [dummyRole],
+			})
+		})
+		it('should return user with roles in findAll', async () => {
+			const users = await userRepository.findAll()
+			expect(users.length).toBeGreaterThanOrEqual(1)
+			const foundUser = users.find((u) => u.id === dummyUser.id)
+			expect(foundUser).not.toBeUndefined()
+			expect(foundUser!.roles.length).toBe(1)
+			expect(foundUser!.roles[0]!.id).toBe(dummyRole.id)
+		})
 	})
 })

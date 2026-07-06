@@ -35,15 +35,16 @@ import { create } from 'node:domain'
 import { createDummyRole } from '#__tests__/factories/RoleFactory.js'
 import GetUserUseCase from '#application/useCases/user/GetUserUseCase.js'
 import { hashPortMock } from '#application/ports/__mocks__/HashPortMock.js'
+import ListUsersUseCase from '#application/useCases/user/ListUsersUseCase.js'
 
 let assignRoleToUserUseCase: AssignRoleToUserUseCase
 let removeRoleFromUserUseCase: RemoveRoleFromUserUseCase
 let userRepository: UserRepositoryMemory
 let roleRepository: RoleRepositoryMemory
-let server: ExpressAdapter
 
 describe('UserController', () => {
 	describe('POST /user/:userId/roles/:roleId', () => {
+		let server: ExpressAdapter
 		let dummyUser: User
 		let dummyRole: Role
 		let authMiddlewareMock: any
@@ -90,6 +91,7 @@ describe('UserController', () => {
 		})
 	})
 	describe('DELETE /user/:userId/roles/:roleId', () => {
+		let server: ExpressAdapter
 		let dummyUser: User
 		let dummyRole: Role
 		let authMiddlewareMock: any
@@ -144,6 +146,7 @@ describe('UserController', () => {
 		})
 	})
 	describe('GET /user/:userId/roles', () => {
+		let server: ExpressAdapter
 		let dummyUser: User
 		let dummyRole: Role
 		let authMiddlewareMock: any
@@ -191,6 +194,7 @@ describe('UserController', () => {
 		})
 	})
 	describe('GET /user/:userId/permissions', () => {
+		let server: ExpressAdapter
 		let dummyUser: User
 		let dummyRole: Role
 		let dummyPermission: Permission
@@ -245,6 +249,7 @@ describe('UserController', () => {
 		})
 	})
 	describe('GET /user/:userId/can', () => {
+		let server: ExpressAdapter
 		let dummyUser: User
 		let dummyRole: Role
 		let dummyPermission: Permission
@@ -298,7 +303,7 @@ describe('UserController', () => {
 			expect(res.body).toEqual({ data: { can: true } })
 		})
 	})
-	describe.only('PATCH /user/:userId', () => {
+	describe('PATCH /user/:userId', () => {
 		let server: ExpressAdapter
 		let userRepository: UserRepository
 		let dummyUser: User
@@ -314,7 +319,7 @@ describe('UserController', () => {
 				mailPortMock,
 				templateRendererPortMock,
 				'http://localhost:3000',
-				hashPortMock
+				hashPortMock,
 			)
 		})
 		it('should return 200 and updated user data', async () => {
@@ -336,12 +341,11 @@ describe('UserController', () => {
 				.patch(`/user/${dummyUser.id}`)
 				.send({ name: 'Updated Name' })
 			expect(res.status).toBe(200)
-			console.log(res.body)
 			expect(res.body.data).toEqual({
 				id: dummyUser.id,
 				name: 'Updated Name',
 				email: dummyUser.email,
-				birthDate: dummyUser.birthDate,
+				birthDate: dummyUser.birthDate.toISOString(),
 			})
 		})
 		it('should return 403 when trying to update another user', async () => {
@@ -519,7 +523,7 @@ describe('UserController', () => {
 		let getAccountUseCase: GetAccountUseCase
 		let userRepository: UserRepository
 		beforeEach(() => {
-			server = createTestServer() 
+			server = createTestServer()
 			dummyRole = createDummyRole()
 			dummyUser = createDummyUser({ roles: [dummyRole] })
 			userRepository = new UserRepositoryMemory([dummyUser])
@@ -618,6 +622,51 @@ describe('UserController', () => {
 					name: role.name.value,
 				})),
 			})
+		})
+	})
+
+	describe('GET /users', () => {
+		let server: ExpressAdapter
+		let dummyUser: User
+		let dummyRole: Role
+		let listUsersUseCase: ListUsersUseCase
+		let userRepository: UserRepository
+		beforeEach(() => {
+			server = createTestServer()
+			dummyRole = createDummyRole()
+			dummyUser = createDummyUser({ roles: [dummyRole] })
+			userRepository = new UserRepositoryMemory([dummyUser])
+			listUsersUseCase = new ListUsersUseCase(userRepository, loggerPortMock)
+			new UserController(
+				null as any,
+				server,
+				null as any,
+				authMiddlewareMock,
+				null as any,
+				listUsersUseCase,
+				null as any,
+				null as any,
+				userRepository,
+				rateLimiterMock,
+				null as any,
+			)
+			server.registerErrorHandler()
+		})
+		it('should return 200 and the list of users', async () => {
+			const res = await request(server.app).get(`/users`)
+			expect(res.status).toBe(200)
+			expect(res.body.data).toEqual([
+				{
+					id: dummyUser.id,
+					name: dummyUser.name,
+					email: dummyUser.email,
+					birthDate: dummyUser.birthDate.toISOString(),
+					roles: dummyUser.roles.map((role) => ({
+						id: role.id,
+						name: role.name.value,
+					})),
+				},
+			])
 		})
 	})
 })

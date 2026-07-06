@@ -13,7 +13,7 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import { afterAll, beforeEach, describe, expect, inject, it } from 'vitest'
 
 const adapter = new PrismaPg({ connectionString: inject('testPostgresURL') })
-const prisma = new PrismaClient({ adapter, log: ['query', 'info', 'warn', 'error'] })
+const prisma = new PrismaClient({ adapter })
 
 const trackRepository = new TrackRepositoryPrismaORM(prisma)
 
