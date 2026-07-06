@@ -1,5 +1,3 @@
-import { SignupSchema } from '#application/DTOs/SignupInputDTO.js'
-import { UserUpdateSchema } from '#application/DTOs/user/UserUpdateInputDTO.js'
 import ResourceNotFoundError from '#application/errors/ResourceNotFoundError.js'
 import type { RoleRepository } from '#application/ports/RoleRepository.js'
 import type { UserRepository } from '#application/ports/UserRepository.js'
@@ -15,6 +13,7 @@ import ForbiddenError from '#infra/errors/ForbiddenError.js'
 import type { HttpServerPort } from '#infra/http/HttpServerPort.js'
 import type AuthMiddleware from '#infra/http/middlewares/AuthMiddleware.js'
 import type RateLimitMiddleware from '#infra/http/middlewares/RateLimitMiddleware.js'
+import { SignupSchema, UserUpdateSchema } from '#infra/http/schemas/UsersSchemas.js'
 
 class UserController {
 	public constructor(
@@ -36,7 +35,10 @@ class UserController {
 			async (_params: any, body: any, _query: any) => {
 				const input = SignupSchema.parse(body)
 				await this.signUpUserCase.execute(input)
-				return { message: 'User created successfully' }
+				return {
+					statusCode: 201,
+					message: 'User created successfully',
+				}
 			},
 			[this.signupRateLimiter.handle()],
 		)
@@ -54,10 +56,10 @@ class UserController {
 
 		this.httpServer.register(
 			'get',
-			'/user/:id',
+			'/user/:userId',
 			async (params: any, _body: any, _query: any) => {
-				const { id } = params
-				const output = await this.getUserUseCase.execute(id)
+				const { userId } = params
+				const output = await this.getUserUseCase.execute(userId)
 				return { body: output }
 			},
 			[this.authMiddleware.handle()],
@@ -65,14 +67,14 @@ class UserController {
 
 		this.httpServer.register(
 			'patch',
-			'/user/:id',
+			'/user/:userId',
 			async (params: any, body: any, _query: any, req: any) => {
-				const { id } = params
-				if (req.user.userId !== id) {
+				const { userId } = params
+				if (req.user.userId !== userId) {
 					throw new ForbiddenError('You can only update your own account')
 				}
 				const input = UserUpdateSchema.parse(body)
-				const output = await this.updateUserUseCase.execute(id, input)
+				const output = await this.updateUserUseCase.execute(userId, input)
 				return { body: output }
 			},
 			[this.authMiddleware.handle()],
@@ -144,19 +146,21 @@ class UserController {
 		)
 
 		this.httpServer.register(
-			"get",
-			"/user/:userId/can",
+			'get',
+			'/user/:userId/can',
 			async (params: any, _body: any, query: any) => {
 				const { userId } = params
 				const { operation, resource } = query
 				if (!operation || !resource) {
-					throw new BadRequestError("Missing operation or resource query parameters")
+					throw new BadRequestError('Missing operation or resource query parameters')
 				}
 				const user = await this.userRepository.findById(userId)
 				if (!user) {
-					throw new ResourceNotFoundError("User not found")
+					throw new ResourceNotFoundError('User not found')
 				}
-				const hasPermission = user.roles.some((role) => role.hasPermission(operation, resource))
+				const hasPermission = user.roles.some((role) =>
+					role.hasPermission(operation, resource),
+				)
 				return { data: { can: hasPermission } }
 			},
 			[this.authMiddleware.handle()],

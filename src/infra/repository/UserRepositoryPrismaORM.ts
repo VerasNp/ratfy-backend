@@ -35,9 +35,9 @@ class UserRepositoryPrismaORM implements UserRepository {
 				data: {
 					id: user.id,
 					name: user.name,
-					email: user.email.value,
-					password: user.password.value,
-					birthDate: user.birthDate.value,
+					email: user.email,
+					password: user.password,
+					birthDate: user.birthDate,
 				},
 			})
 			return User.restore(
@@ -90,9 +90,9 @@ class UserRepositoryPrismaORM implements UserRepository {
 					},
 					data: {
 						name: userData.name,
-						email: userData.email.value,
-						password: userData.password.value,
-						birthDate: userData.birthDate.value,
+						email: userData.email,
+						password: userData.password,
+						birthDate: userData.birthDate,
 						verifiedAt: userData.verifiedAt || null,
 					},
 				})
@@ -113,9 +113,9 @@ class UserRepositoryPrismaORM implements UserRepository {
 			updatedUser = User.restore(
 				userData.id,
 				userData.name,
-				userData.email.value,
-				userData.password.value,
-				userData.birthDate.value,
+				userData.email,
+				userData.password,
+				userData.birthDate,
 				userData.verifiedAt || null,
 				userData.roles,
 			)

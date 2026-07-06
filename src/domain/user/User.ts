@@ -6,12 +6,12 @@ import Password from './Password'
 
 class User {
 	public readonly id: string
-	public name: string
-	public email: Email
-	public password: Password
-	public birthDate: BirthDate
-	public verifiedAt: Date | null
-	public roles: Role[] = []
+	private _name: string
+	private _email: Email
+	private _password: Password
+	private _birthDate: BirthDate
+	private _verifiedAt: Date | null
+	private _roles: Role[] = []
 
 	private constructor(
 		id: string,
@@ -23,12 +23,12 @@ class User {
 		roles: Role[] = [],
 	) {
 		this.id = id
-		this.name = name
-		this.email = email
-		this.password = password
-		this.birthDate = birthDate
-		this.verifiedAt = verifiedAt
-		this.roles = roles
+		this._name = name
+		this._email = email
+		this._password = password
+		this._birthDate = birthDate
+		this._verifiedAt = verifiedAt
+		this._roles = roles
 	}
 
 	public static create(
@@ -72,35 +72,73 @@ class User {
 	}
 
 	public verifyEmail(): void {
-		this.verifiedAt = new Date()
+		this._verifiedAt = new Date()
 	}
 
 	public isEmailVerified(): boolean {
-		return this.verifiedAt !== null
+		return this._verifiedAt !== null
 	}
 
 	public changePassword(passwordHash: string): void {
-		this.password = Password.fromHash(passwordHash)
+		this._password = Password.fromHash(passwordHash)
+	}
+
+	public changeEmail(email: string): void {
+		this._email = new Email(email)
+		this._verifiedAt = null
+	}
+
+	public updateData(data: { name?: string; birthDate?: Date }): void {
+		if (data.name !== undefined) {
+			this._name = data.name
+		}
+		if (data.birthDate !== undefined) {
+			this._birthDate = new BirthDate(data.birthDate)
+		}
 	}
 
 	public assignRole(role: Role): void {
-		const alreadyAssigned = this.roles.some((r) => r.id === role.id)
+		const alreadyAssigned = this._roles.some((r) => r.id === role.id)
 		if (alreadyAssigned) {
-			throw new ConflictError(`Role ${role.name.value} already assigned to user ${this.name}`)
+			throw new ConflictError(`Role ${role.name.value} already assigned to user ${this._name}`)
 		}
-		this.roles.push(role)
+		this._roles.push(role)
 	}
 
 	public removeRole(role: Role): void {
-		const roleIndex = this.roles.findIndex((r) => r.id === role.id)
+		const roleIndex = this._roles.findIndex((r) => r.id === role.id)
 		if (roleIndex === -1) {
-			throw new ConflictError(`Role ${role.name.value} not assigned to user ${this.name}`)
+			throw new ConflictError(`Role ${role.name.value} not assigned to user ${this._name}`)
 		}
-		this.roles.splice(roleIndex, 1)
+		this._roles.splice(roleIndex, 1)
 	}
 
 	public hasRole(role: Role): boolean {
-		return this.roles.some((r) => r.id === role.id)
+		return this._roles.some((r) => r.id === role.id)
+	}
+
+	public get name(): string {
+		return this._name
+	}
+
+	public get email(): string {
+		return this._email.value
+	}
+
+	public get birthDate(): Date {
+		return this._birthDate.value
+	}
+
+	public get verifiedAt(): Date | null {
+		return this._verifiedAt
+	}
+
+	public get roles(): Role[] {
+		return this._roles
+	}
+
+	public get password(): string {
+		return this._password.value
 	}
 }
 
