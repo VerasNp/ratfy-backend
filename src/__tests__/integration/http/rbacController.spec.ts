@@ -83,16 +83,14 @@ describe('RBACController', () => {
 			server.registerErrorHandler()
 		})
 		describe('POST /rbac/operations', () => {
-			it('should return 204 on success', async () => {
+			it('should return 200 on success', async () => {
 				const res = await request(server.app).post('/rbac/operations').send({
 					name: 'TEST',
 					description: 'Foo bar',
 				})
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
-						message: 'Operation created successfully',
-					},
+					message: 'Operation created successfully',
 				})
 			})
 
@@ -102,10 +100,11 @@ describe('RBACController', () => {
 				})
 				expect(res.status).toBe(400)
 				expect(res.body).toEqual({
-					error: 'Validation error',
-					details: [
+					message: 'Invalid input',
+					errors: [
 						{
 							message: 'Name is required',
+							path: ['name'],
 						},
 					],
 				})
@@ -135,7 +134,7 @@ describe('RBACController', () => {
 				const res = await request(server.app).get('/rbac/operations')
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: [
+					data: [
 						{
 							id: expect.any(String),
 							name: 'TEST',
@@ -154,7 +153,7 @@ describe('RBACController', () => {
 				const res = await request(server.app).get(`/rbac/operations/TEST`)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
+					data: {
 						id: expect.any(String),
 						name: 'TEST',
 						description: 'Foo bar',
@@ -183,9 +182,7 @@ describe('RBACController', () => {
 				})
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
-						message: 'Operation updated successfully',
-					},
+					message: 'Operation updated successfully',
 				})
 			})
 
@@ -211,9 +208,7 @@ describe('RBACController', () => {
 				const res = await request(server.app).delete(`/rbac/operations/TEST`)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
-						message: 'Operation deleted successfully',
-					},
+					message: 'Operation deleted successfully',
 				})
 			})
 			it("should return 404 if the operation doesn't exist", async () => {
@@ -265,12 +260,10 @@ describe('RBACController', () => {
 				})
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
-						message: 'Resource created successfully',
-						data: {
-							id: expect.any(String),
-							name: 'TEST',
-						},
+					message: 'Resource created successfully',
+					data: {
+						id: expect.any(String),
+						name: 'TEST',
 					},
 				})
 			})
@@ -290,10 +283,11 @@ describe('RBACController', () => {
 				const res = await request(server.app).post('/rbac/resources').send({})
 				expect(res.status).toBe(400)
 				expect(res.body).toEqual({
-					error: 'Validation error',
-					details: [
+					message: 'Invalid input',
+					errors: [
 						{
 							message: 'Name is required',
+							path: ['name'],
 						},
 					],
 				})
@@ -307,7 +301,7 @@ describe('RBACController', () => {
 				const res = await request(server.app).get('/rbac/resources')
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: [
+					data: [
 						{
 							id: expect.any(String),
 							name: 'TEST',
@@ -324,7 +318,7 @@ describe('RBACController', () => {
 				const res = await request(server.app).get(`/rbac/resources/TEST`)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
+					data: {
 						id: expect.any(String),
 						name: 'TEST',
 					},
@@ -349,12 +343,10 @@ describe('RBACController', () => {
 				})
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
-						message: 'Resource updated successfully',
-						data: {
-							id: expect.any(String),
-							name: 'UPDATED_TEST',
-						},
+					message: 'Resource updated successfully',
+					data: {
+						id: expect.any(String),
+						name: 'UPDATED_TEST',
 					},
 				})
 			})
@@ -393,12 +385,10 @@ describe('RBACController', () => {
 				const res = await request(server.app).delete(`/rbac/resources/TEST`)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
-						message: 'Resource deleted successfully',
-						data: {
-							id: expect.any(String),
-							name: 'TEST',
-						},
+					message: 'Resource deleted successfully',
+					data: {
+						id: expect.any(String),
+						name: 'TEST',
 					},
 				})
 			})
@@ -510,7 +500,7 @@ describe('RBACController', () => {
 				const res = await request(server.app).get('/rbac/permissions')
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: [
+					data: [
 						{
 							id: expect.any(String),
 							label: 'TEST_OPERATION:TEST_RESOURCE',
@@ -540,7 +530,7 @@ describe('RBACController', () => {
 				)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
+					data: {
 						id: expect.any(String),
 						operationId: dummyOperation.id,
 						resourceId: dummyResource.id,
@@ -720,7 +710,7 @@ describe('RBACController', () => {
 				const res = await request(server.app).get('/rbac/roles')
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: [
+					data: [
 						{
 							id: expect.any(String),
 							name: 'TEST_ROLE',
@@ -741,7 +731,7 @@ describe('RBACController', () => {
 				)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: {
+					data: {
 						id: expect.any(String),
 						name: 'TEST_ROLE',
 						description: 'Test role description',
@@ -843,7 +833,7 @@ describe('RBACController', () => {
 				)
 				expect(res.status).toBe(200)
 				expect(res.body).toEqual({
-					body: [
+					data: [
 						{
 							id: createdPermissionResponse.body.data.id,
 							operationId: createdPermissionResponse.body.data.permission.id,

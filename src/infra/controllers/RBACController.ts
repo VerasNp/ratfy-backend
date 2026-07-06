@@ -59,9 +59,7 @@ class RBACController {
 					description: operationBody.description ?? null,
 				})
 				return {
-					body: {
-						message: 'Operation created successfully',
-					},
+					message: 'Operation created successfully',
 				}
 			},
 		)
@@ -114,9 +112,7 @@ class RBACController {
 					description: operationBody.description ?? null,
 				})
 				return {
-					body: {
-						message: 'Operation updated successfully',
-					},
+					message: 'Operation updated successfully',
 				}
 			},
 		)
@@ -130,9 +126,7 @@ class RBACController {
 					operationName,
 				})
 				return {
-					body: {
-						message: 'Operation deleted successfully',
-					},
+					message: 'Operation deleted successfully',
 				}
 			},
 		)
@@ -146,10 +140,8 @@ class RBACController {
 					name: resourceBody.name,
 				})
 				return {
-					body: {
-						message: 'Resource created successfully',
-						data: createdResource,
-					},
+					message: 'Resource created successfully',
+					body: createdResource,
 				}
 			},
 		)
@@ -198,10 +190,8 @@ class RBACController {
 					name: resourceBody.name,
 				})
 				return {
-					body: {
-						message: 'Resource updated successfully',
-						data: updatedResource,
-					},
+					message: 'Resource updated successfully',
+					body: updatedResource,
 				}
 			},
 		)
@@ -215,10 +205,8 @@ class RBACController {
 					nameResourceToDelete: resourceName,
 				})
 				return {
-					body: {
-						message: 'Resource deleted successfully',
-						data: deletedResource,
-					},
+					message: 'Resource deleted successfully',
+					body: deletedResource,
 				}
 			},
 		)
@@ -234,7 +222,7 @@ class RBACController {
 				})
 				return {
 					message: 'Permission created successfully',
-					data: createdPermission,
+					body: createdPermission,
 				}
 			},
 		)
@@ -249,7 +237,7 @@ class RBACController {
 				})
 				return {
 					message: 'Permission deleted successfully',
-					data: deletedPermission,
+					body: deletedPermission,
 				}
 			},
 		)
@@ -296,7 +284,7 @@ class RBACController {
 				})
 				return {
 					message: 'Role created successfully',
-					data: createdRole,
+					body: createdRole,
 				}
 			},
 		)
@@ -313,7 +301,7 @@ class RBACController {
 				})
 				return {
 					message: 'Role updated successfully',
-					data: updatedRole,
+					body: updatedRole,
 				}
 			},
 		)
@@ -326,7 +314,7 @@ class RBACController {
 				const deletedRole = await this.deleteRoleUseCase.execute(roleId)
 				return {
 					message: 'Role deleted successfully',
-					data: deletedRole,
+					body: deletedRole,
 				}
 			},
 		)
@@ -378,7 +366,7 @@ class RBACController {
 				)
 				return {
 					message: 'Permission granted to role successfully',
-					data: grantedPermission,
+					body: grantedPermission,
 				}
 			},
 		)
@@ -394,7 +382,7 @@ class RBACController {
 				)
 				return {
 					message: 'Permission revoked from role successfully',
-					data: revokedPermission,
+					body: revokedPermission,
 				}
 			},
 		)
