@@ -27,7 +27,7 @@ class ForgotPasswordUseCase {
 		}
 
 		const token = this.tokenService.generateToken(
-			{ userId: user.id, email: user.email.value },
+			{ userId: user.id, email: user.email },
 			this._RESET_TOKEN_EXPIRE_TIME,
 		)
 
@@ -37,14 +37,14 @@ class ForgotPasswordUseCase {
 		})
 
 		await this.mailService.sendMail(
-			user.email.value,
+			user.email,
 			'Password Reset Request',
 			html,
 		)
 
 		this.loggerService.info('ForgotPassword: Reset email sent', {
 			userId: user.id,
-			email: user.email.value,
+			email: user.email,
 		})
 	}
 }

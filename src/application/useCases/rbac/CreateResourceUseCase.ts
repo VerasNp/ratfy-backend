@@ -16,7 +16,7 @@ class CreateResourceUseCase {
 		)
 		if (foundResource) {
 			this.loggerService.warn(
-				`Resource with name ${resourceToBeCreated.name.value} already exists`,
+				`Resource with name ${resourceToBeCreated.name} already exists`,
 				{
 					origin: 'CreateResourceUseCase',
 				},

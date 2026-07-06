@@ -30,7 +30,7 @@ class VerifyUserMailUseCase {
 			this.loggerService.warn('VerifyUserMailUseCase: User not found', { userId: payload.userId })
 			throw new UserNotFoundError()
 		}
-		if (user.email.value !== payload.email) {
+		if (user.email !== payload.email) {
 			this.loggerService.error('VerifyUserMailUseCase: email mismatch', {
 				userId: payload.userId,
 				email: payload.email,

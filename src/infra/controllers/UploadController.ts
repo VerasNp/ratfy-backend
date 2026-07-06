@@ -109,7 +109,7 @@ class UploadController {
 		this.httpServer.register(
 			'post',
 			'/playlists/:id/cover',
-			async (params, _body, _query, req) => {
+			async (params: any, _body: any, _query: any, req: any) => {
 				const file = req.file as Express.Multer.File | undefined
 				if (!file) throw new BadRequestError('No file provided')
 				const type = await fileTypeFromBuffer(file.buffer)

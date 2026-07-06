@@ -11,20 +11,20 @@ export class UpdatePlaylistUseCase {
     if (!exists) throw new PlaylistNotFoundError(id)
 
     const dataToUpdate: Partial<Playlist> = {}
-    
+
     if (dto.name !== undefined) {
       dataToUpdate.name = dto.name
     }
-    
+
     if (dto.isPublic !== undefined) {
       dataToUpdate.isPublic = dto.isPublic
     }
-        
+
     await this.playlistRepo.update(id, dataToUpdate)
   }
 }
 
 type Input = {
-  name?: string
-  isPublic?: boolean
+  name?: string | undefined
+  isPublic?: boolean | undefined
 }

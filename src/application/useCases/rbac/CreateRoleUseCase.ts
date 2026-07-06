@@ -13,15 +13,15 @@ class CreateRoleUseCase {
 		const roleToCreate = Role.create(input.name, input.description ?? null)
 		const foundRole = await this.roleRepository.findRoleByName(roleToCreate.name.value)
 		if (foundRole) {
-			this.loggerService.warn(`Role with name ${roleToCreate.name.value} already exists`, {
+			this.loggerService.warn(`Role with name ${roleToCreate.name} already exists`, {
 				origin: 'CreateRoleUseCase',
 			})
 			throw new ResourceAlreadyExistsError(
-				`Role with name ${roleToCreate.name.value} already exists`,
+				`Role with name ${roleToCreate.name} already exists`,
 			)
 		}
 		const createdRole = await this.roleRepository.createRole(roleToCreate)
-		this.loggerService.info(`Role created successfully: ${createdRole.name.value}`, {
+		this.loggerService.info(`Role created successfully: ${createdRole.name}`, {
 			origin: 'CreateRoleUseCase',
 		})
 		return {

@@ -27,22 +27,22 @@ class ResendVerificationEmailUseCase {
 		if (user.isEmailVerified()) {
 			this.loggerService.warn('ResendVerificationEmail: User email already verified', {
 				userId: user.id,
-				email: user.email.value,
+				email: user.email,
 			})
 			return
 		}
 		const token = this.tokenService.generateToken(
-			{ userId: user.id, email: user.email.value },
+			{ userId: user.id, email: user.email },
 			60 * 60 * 24,
 		)
 		const html = await this.templateRendererService.render('signup', {
 			name: user.name,
 			confirmationUrl: `${this.appUrl}/verify-email?token=${token}`,
 		})
-		await this.mailService.sendMail(user.email.value, 'Welcome to our app', html)
+		await this.mailService.sendMail(user.email, 'Welcome to our app', html)
 		this.loggerService.info('ResendVerificationEmail: Resent verification email', {
 			userId: user.id,
-			email: user.email.value,
+			email: user.email,
 		})
 	}
 }

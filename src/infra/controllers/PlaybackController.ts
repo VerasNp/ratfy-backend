@@ -22,7 +22,7 @@ class PlaybackController {
 		this.httpServer.register(
 			'put',
 			'/playback/state',
-			async (_params, body, _query, req) => {
+			async (_params: any, body: any, _query: any, req: any) => {
 				const { trackId, positionMs } = SetPlaybackSchema.parse(body)
 				const state: PlaybackState = {
 					trackId,
@@ -40,7 +40,7 @@ class PlaybackController {
 		this.httpServer.register(
 			'get',
 			'/playback/state',
-			async (_params, _body, _query, req) => {
+			async (_params: any, _body: any, _query: any, req: any) => {
 				try {
 					const state = await this.cacheService.getPlaybackState(req.user.userId)
 					if (!state) return {
@@ -63,7 +63,7 @@ class PlaybackController {
 		this.httpServer.register(
 			'delete',
 			'/playback/state',
-			async (_params, _body, _query, req) => {
+			async (_params: any, _body: any, _query: any, req: any) => {
 				await this.cacheService.clearPlaybackState(req.user.userId)
 				return undefined
 			},
