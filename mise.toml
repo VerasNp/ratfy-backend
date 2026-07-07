@@ -1,0 +1,6 @@
+[tools]
+node = "24.15.0"
+npm = "11.12.1"
+
+[env]
+_.file = '.env'

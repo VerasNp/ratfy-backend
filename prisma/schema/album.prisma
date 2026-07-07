@@ -1,0 +1,17 @@
+model Album {
+    id               String        @id @default(uuid())
+    name             String
+    albumType        String
+    releaseDate      String
+    releasePrecision String
+    totalTracks      Int
+    label            String
+    artists          AlbumArtist[]
+    tracks           Track[]
+    isPublic         Boolean       @default(false)
+    createdAt        DateTime      @default(now())
+    updatedAt        DateTime      @updatedAt
+    deletedAt        DateTime?
+    coverImageKey    String?
+    coverImageSize   Int?
+}

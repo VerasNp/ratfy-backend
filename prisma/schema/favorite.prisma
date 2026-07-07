@@ -1,0 +1,19 @@
+enum FavoriteEntityType {
+  TRACK
+  ALBUM
+  ARTIST
+  PLAYLIST
+}
+
+model Favorite {
+  id         String              @id @default(uuid())
+  userId     String
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entityId   String
+  entityType FavoriteEntityType
+  createdAt  DateTime            @default(now())
+
+  @@unique([userId, entityId, entityType])
+  @@index([userId])
+  @@index([entityType])
+}
