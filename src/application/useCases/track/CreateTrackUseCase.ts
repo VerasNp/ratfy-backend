@@ -38,6 +38,7 @@ class CreateTrackUseCase {
 			artists: foundArtists,
 		})
 		const createdTrack = await this.trackRepository.create(track)
+		console.log('Created Track:', createdTrack) // Log the created track for debugging
 		return {
 			id: createdTrack.id,
 			title: createdTrack.title,

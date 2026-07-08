@@ -5,6 +5,7 @@ import type CreateTrackUseCase from '#application/useCases/track/CreateTrackUseC
 import type GetTrackUseCase from '#application/useCases/track/GetTrackUseCase.js'
 import UpdateTrackUseCase from '#application/useCases/track/UpdateTrackUseCase.js'
 import DeleteTrackUseCase from '#application/useCases/track/DeleteTrackUseCase.js'
+import type AuthMiddleware from '#infra/http/middlewares/AuthMiddleware.js'
 
 class TrackController {
 	public constructor(
@@ -14,6 +15,7 @@ class TrackController {
 		private readonly getTrackUseCase: GetTrackUseCase,
 		private readonly updateTrackUseCase: UpdateTrackUseCase,
 		private readonly deleteTrackUseCase: DeleteTrackUseCase,
+		private readonly authMiddleware: AuthMiddleware,
 	) {
 		this.httpServer.register('get', '/tracks', async (_params: any, _body: any, query: any) => {
 			const parsedQuery = TrackSearchSchema.parse(query)
@@ -49,6 +51,7 @@ class TrackController {
 					body: result,
 				}
 			},
+			[this.authMiddleware.handle()],
 		)
 
 		this.httpServer.register(

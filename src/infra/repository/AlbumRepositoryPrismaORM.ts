@@ -46,7 +46,7 @@ class AlbumRepositoryPrismaORM implements AlbumRepository {
 	}
 
 	public async findById(id: string): Promise<Album | null> {
-		const row = await this.orm.album.findUnique({ where: { id }, include: { artists: true } })
+		const row = await this.orm.album.findUnique({ where: { id }, include: { artists: { include: { artist: { include: { user: true } } } } } })
 		return row ? this._toDomain(row) : null
 	}
 
@@ -64,7 +64,7 @@ class AlbumRepositoryPrismaORM implements AlbumRepository {
 			skip: (page - 1) * limit,
 			take: limit,
 			where: { deletedAt: { equals: null } },
-			include: { artists: true },
+			include: { artists: { include: { artist: { include: { user: true } } } } },
 		})
 		return rows.map((row) => this._toDomain(row))
 	}

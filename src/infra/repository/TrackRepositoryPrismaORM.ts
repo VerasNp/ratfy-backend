@@ -49,7 +49,7 @@ class TrackRepositoryPrismaORM implements TrackRepository {
 					},
 				}),
 			},
-			include: { album: true, artists: true },
+			include: { album: true, artists: { include: { user: true } } },
 		})
 		return this._toDomain(row)
 	}
