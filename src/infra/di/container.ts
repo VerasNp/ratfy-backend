@@ -45,7 +45,10 @@ import RevokePermissionFromRoleUseCase from '#application/useCases/rbac/RevokePe
 import UpdateOperationUseCase from '#application/useCases/rbac/UpdateOperationUseCase.js'
 import UpdateResourceUseCase from '#application/useCases/rbac/UpdateResourceUseCase.js'
 import UpdateRoleUseCase from '#application/useCases/rbac/UpdateRoleUseCase.js'
+import CreateTrackUseCase from '#application/useCases/track/CreateTrackUseCase.js'
 import DeleteTrackUseCase from '#application/useCases/track/DeleteTrackUseCase.js'
+import GetTrackUseCase from '#application/useCases/track/GetTrackUseCase.js'
+import UpdateTrackUseCase from '#application/useCases/track/UpdateTrackUseCase.js'
 import { UploadAlbumCoverUseCase } from '#application/useCases/upload/UploadAlbumCoverUseCase.js'
 import { UploadArtistProfileImageUseCase } from '#application/useCases/upload/UploadArtistProfileImageUseCase.js'
 import { UploadPlaylistCoverUseCase } from '#application/useCases/upload/UploadPlaylistCoverUseCase.js'
@@ -65,6 +68,7 @@ import PasswordResetController from '#infra/controllers/PasswordResetController.
 import PlaybackController from '#infra/controllers/PlaybackController.js'
 import PlaylistController from '#infra/controllers/PlaylistController.js'
 import RBACController from '#infra/controllers/RBACController.js'
+import TrackController from '#infra/controllers/TrackController.js'
 import UploadController from '#infra/controllers/UploadController.js'
 import UserController from '#infra/controllers/UserController.js'
 import VerifyEmailController from '#infra/controllers/VerifyEmailController.js'
@@ -206,6 +210,9 @@ container.register({
 	uploadTrackAudioUseCase: asClass(UploadTrackAudioUseCase).scoped(),
 	createAlbumUseCase: asClass(CreateAlbumUseCase).scoped(),
 	updateAlbumUseCase: asClass(UpdateAlbumUseCase).scoped(),
+	createTrackUseCase: asClass(CreateTrackUseCase).scoped(),
+	getTrackUseCase: asClass(GetTrackUseCase).scoped(),
+	updateTrackUseCase: asClass(UpdateTrackUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),
@@ -219,6 +226,7 @@ container.register({
 	playbackController: asClass(PlaybackController).singleton(),
 	uploadController: asClass(UploadController).singleton(),
 	albumController: asClass(AlbumController).singleton(),
+	trackController: asClass(TrackController).singleton(),
 
 	// middlewares
 	authMiddleware: asClass(AuthMiddleware).singleton(),

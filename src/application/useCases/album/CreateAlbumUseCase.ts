@@ -35,8 +35,8 @@ class CreateAlbumUseCase {
 			releasePrecision: createdAlbum.releasePrecision,
 			totalTracks: createdAlbum.totalTracks,
 			artistCredits: createdAlbum.artistCredits.map((artistCredit) => ({
-				id: artistCredit.artist!.id,
-				name: artistCredit.artist!.user!.name,
+				id: artistCredit.artistId,
+				name: artistCredit.name,
 			})),
 		}
 	}

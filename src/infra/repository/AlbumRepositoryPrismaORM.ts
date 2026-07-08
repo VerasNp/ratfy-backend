@@ -28,7 +28,7 @@ class AlbumRepositoryPrismaORM implements AlbumRepository {
 					},
 				},
 			},
-			include: { artists: true },
+			include: { artists: { include: { artist: { include: { user: true } } } } },
 		})
 		return this._toDomain(row)
 	}
@@ -110,6 +110,7 @@ class AlbumRepositoryPrismaORM implements AlbumRepository {
 			albumType: row.albumType,
 			artistCredits: row.artists.map((artist: any) => ({
 				artistId: artist.artistId,
+				name: artist.artist.user.name,
 				albumId: row.id,
 			})),
 			createdAt: row.createdAt,
@@ -123,7 +124,7 @@ class AlbumRepositoryPrismaORM implements AlbumRepository {
 			updatedAt: row.updatedAt,
 			deletedAt: row.deletedAt,
 			coverImageKey: row.coverImageKey,
-			coverImageSize: row.coverImageSize
+			coverImageSize: row.coverImageSize,
 		})
 	}
 }

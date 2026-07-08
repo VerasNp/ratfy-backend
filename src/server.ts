@@ -15,6 +15,7 @@ container.resolve('playbackController')
 container.resolve('favoriteController')
 container.resolve('artistController')
 container.resolve('albumController')
+container.resolve('trackController')
 
 const httpServer = container.resolve<ExpressAdapter>('httpServer')
 httpServer.registerErrorHandler()
