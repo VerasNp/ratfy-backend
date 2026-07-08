@@ -1,4 +1,6 @@
+import CreateAlbumUseCase from '#application/useCases/album/CreateAlbumUseCase.js'
 import DeleteAlbumUseCase from '#application/useCases/album/DeleteAlbumUseCase.js'
+import UpdateAlbumUseCase from '#application/useCases/album/UpdateAlbumUseCase.js'
 import { BecomeArtistUseCase } from '#application/useCases/artist/BecomeArtistUseCase.js'
 import CreateArtistUseCase from '#application/useCases/artist/CreateArtistUseCase.js'
 import DeleteArtistUseCase from '#application/useCases/artist/DeleteArtistUseCase.js'
@@ -55,6 +57,7 @@ import SignupUseCase from '#application/useCases/user/SignupUseCase.js'
 import UpdateUserUseCase from '#application/useCases/user/UpdateUserUseCase.js'
 import { config } from '#config.js'
 import RedisCacheAdapter from '#infra/cache/RedisCacheAdapter.js'
+import AlbumController from '#infra/controllers/AlbumController.js'
 import ArtistController from '#infra/controllers/ArtistController.js'
 import AuthController from '#infra/controllers/AuthController.js'
 import FavoriteController from '#infra/controllers/FavoriteController.js'
@@ -201,6 +204,8 @@ container.register({
 	uploadArtistProfileImageUseCase: asClass(UploadArtistProfileImageUseCase).scoped(),
 	uploadPlaylistCoverUseCase: asClass(UploadPlaylistCoverUseCase).scoped(),
 	uploadTrackAudioUseCase: asClass(UploadTrackAudioUseCase).scoped(),
+	createAlbumUseCase: asClass(CreateAlbumUseCase).scoped(),
+	updateAlbumUseCase: asClass(UpdateAlbumUseCase).scoped(),
 
 	// controller
 	userController: asClass(UserController).singleton(),
@@ -213,6 +218,7 @@ container.register({
 	rbacController: asClass(RBACController).singleton(),
 	playbackController: asClass(PlaybackController).singleton(),
 	uploadController: asClass(UploadController).singleton(),
+	albumController: asClass(AlbumController).singleton(),
 
 	// middlewares
 	authMiddleware: asClass(AuthMiddleware).singleton(),

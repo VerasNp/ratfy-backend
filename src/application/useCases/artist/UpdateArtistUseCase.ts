@@ -5,13 +5,13 @@ import type { LoggerPort } from '#application/ports/LoggerPort.js'
 class UpdateArtistUseCase {
 	public constructor(
 		private readonly artistRepository: ArtistRepository,
-		private readonly logService: LoggerPort,
+		private readonly loggerService: LoggerPort,
 	) {}
 
 	public async execute(artistId: string, input: Input): Promise<Output> {
 		const foundArtist = await this.artistRepository.findById(artistId)
 		if (!foundArtist) {
-			this.logService.warn(`Artist with ID ${artistId} not found when trying to update.`, {
+			this.loggerService.warn(`Artist with ID ${artistId} not found when trying to update.`, {
 				origin: 'UpdateArtistUseCase',
 			})
 			throw new ResourceNotFoundError('Artist not found')

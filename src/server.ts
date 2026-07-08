@@ -13,6 +13,8 @@ container.resolve('rbacController')
 container.resolve('uploadController')
 container.resolve('playbackController')
 container.resolve('favoriteController')
+container.resolve('artistController')
+container.resolve('albumController')
 
 const httpServer = container.resolve<ExpressAdapter>('httpServer')
 httpServer.registerErrorHandler()
